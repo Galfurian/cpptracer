@@ -16,8 +16,7 @@
 /// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 /// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#ifndef CPP_TRACER_HPP
-#define CPP_TRACER_HPP
+#pragma once
 
 #include <set>
 #include <vector>
@@ -141,6 +140,7 @@ class TimeScale
             SEC,
             MS,
             US,
+            NS,
             PS
         } Enum;
 
@@ -168,6 +168,13 @@ class TimeScale
             return timeValue;
         }
 
+        /// @brief Return the scale dimension.
+        /// @return The value of the scale.
+        double getScaledValue()
+        {
+            return timeValue / this->getScaleMagnitude();
+        }
+
         /// @brief Return the string value for the scale.
         /// @return The scale as string.
         std::string scaleToString()
@@ -175,18 +182,20 @@ class TimeScale
             if (scaleValue == SEC) return "s";
             if (scaleValue == MS) return "ms";
             if (scaleValue == US) return "us";
+            if (scaleValue == NS) return "ns";
             if (scaleValue == PS) return "ps";
             return "s";
         }
 
         /// @brief Return the dimension of the scale.
         /// @return The magnitude of the scale.
-        unsigned int getScaleMagnitude()
+        unsigned long int getScaleMagnitude()
         {
             if (scaleValue == SEC) return 1;
             if (scaleValue == MS) return 1e03;
             if (scaleValue == US) return 1e06;
-            if (scaleValue == PS) return 1e09;
+            if (scaleValue == NS) return 1e09;
+            if (scaleValue == PS) return 1e12;
             return 1;
         }
 };
@@ -326,5 +335,3 @@ class CPPTracer
             return str;
         }
 };
-
-#endif /* CPP_TRACER_HH */
