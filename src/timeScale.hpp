@@ -59,5 +59,5 @@ class TimeScale
 
         /// @brief Return the dimension of the scale.
         /// @return The magnitude of the scale.
-        unsigned long int getScaleMagnitude();
+        double getMagnitude();
 };

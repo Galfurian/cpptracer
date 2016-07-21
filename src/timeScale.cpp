@@ -31,7 +31,7 @@ double TimeScale::getValue()
 
 double TimeScale::getScaledValue()
 {
-    return timeValue / static_cast<double>(this->getScaleMagnitude());
+    return timeValue / this->getMagnitude();
 }
 
 std::string TimeScale::scaleToString()
@@ -44,7 +44,7 @@ std::string TimeScale::scaleToString()
     return "s";
 }
 
-unsigned long int TimeScale::getScaleMagnitude()
+double TimeScale::getMagnitude()
 {
     if (scaleValue == SEC) return 1;
     if (scaleValue == MS) return 1e03;

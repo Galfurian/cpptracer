@@ -88,7 +88,7 @@ void VariableTracer::updateTrace(double currentTime)
         return;
     }
 
-    outfile << "#" << (static_cast<unsigned int>(currentTime) * timescale.getScaleMagnitude()) << std::endl;
+    outfile << "#" << static_cast<long unsigned int>(currentTime * timescale.getMagnitude()) << std::endl;
     for (unsigned int it = 0; it < traceList.size(); ++it)
     {
         // Skip unchanged signals, unless it is the first round.
