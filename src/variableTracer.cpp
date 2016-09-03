@@ -69,7 +69,7 @@ void VariableTracer::createTrace()
     outfile << "$upscope $end" << std::endl << std::endl;
     outfile << "$enddefinitions $end" << std::endl << std::endl;
     outfile << std::setprecision(18);
-    outfile << std::fixed;
+    outfile << std::scientific;
 }
 
 void VariableTracer::updateTrace(double currentTime)
