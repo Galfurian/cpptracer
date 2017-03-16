@@ -17,13 +17,14 @@
 
 #include "variableTracer.hpp"
 
-VariableTracer::VariableTracer(std::string _filename, TimeScale _timescale) :
-        filename(_filename),
-        outfile(),
-        traceList(),
-        firstSample(true),
-        timescale(_timescale),
-        nameGenerator()
+VariableTracer::VariableTracer(const std::string & _filename,
+                               const TimeScale & _timescale) :
+    filename(_filename),
+    outfile(),
+    traceList(),
+    firstSample(true),
+    timescale(_timescale),
+    nameGenerator()
 {
     // Nothing to do.
 }
@@ -52,10 +53,12 @@ void VariableTracer::createTrace()
     outfile << "    " << getDateTime() << std::endl;
     outfile << "$end" << std::endl << std::endl;
     outfile << "$version" << std::endl;
-    outfile << "    VariableTracer 2.1.0 - By Galfurian --- Mar 30, 2016" << std::endl;
+    outfile << "    VariableTracer 2.1.0 - By Galfurian --- Mar 30, 2016"
+            << std::endl;
     outfile << "$end" << std::endl << std::endl;
     outfile << "$timescale" << std::endl;
-    outfile << "    " << timescale.getValue() << timescale.scaleToString() << std::endl;
+    outfile << "    " << timescale.getValue() << timescale.scaleToString()
+            << std::endl;
     outfile << "$end" << std::endl << std::endl;
     outfile << "$scope" << std::endl;
     outfile << "    module CPP" << std::endl;
@@ -72,7 +75,7 @@ void VariableTracer::createTrace()
     outfile << std::scientific;
 }
 
-void VariableTracer::updateTrace(double currentTime)
+void VariableTracer::updateTrace(const double & currentTime)
 {
     bool changed = false;
     for (unsigned int it = 0; it < traceList.size(); ++it)
@@ -83,18 +86,21 @@ void VariableTracer::updateTrace(double currentTime)
             break;
         }
     }
-    if (!changed)
+    if (!firstSample && !changed)
     {
         return;
     }
-
-    outfile << "#" << static_cast<long unsigned int>(currentTime * timescale.getMagnitude()) << std::endl;
+    outfile << "#"
+            << static_cast<long unsigned int>(currentTime /
+                                              timescale.getMagnitude())
+            << std::endl;
     for (unsigned int it = 0; it < traceList.size(); ++it)
     {
         // Skip unchanged signals, unless it is the first round.
         if (!firstSample && !traceList.at(it)->hasChanged()) continue;
         // Print the trace.
-        outfile << "r" << traceList.at(it)->getValue() << " " << traceList.at(it)->getSymbol() << std::endl;
+        outfile << "r" << traceList.at(it)->getValue() << " "
+                << traceList.at(it)->getSymbol() << std::endl;
         // Update previous value.
         traceList.at(it)->updatePrevious();
     }

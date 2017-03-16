@@ -23,21 +23,21 @@
 /// @brief A name generator for traces.
 class TraceNameGenerator
 {
-    private:
-        /// Lenght of the name.
-        size_t length;
-        /// Set of already used symbols.
-        std::set<std::string> usedSymbols;
-    public:
+private:
+    /// Lenght of the name.
+    size_t length;
+    /// Set of already used symbols.
+    std::set<std::string> usedSymbols;
+public:
 
-        /// @brief Constructor.
-        /// @param _length The length of the name.
-        TraceNameGenerator(const size_t & _length = 3);
+    /// @brief Constructor.
+    /// @param _length The length of the name.
+    TraceNameGenerator(const size_t & _length = 3);
 
-        /// @brief Destructor.
-        virtual ~TraceNameGenerator();
+    /// @brief Destructor.
+    virtual ~TraceNameGenerator();
 
-        /// @brief Allows to generate a unique name.
-        /// @return The generated name.
-        std::string getUniqueName();
+    /// @brief Allows to generate a unique name.
+    /// @return The generated name.
+    std::string getUniqueName();
 };

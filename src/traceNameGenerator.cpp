@@ -20,8 +20,8 @@
 #include <cstdlib>
 
 TraceNameGenerator::TraceNameGenerator(const size_t & _length) :
-        length(_length),
-        usedSymbols()
+    length(_length),
+    usedSymbols()
 {
     // Nothing to do.
 }

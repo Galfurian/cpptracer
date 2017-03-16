@@ -18,23 +18,23 @@
 #include "timeScale.hpp"
 
 TimeScale::TimeScale(double _timeValue, Enum _scaleValue) :
-        timeValue(_timeValue),
-        scaleValue(_scaleValue)
+    timeValue(_timeValue),
+    scaleValue(_scaleValue)
 {
     // Nothing to do.
 }
 
-double TimeScale::getValue()
+double TimeScale::getValue() const
 {
     return timeValue;
 }
 
-double TimeScale::getScaledValue()
+double TimeScale::getScaledValue() const
 {
-    return timeValue / this->getMagnitude();
+    return timeValue * this->getMagnitude();
 }
 
-std::string TimeScale::scaleToString()
+std::string TimeScale::scaleToString() const
 {
     if (scaleValue == SEC) return "s";
     if (scaleValue == MS) return "ms";
@@ -44,12 +44,12 @@ std::string TimeScale::scaleToString()
     return "s";
 }
 
-double TimeScale::getMagnitude()
+double TimeScale::getMagnitude() const
 {
     if (scaleValue == SEC) return 1;
-    if (scaleValue == MS) return 1e03;
-    if (scaleValue == US) return 1e06;
-    if (scaleValue == NS) return 1e09;
-    if (scaleValue == PS) return 1e12;
+    if (scaleValue == MS) return 1e-03;
+    if (scaleValue == US) return 1e-06;
+    if (scaleValue == NS) return 1e-09;
+    if (scaleValue == PS) return 1e-12;
     return 1;
 }

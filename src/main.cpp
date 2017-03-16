@@ -1,4 +1,5 @@
 #include "variableTracer.hpp"
+#include "sinSource.hpp"
 
 int main(int, char **)
 {
@@ -9,17 +10,19 @@ int main(int, char **)
     double doubleValue = 0;
     unsigned int unsignedValue = 0;
     short shortValue = 0;
+    SinSource sinSource(0, 1, 0.5);
     // Auxiliary variables.
     double first = 0;
     double second = 1;
     // Create the trace and add the variable to the trace.
-    VariableTracer trace("trace.vcd", TimeScale(1, TimeScale::SEC));
+    VariableTracer trace("trace.vcd", timeStep);
     trace.addTrace("DoubleValue", &doubleValue);
     trace.addTrace("UnsignedValue", &unsignedValue);
     trace.addTrace("ShortValue", &shortValue);
+    trace.addTrace("Sinusoid", &sinSource.out);
     trace.createTrace();
     // Initialize the trace.
-    for (double time = 0; time < simulatedTime.getScaledValue(); time += timeStep.getScaledValue())
+    for (double time = 0; time < simulatedTime; time += timeStep)
     {
         if (time <= 1)
         {
@@ -33,6 +36,7 @@ int main(int, char **)
         }
         unsignedValue++;
         shortValue--;
+        sinSource.compute(time);
         // Update the trace.
         trace.updateTrace(time);
     }

@@ -18,8 +18,8 @@
 #include "genericTrace.hpp"
 
 GenericTrace::GenericTrace(std::string _name, std::string _symbol) :
-        name(_name),
-        symbol(_symbol)
+    name(_name),
+    symbol(_symbol)
 {
     // Nothing to do.
 }
