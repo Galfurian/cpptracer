@@ -29,6 +29,7 @@ set(PROJECT_SRC
         ./src/genericTrace.cpp
         ./src/variableTracer.cpp
         ./src/traceNameGenerator.cpp
+        ./src/traceReader.cpp
         )
 
 include_directories(include)

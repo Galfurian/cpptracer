@@ -42,6 +42,9 @@ public:
     /// @brief Provides the current value of the trace.
     virtual double getValue() = 0;
 
+    /// @brief Set the current value of the trace.
+    virtual void setValue(const double & value) = 0;
+
     /// @brief Checks if the value has changed w.r.t. the previous one.
     /// @return <b>True</b> if the value has changed,<br>
     ///         <b>False</b> otherwise.
@@ -84,6 +87,11 @@ public:
     virtual double getValue()
     {
         return static_cast<double>(*ptr);
+    }
+
+    virtual void setValue(const double & value)
+    {
+        (*ptr) = static_cast<T>(value);
     }
 
     /// @brief Checks if the value has changed w.r.t. the previous one.
