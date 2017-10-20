@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8.4 FATAL_ERROR)
 
 # -----------------------------------------------------------------------------
 # Set the project name.
-SET(PROJECT_NAME cpptracer)
+SET(PROJECT_NAME ProjectTest)
 
 # -----------------------------------------------------------------------------
 # Create the project.
@@ -25,34 +25,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 # -----------------------------------------------------------------------------
 # Set inlcuded directories.
-include_directories(include)
-
-# -----------------------------------------------------------------------------
-# Set sources.
-set(PROJECT_SRC
-        ./src/timeScale.cpp
-        ./src/genericTrace.cpp
-        ./src/variableTracer.cpp
-        ./src/traceNameGenerator.cpp
-        ./src/traceReader.cpp
-        )
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # -----------------------------------------------------------------------------
 # Add the target library.
-add_library(${PROJECT_NAME} ${PROJECT_SRC})
+add_executable(${PROJECT_NAME} main.cpp)
 
-# -----------------------------------------------------------------------------
-# Add test directory.
-add_subdirectory(tests)
-enable_testing()
-add_test(NAME ProjectTest COMMAND ProjectTest "test")
-
-# -----------------------------------------------------------------------------
-# Add the documentation generation.
-find_package(Doxygen)
-if (DOXYGEN_FOUND)
-    add_custom_target(doc
-            ${DOXYGEN_EXECUTABLE} ${CMAKE_SOURCE_DIR}/doc/project.doxyfile
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-            COMMENT "Generating API documentation with Doxygen" VERBATIM)
-endif (DOXYGEN_FOUND)
+target_link_libraries(${PROJECT_NAME} cpptracer)
