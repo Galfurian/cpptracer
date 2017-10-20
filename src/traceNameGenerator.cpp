@@ -17,7 +17,7 @@
 
 #include "traceNameGenerator.hpp"
 
-#include <cstdlib>
+#include <random>
 
 TraceNameGenerator::TraceNameGenerator(const size_t & _length) :
     length(_length),
@@ -33,15 +33,20 @@ TraceNameGenerator::~TraceNameGenerator()
 
 std::string TraceNameGenerator::getUniqueName()
 {
+    static const char alphanum[] = "abcdefghijklmnopqrstuvwxyz";
+    // Random number generator.
+    std::random_device randomDevice;
+    // Discrete random number generator.
+    std::mt19937 genMt19937;
+    // Uniform distribution.
+    std::uniform_int_distribution<> distribution(0, sizeof(alphanum) - 1);
     // Establish a new seed.
-    srand(static_cast<unsigned int>(time(NULL)));
     std::string symbol;
     while (true)
     {
-        static const char alphanum[] = "abcdefghijklmnopqrstuvwxyz";
         for (unsigned int it = 0; it < length; ++it)
         {
-            symbol += alphanum[rand() % (sizeof(alphanum) - 1)];
+            symbol += alphanum[distribution(genMt19937)];
         }
         if (!usedSymbols.insert(symbol).second)
         {

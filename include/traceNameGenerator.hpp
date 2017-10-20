@@ -28,6 +28,7 @@ private:
     size_t length;
     /// Set of already used symbols.
     std::set<std::string> usedSymbols;
+
 public:
 
     /// @brief Constructor.
