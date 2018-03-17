@@ -11,37 +11,6 @@ SET(PROJECT_NAME cpptracer)
 project(${PROJECT_NAME} CXX)
 
 # -----------------------------------------------------------------------------
-# Initialize CXXFLAGS.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic-errors")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-
-# -----------------------------------------------------------------------------
-# Set inlcuded directories.
-include_directories(include)
-
-# -----------------------------------------------------------------------------
-# Set sources.
-set(PROJECT_SRC
-        ./src/timeScale.cpp
-        ./src/genericTrace.cpp
-        ./src/variableTracer.cpp
-        ./src/traceNameGenerator.cpp
-        ./src/traceReader.cpp
-        )
-
-# -----------------------------------------------------------------------------
-# Add the target library.
-add_library(${PROJECT_NAME} ${PROJECT_SRC})
-
-# -----------------------------------------------------------------------------
 # Add test directory.
 add_subdirectory(tests)
 enable_testing()

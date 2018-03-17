@@ -17,33 +17,44 @@
 
 #pragma once
 
+#include "doubleOperators.hpp"
+
 #include <string>
+#include <vector>
+#include <iomanip>
+#include <bitset>
 
 class GenericTrace
 {
 public:
-    /// The name of the trace.
-    std::string name;
-    /// The symbol assigned to the trace.
-    std::string symbol;
-
     /// @brief Constructor of the trace.
-    GenericTrace(std::string _name, std::string _symbol);
+    GenericTrace(std::string const & _name, std::string const & _symbol) :
+        name(_name),
+        symbol(_symbol)
+    {
+        // Nothing to do.
+    }
 
     /// @brief Destructor.
-    virtual ~GenericTrace();
+    virtual ~GenericTrace() = default;
 
     /// @brief Provides the name of the trace.
-    std::string getName();
+    inline std::string getName()
+    {
+        return name;
+    }
 
     /// @brief Provides the symbol of the trace.
-    std::string getSymbol();
+    inline std::string getSymbol()
+    {
+        return symbol;
+    }
+
+    /// @brief Provides the $var of the trace.
+    virtual std::string getVar() = 0;
 
     /// @brief Provides the current value of the trace.
-    virtual double getValue() = 0;
-
-    /// @brief Set the current value of the trace.
-    virtual void setValue(const double & value) = 0;
+    virtual std::string getValue() = 0;
 
     /// @brief Checks if the value has changed w.r.t. the previous one.
     /// @return <b>True</b> if the value has changed,<br>
@@ -52,6 +63,12 @@ public:
 
     /// @brief Updates the previous value with the current value.
     virtual void updatePrevious() = 0;
+
+protected:
+    /// The name of the trace.
+    std::string name;
+    /// The symbol assigned to the trace.
+    std::string symbol;
 };
 
 template<typename T>
@@ -69,42 +86,168 @@ public:
     /// @param _symbol   The symbol to assign.
     /// @param _ptr      Pointer to the variable.
     /// @param _previous Previous value.
-    GenericTraceWrapper(std::string _name, std::string _symbol, T * _ptr, T _previous = 0) :
+    GenericTraceWrapper(std::string _name, std::string _symbol, T * _ptr) :
         GenericTrace(_name, _symbol),
         ptr(_ptr),
-        previous(_previous)
+        previous(),
+        ss()
     {
-        // Nothing to do.
+        ss << std::setprecision(16);
     }
 
     /// @brief Destructor.
-    virtual ~GenericTraceWrapper()
-    {
-        // Nothing to do.
-    }
+    ~GenericTraceWrapper() override = default;
+
+    std::string getVar() override;
 
     /// @brief Provides the current value of the trace.
-    virtual double getValue()
-    {
-        return static_cast<double>(*ptr);
-    }
-
-    virtual void setValue(const double & value)
-    {
-        (*ptr) = static_cast<T>(value);
-    }
+    std::string getValue() override;
 
     /// @brief Checks if the value has changed w.r.t. the previous one.
     /// @return <b>True</b> if the value has changed,<br>
     ///         <b>False</b> otherwise.
-    virtual bool hasChanged()
-    {
-        return (previous != (*this->ptr));
-    }
+    bool hasChanged() override;
 
     /// @brief Updates the previous value with the current value.
-    virtual void updatePrevious()
+    void updatePrevious() override
     {
-        previous = (*this->ptr);
+        previous = (*ptr);
     }
+
+private:
+    std::stringstream ss;
+
 };
+
+// ----------------------------------------------------------------------------
+// Provides specific definition.
+template<>
+inline std::string GenericTraceWrapper<short>::getVar()
+{
+    ss.str("");
+    ss << "$var integer 16 " << getSymbol() << " " << getName() << " $end\n";
+    return ss.str();
+}
+
+template<>
+inline std::string GenericTraceWrapper<int>::getVar()
+{
+    ss.str("");
+    ss << "$var integer 32 " << getSymbol() << " " << getName() << " $end\n";
+    return ss.str();
+}
+
+template<>
+inline std::string GenericTraceWrapper<unsigned int>::getVar()
+{
+    ss.str("");
+    ss << "$var integer 64 " << getSymbol() << " " << getName() << " $end\n";
+    return ss.str();
+}
+
+template<>
+inline std::string GenericTraceWrapper<float>::getVar()
+{
+    return "$var real 1 " + getSymbol() + " " + getName() + " $end\n";
+}
+
+template<>
+inline std::string GenericTraceWrapper<double>::getVar()
+{
+    return "$var real 1 " + getSymbol() + " " + getName() + " $end\n";
+}
+
+template<>
+inline std::string GenericTraceWrapper<std::vector<bool>>::getVar()
+{
+    ss.str("");
+    ss << ptr->size();
+    return "$var wire " + ss.str() + " " + getSymbol() + " " + getName() +
+           " $end\n";
+}
+
+// ----------------------------------------------------------------------------
+// Provides specific changing check.
+template<>
+inline bool GenericTraceWrapper<short>::hasChanged()
+{
+    return (previous != (*ptr));
+}
+template<>
+inline bool GenericTraceWrapper<int>::hasChanged()
+{
+    return (previous != (*ptr));
+}
+template<>
+inline bool GenericTraceWrapper<unsigned int>::hasChanged()
+{
+    return (previous != (*ptr));
+}
+template<>
+inline bool GenericTraceWrapper<float>::hasChanged()
+{
+    return !is_equal(previous, (*ptr));
+}
+template<>
+inline bool GenericTraceWrapper<double>::hasChanged()
+{
+    return !is_equal(previous, (*ptr));
+}
+template<>
+inline bool GenericTraceWrapper<std::vector<bool>>::hasChanged()
+{
+    auto it_prev = previous.begin();
+    auto it_curr = ptr->begin();
+    while ((it_prev != previous.end()) && (it_curr != ptr->end()))
+    {
+        if ((*it_curr) != (*it_prev)) return true;
+        ++it_prev;
+        ++it_curr;
+    }
+    return false;
+}
+
+// ----------------------------------------------------------------------------
+// Provides specific values.
+template<>
+inline std::string GenericTraceWrapper<short>::getValue()
+{
+    return "b" + std::bitset<16>(*ptr).to_string() + " " + getSymbol() + "\n";
+}
+template<>
+inline std::string GenericTraceWrapper<int>::getValue()
+{
+    return "b" + std::bitset<32>(*ptr).to_string() + " " + getSymbol() + "\n";
+}
+template<>
+inline std::string GenericTraceWrapper<unsigned int>::getValue()
+{
+    return "b" + std::bitset<64>(*ptr).to_string() + " " + getSymbol() + "\n";
+}
+template<>
+inline std::string GenericTraceWrapper<float>::getValue()
+{
+    ss.str("");
+    ss << "r" << (*ptr) << " " << getSymbol() << "\n";
+    return ss.str();
+}
+template<>
+inline std::string GenericTraceWrapper<double>::getValue()
+{
+    ss.str("");
+    ss << "r" << (*ptr) << " " << getSymbol() << "\n";
+    return ss.str();
+}
+template<>
+inline std::string GenericTraceWrapper<std::vector<bool>>::getValue()
+{
+    std::string result("b");
+    for (auto const & it : (*ptr))
+    {
+        result.push_back((it) ? '1' : '0');
+    }
+    result.push_back(' ');
+    result.append(getSymbol());
+    result.push_back('\n');
+    return result;
+}

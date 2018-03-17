@@ -44,57 +44,93 @@ public:
     /// @brief Constructor.
     /// @param _timeValue  The value of time.
     /// @param _scaleValue The scale of the trace.
-    TimeScale(double _timeValue, Enum _scaleValue);
+    explicit TimeScale(double _timeValue) :
+        timeValue(_timeValue),
+        scaleValue(SEC)
+    {
+        // Nothing to do.
+    }
+
+    /// @brief Constructor.
+    /// @param _timeValue  The value of time.
+    /// @param _scaleValue The scale of the trace.
+    TimeScale(double _timeValue, Enum _scaleValue) :
+        timeValue(_timeValue),
+        scaleValue(_scaleValue)
+    {
+        // Nothing to do.
+    }
 
     /// @brief Return the scale dimension.
     /// @return The value of the scale.
-    double getValue() const;
+    inline double getValue() const
+    {
+        return timeValue * this->getScaleValue();
+    }
 
-    /// @brief Return the scale dimension.
-    /// @return The value of the scale.
-    double getScaledValue() const;
-
-    /// @brief Return the string value for the scale.
-    /// @return The scale as string.
-    std::string scaleToString() const;
+    inline double getTimeValue() const
+    {
+        return timeValue;
+    }
 
     /// @brief Return the dimension of the scale.
     /// @return The magnitude of the scale.
-    double getMagnitude() const;
+    inline double getScaleValue() const
+    {
+        if (scaleValue == SEC) return 1;
+        if (scaleValue == MS) return 1e-03;
+        if (scaleValue == US) return 1e-06;
+        if (scaleValue == NS) return 1e-09;
+        if (scaleValue == PS) return 1e-12;
+        return 1;
+    }
+
+    /// @brief Return the string value for the scale.
+    /// @return The scale as string.
+    inline std::string scaleToString() const
+    {
+        if (scaleValue == SEC) return "s";
+        if (scaleValue == MS) return "ms";
+        if (scaleValue == US) return "us";
+        if (scaleValue == NS) return "ns";
+        if (scaleValue == PS) return "ps";
+        return "s";
+    }
 };
 
 inline bool operator<(const TimeScale & lhs, const TimeScale & rhs)
 {
-    return lhs.getScaledValue() < rhs.getScaledValue();
+    return lhs.getValue() < rhs.getValue();
 }
 
 inline bool operator<(const TimeScale & lhs, const double & rhs)
 {
-    return lhs.getScaledValue() < rhs;
+    return lhs.getValue() < rhs;
 }
 
 inline bool operator<(const double & lhs, const TimeScale & rhs)
 {
-    return lhs < rhs.getScaledValue();
+    return lhs < rhs.getValue();
 }
 
 inline bool operator>(const TimeScale & lhs, const TimeScale & rhs)
 {
-    return lhs.getScaledValue() > rhs.getScaledValue();
+    return lhs.getValue() > rhs.getValue();
 }
 
 inline bool operator>(const double & lhs, const TimeScale & rhs)
 {
-    return lhs > rhs.getScaledValue();
+    return lhs > rhs.getValue();
 }
 
 inline bool operator>(const TimeScale & lhs, const double & rhs)
 {
-    return lhs.getScaledValue() > rhs;
+    return lhs.getValue() > rhs;
 }
 
 inline double operator+=(double & lhs, const TimeScale & rhs)
 {
-    lhs += rhs.getScaledValue();
+    lhs += rhs.getValue();
     return lhs;
 }
+

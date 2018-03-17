@@ -16,10 +16,10 @@ int main(int, char **)
     double second = 1;
     // Create the trace and add the variable to the trace.
     VariableTracer trace("trace.vcd", timeStep);
-    trace.addTrace("DoubleValue", &doubleValue);
-    trace.addTrace("UnsignedValue", &unsignedValue);
-    trace.addTrace("ShortValue", &shortValue);
-    trace.addTrace("Sinusoid", &sinSource.out);
+    trace.addTrace(doubleValue, "DoubleValue");
+    trace.addTrace(unsignedValue, "UnsignedValue");
+    trace.addTrace(shortValue, "ShortValue");
+    trace.addTrace(sinSource.out, "Sinusoid");
     trace.createTrace();
     // Initialize the trace.
     for (double time = 0; time < simulatedTime; time += timeStep)
