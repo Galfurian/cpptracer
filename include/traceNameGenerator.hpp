@@ -28,7 +28,7 @@ public:
 
     /// @brief Constructor.
     /// @param _length The length of the name.
-    TraceNameGenerator(const size_t & _length = 3) :
+    explicit TraceNameGenerator(const size_t & _length = 3) :
         length(_length),
         usedSymbols(),
         rd(),
@@ -70,7 +70,7 @@ public:
     }
 
 private:
-    /// Lenght of the name.
+    /// Length of the name.
     size_t length;
     /// Set of already used symbols.
     std::set<std::string> usedSymbols;

@@ -28,9 +28,9 @@ class GenericTrace
 {
 public:
     /// @brief Constructor of the trace.
-    GenericTrace(std::string const & _name, std::string const & _symbol) :
-        name(_name),
-        symbol(_symbol)
+    GenericTrace(std::string _name, std::string _symbol) :
+        name(std::move(_name)),
+        symbol(std::move(_symbol))
     {
         // Nothing to do.
     }

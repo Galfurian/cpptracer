@@ -48,9 +48,9 @@ public:
     /// @brief Constructor.
     /// @param _filename The name of the file.
     /// @param _timescale The timescale to use.
-    VariableTracer(const std::string & _filename,
-                   const TimeScale & _timescale) :
-        filename(_filename),
+    VariableTracer(std::string _filename,
+                   TimeScale const & _timescale) :
+        filename(std::move(_filename)),
         outfile(),
         traceList(),
         timescale(_timescale),

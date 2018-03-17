@@ -52,10 +52,7 @@ public:
     }
 
     /// @brief Destructor.
-    ~SinSource()
-    {
-        // Nothing to do.
-    }
+    ~SinSource() = default;
 
     /// @brief Advance the sinusoid.
     /// @param current_time The current time.

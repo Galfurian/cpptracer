@@ -29,13 +29,8 @@
 
 inline bool is_equal(double a, double b, double tolerance = 1e-09)
 {
-#if 1
     double d = Max(Abs(a), Abs(b));
-    return (static_cast<int>(d * 1e09) == 0)
-           ? true : ((Abs(a - b) / d) <= tolerance);
-#else
-    return fabs(a - b) < tolerance;
-#endif
+    return static_cast<int>(d * 1e09) == 0 || (Abs(a - b) / d) <= tolerance;
 }
 
 inline bool is_lequal(double a, double b, double tolerance = 1e-09)
