@@ -28,11 +28,15 @@ public:
 
     /// @brief Constructor.
     /// @param _length The length of the name.
-    explicit TraceNameGenerator(const size_t & _length = 3) :
+    explicit TraceNameGenerator(
+        const size_t & _length = 3,
+        std::string const & _alphanum = "abcdefghijklmnopqrstuvwxyz") :
         length(_length),
         usedSymbols(),
         rd(),
-        gen(rd())
+        gen(rd()),
+        alphanum(_alphanum),
+        dis(0, _alphanum.size() - 1)
     {
         // Nothing to do.
     }
@@ -44,18 +48,13 @@ public:
     /// @return The generated name.
     inline std::string getUniqueName()
     {
-        static const size_t characters = 27;
-        // Define the usable character.
-        static const char alphanum[characters] = "abcdefghijklmnopqrstuvwxyz";
-        // Create an uniform distribution.
-        std::uniform_int_distribution<int> dis(0, characters - 1);
         // Establish a new seed.
         std::string symbol;
         while (true)
         {
             for (unsigned int it = 0; it < length; ++it)
             {
-                symbol += alphanum[dis(gen) % (sizeof(alphanum) - 1)];
+                symbol += alphanum[dis(gen) % (alphanum.size() - 1)];
             }
             if (!usedSymbols.insert(symbol).second)
             {
@@ -78,5 +77,8 @@ private:
     std::random_device rd;
     /// Standard mersenne_twister_engine seeded with rd().
     std::mt19937 gen;
-
+    /// List of usable characters.
+    std::string alphanum;
+    /// Create the uniform int distribution.
+    std::uniform_int_distribution<size_t> dis;
 };

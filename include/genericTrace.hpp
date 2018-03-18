@@ -212,17 +212,20 @@ inline bool GenericTraceWrapper<std::vector<bool>>::hasChanged()
 template<>
 inline std::string GenericTraceWrapper<short>::getValue()
 {
-    return "b" + std::bitset<16>(*ptr).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<16>(static_cast<uint64_t>(*ptr)).to_string()
+           + " " + getSymbol() + "\n";
 }
 template<>
 inline std::string GenericTraceWrapper<int>::getValue()
 {
-    return "b" + std::bitset<32>(*ptr).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<32>(static_cast<uint64_t>(*ptr)).to_string()
+           + " " + getSymbol() + "\n";
 }
 template<>
 inline std::string GenericTraceWrapper<unsigned int>::getValue()
 {
-    return "b" + std::bitset<64>(*ptr).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<64>(static_cast<uint64_t>(*ptr)).to_string()
+           + " " + getSymbol() + "\n";
 }
 template<>
 inline std::string GenericTraceWrapper<float>::getValue()
