@@ -25,14 +25,12 @@
 class SinSource
 {
 private:
-    /// The offset of the sinusoid.
+    /// The sinusoid offset.
     double offset;
-    /// The amplitude of the sinusoid.
+    /// The sinusoid amplitude.
     double amplitude;
-    /// The frequency of the sinusoid.
+    /// The sinusoid frequency.
     double frequency;
-    /// The full period used to compute the sinusoid.
-    double full_period;
 
 public:
     /// The output value.
@@ -45,7 +43,6 @@ public:
         offset(_offset),
         amplitude(_amplitude),
         frequency(_frequency),
-        full_period(M_2_FOR_PI * frequency),
         out()
     {
         // Nothing to do.
@@ -55,12 +52,11 @@ public:
     ~SinSource() = default;
 
     /// @brief Advance the sinusoid.
-    /// @param current_time The current time.
+    /// @param t The current time.
     /// @return The current value.
-    inline double compute(const double & current_time)
+    inline double compute(const double & t)
     {
-        out = offset + amplitude * std::sin(current_time * frequency);
-        out -= (out >= full_period) ? full_period : 0;
+        out = offset + amplitude * std::sin(M_2_FOR_PI * frequency * t);
         return out;
     }
 };

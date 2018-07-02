@@ -3,7 +3,7 @@
 /// @author Enrico Fraccaroli
 /// @date   Aug 23 2017
 /// @copyright
-/// Copyright (c) 2017, 2018 Enrico Fraccaroli <enry.frak@gmail.com>
+/// Copyright (c) 2016,2017,2018 Enrico Fraccaroli <enry.frak@gmail.com>
 /// Permission is hereby granted, free of charge, to any person obtaining a
 /// copy of this software and associated documentation files (the "Software"),
 /// to deal in the Software without restriction, including without limitation
@@ -29,8 +29,12 @@
 
 inline bool is_equal(double a, double b, double tolerance = 1e-09)
 {
-    double d = Max(Abs(a), Abs(b));
-    return static_cast<int>(d * 1e09) == 0 || (Abs(a - b) / d) <= tolerance;
+#if 1
+    return (static_cast<int>(Max(Abs(a), Abs(b)) / tolerance))
+           ? (Abs(a - b) < tolerance) : true;
+#else
+    return Abs(a - b) < tolerance;
+#endif
 }
 
 inline bool is_lequal(double a, double b, double tolerance = 1e-09)

@@ -2,7 +2,7 @@
 /// @author Enrico Fraccaroli
 /// @date   Jul 20, 2016
 /// @copyright
-/// Copyright (c) 2016 Enrico Fraccaroli <enrico.fraccaroli@gmail.com>
+/// Copyright (c) 2016,2017,2018 Enrico Fraccaroli <enrico.fraccaroli@gmail.com>
 /// Permission to use, copy, modify, and distribute this software for any
 /// purpose with or without fee is hereby granted, provided that the above
 /// copyright notice and this permission notice appear in all copies.
@@ -35,65 +35,69 @@ public:
     } Enum;
 
 private:
-    /// Value of the timescale.
-    double timeValue;
-    /// The order of magnitute of the timescale.
-    Enum scaleValue;
+    /// The base value.
+    uint32_t base;
+    /// The magnitude.
+    Enum magnitude;
+    /// The real value.
+    double value;
 
 public:
     /// @brief Constructor.
-    /// @param _timeValue  The value of time.
-    /// @param _scaleValue The scale of the trace.
-    explicit TimeScale(double _timeValue) :
-        timeValue(_timeValue),
-        scaleValue(SEC)
+    /// @param _base  The value of time.
+    /// @param _magnitude The scale of the trace.
+    explicit TimeScale(uint32_t _base) :
+        base(_base),
+        magnitude(SEC),
+        value()
     {
-        // Nothing to do.
+        value = base * getMagnitude();
     }
 
     /// @brief Constructor.
-    /// @param _timeValue  The value of time.
-    /// @param _scaleValue The scale of the trace.
-    TimeScale(double _timeValue, Enum _scaleValue) :
-        timeValue(_timeValue),
-        scaleValue(_scaleValue)
+    /// @param _base  The value of time.
+    /// @param _magnitude The scale of the trace.
+    TimeScale(uint32_t _base, Enum _magnitude) :
+        base(_base),
+        magnitude(_magnitude),
+        value()
     {
-        // Nothing to do.
+        value = base * getMagnitude();
     }
 
     /// @brief Return the scale dimension.
     /// @return The value of the scale.
     inline double getValue() const
     {
-        return timeValue * this->getScaleValue();
+        return value;
     }
 
-    inline double getTimeValue() const
+    inline double getBase() const
     {
-        return timeValue;
+        return base;
     }
 
     /// @brief Return the dimension of the scale.
     /// @return The magnitude of the scale.
-    inline double getScaleValue() const
+    inline double getMagnitude() const
     {
-        if (scaleValue == SEC) return 1;
-        if (scaleValue == MS) return 1e-03;
-        if (scaleValue == US) return 1e-06;
-        if (scaleValue == NS) return 1e-09;
-        if (scaleValue == PS) return 1e-12;
+        if (magnitude == SEC) return 1;
+        if (magnitude == MS) return 1e-03;
+        if (magnitude == US) return 1e-06;
+        if (magnitude == NS) return 1e-09;
+        if (magnitude == PS) return 1e-12;
         return 1;
     }
 
     /// @brief Return the string value for the scale.
     /// @return The scale as string.
-    inline std::string scaleToString() const
+    inline std::string getMagnitudeString() const
     {
-        if (scaleValue == SEC) return "s";
-        if (scaleValue == MS) return "ms";
-        if (scaleValue == US) return "us";
-        if (scaleValue == NS) return "ns";
-        if (scaleValue == PS) return "ps";
+        if (magnitude == SEC) return "s";
+        if (magnitude == MS) return "ms";
+        if (magnitude == US) return "us";
+        if (magnitude == NS) return "ns";
+        if (magnitude == PS) return "ps";
         return "s";
     }
 };
@@ -133,4 +137,3 @@ inline double operator+=(double & lhs, const TimeScale & rhs)
     lhs += rhs.getValue();
     return lhs;
 }
-
