@@ -28,6 +28,11 @@
 #include <random>
 #include <cassert>
 
+#define VARIABLE_TRACER_MAJOR 3
+#define VARIABLE_TRACER_MINOR 0
+#define VARIABLE_TRACER_PATCH 0
+
+
 /// @brief C++ variable tracer.
 class VariableTracer
 {
@@ -51,16 +56,16 @@ private:
 
         inline void printScope(std::ofstream & stream) const
         {
-            stream << "$scope module " << name << " $end\n\n";
+            stream << "$scope module " << name << " $end\n";
             for (auto const & trace : traceList)
             {
-                stream << trace->getVar();
+                stream << "    " << trace->getVar();
             }
             for (auto const & subscope : subscopes)
             {
                 subscope.printScope(stream);
             }
-            stream << "$upscope $end\n\n";
+            stream << "$upscope $end\n";
         }
 
         inline void deleteTraces()
@@ -129,7 +134,11 @@ public:
         outfile << "    " + this->getDateTime() + "\n";
         outfile << "$end\n\n";
         outfile << "$version\n";
-        outfile << "    VariableTracer 2.1.0 - By Galfurian --- Mar 30, 2016\n";
+        outfile << "    VariableTracer "
+                << VARIABLE_TRACER_MAJOR << "."
+                << VARIABLE_TRACER_MINOR << "."
+                << VARIABLE_TRACER_PATCH
+                << " - By Galfurian --- Mar 30, 2016\n";
         outfile << "$end\n\n";
         outfile << "$timescale\n";
         outfile <<
