@@ -132,19 +132,19 @@ public:
         // Write the header.
         outfile << "$date\n";
         outfile << "    " + this->getDateTime() + "\n";
-        outfile << "$end\n\n";
+        outfile << "$end\n";
         outfile << "$version\n";
         outfile << "    VariableTracer "
                 << VARIABLE_TRACER_MAJOR << "."
                 << VARIABLE_TRACER_MINOR << "."
                 << VARIABLE_TRACER_PATCH
                 << " - By Galfurian --- Mar 30, 2016\n";
-        outfile << "$end\n\n";
+        outfile << "$end\n";
         outfile << "$timescale\n";
         outfile <<
                 "    " + std::to_string(static_cast<int>(timescale.getBase()));
         outfile << timescale.getMagnitudeString() + "\n";
-        outfile << "$end\n\n";
+        outfile << "$end\n";
 
         scopeRoot.printScope(outfile);
 
