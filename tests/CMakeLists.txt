@@ -25,8 +25,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 # -----------------------------------------------------------------------------
 # Set inlcuded directories.
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/tests/include
+)
 
 # -----------------------------------------------------------------------------
 # Add the target library.
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(
+    ${PROJECT_NAME}
+    ${CMAKE_SOURCE_DIR}/tests/src/main.cpp
+)

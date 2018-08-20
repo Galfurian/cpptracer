@@ -132,7 +132,23 @@ inline std::string GenericTraceWrapper<bool>::getVar()
 }
 
 template<>
-inline std::string GenericTraceWrapper<int>::getVar()
+inline std::string GenericTraceWrapper<int8_t>::getVar()
+{
+    ss.str("");
+    ss << "$var integer  8 " << getSymbol() << " " << getName() << " $end\n";
+    return ss.str();
+}
+
+template<>
+inline std::string GenericTraceWrapper<int16_t>::getVar()
+{
+    ss.str("");
+    ss << "$var integer 16 " << getSymbol() << " " << getName() << " $end\n";
+    return ss.str();
+}
+
+template<>
+inline std::string GenericTraceWrapper<int32_t>::getVar()
 {
     ss.str("");
     ss << "$var integer 32 " << getSymbol() << " " << getName() << " $end\n";
@@ -140,10 +156,10 @@ inline std::string GenericTraceWrapper<int>::getVar()
 }
 
 template<>
-inline std::string GenericTraceWrapper<short>::getVar()
+inline std::string GenericTraceWrapper<int64_t>::getVar()
 {
     ss.str("");
-    ss << "$var integer 32 " << getSymbol() << " " << getName() << " $end\n";
+    ss << "$var integer 64 " << getSymbol() << " " << getName() << " $end\n";
     return ss.str();
 }
 
@@ -151,7 +167,7 @@ template<>
 inline std::string GenericTraceWrapper<uint8_t>::getVar()
 {
     ss.str("");
-    ss << "$var integer 32 " << getSymbol() << " " << getName() << " $end\n";
+    ss << "$var integer  8 " << getSymbol() << " " << getName() << " $end\n";
     return ss.str();
 }
 
@@ -159,12 +175,20 @@ template<>
 inline std::string GenericTraceWrapper<uint16_t>::getVar()
 {
     ss.str("");
+    ss << "$var integer 16 " << getSymbol() << " " << getName() << " $end\n";
+    return ss.str();
+}
+
+template<>
+inline std::string GenericTraceWrapper<uint32_t>::getVar()
+{
+    ss.str("");
     ss << "$var integer 32 " << getSymbol() << " " << getName() << " $end\n";
     return ss.str();
 }
 
 template<>
-inline std::string GenericTraceWrapper<unsigned int>::getVar()
+inline std::string GenericTraceWrapper<uint64_t>::getVar()
 {
     ss.str("");
     ss << "$var integer 64 " << getSymbol() << " " << getName() << " $end\n";
@@ -179,6 +203,12 @@ inline std::string GenericTraceWrapper<float>::getVar()
 
 template<>
 inline std::string GenericTraceWrapper<double>::getVar()
+{
+    return "$var real 1 " + getSymbol() + " " + getName() + " $end\n";
+}
+
+template<>
+inline std::string GenericTraceWrapper<long double>::getVar()
 {
     return "$var real 1 " + getSymbol() + " " + getName() + " $end\n";
 }
@@ -201,13 +231,25 @@ inline bool GenericTraceWrapper<bool>::hasChanged()
 }
 
 template<>
-inline bool GenericTraceWrapper<int>::hasChanged()
+inline bool GenericTraceWrapper<int8_t>::hasChanged()
 {
     return (previous != (*ptr));
 }
 
 template<>
-inline bool GenericTraceWrapper<short>::hasChanged()
+inline bool GenericTraceWrapper<int16_t>::hasChanged()
+{
+    return (previous != (*ptr));
+}
+
+template<>
+inline bool GenericTraceWrapper<int32_t>::hasChanged()
+{
+    return (previous != (*ptr));
+}
+
+template<>
+inline bool GenericTraceWrapper<int64_t>::hasChanged()
 {
     return (previous != (*ptr));
 }
@@ -225,7 +267,13 @@ inline bool GenericTraceWrapper<uint16_t>::hasChanged()
 }
 
 template<>
-inline bool GenericTraceWrapper<unsigned int>::hasChanged()
+inline bool GenericTraceWrapper<uint32_t>::hasChanged()
+{
+    return (previous != (*ptr));
+}
+
+template<>
+inline bool GenericTraceWrapper<uint64_t>::hasChanged()
 {
     return (previous != (*ptr));
 }
@@ -239,23 +287,26 @@ inline bool GenericTraceWrapper<float>::hasChanged()
 template<>
 inline bool GenericTraceWrapper<double>::hasChanged()
 {
+    return !is_equal(previous, (*ptr), 1e-12);
+}
+
+template<>
+inline bool GenericTraceWrapper<long double>::hasChanged()
+{
     return !is_equal(previous, (*ptr), 1e-24);
 }
 
 template<>
 inline bool GenericTraceWrapper<std::vector<bool>>::hasChanged()
 {
-    auto it_prev = previous.begin();
-    auto it_curr = ptr->begin();
+    auto it_prev = previous.begin(), it_curr = ptr->begin();
     while ((it_prev != previous.end()) && (it_curr != ptr->end()))
     {
         if ((*it_curr) != (*it_prev)) return true;
-        ++it_prev;
-        ++it_curr;
+        ++it_prev, ++it_curr;
     }
     return false;
 }
-
 
 // ----------------------------------------------------------------------------
 // Provides specific values.
@@ -266,31 +317,53 @@ inline std::string GenericTraceWrapper<bool>::getValue()
 }
 
 template<>
-inline std::string GenericTraceWrapper<int>::getValue()
+inline std::string GenericTraceWrapper<int8_t>::getValue()
 {
-    return "b" + std::bitset<32>(*ptr).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<8>(
+        static_cast<uint8_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
 }
 
 template<>
-inline std::string GenericTraceWrapper<short>::getValue()
+inline std::string GenericTraceWrapper<int16_t>::getValue()
 {
-    return "b" + std::bitset<32>(*ptr).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<16>(
+        static_cast<uint16_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
+}
+
+template<>
+inline std::string GenericTraceWrapper<int32_t>::getValue()
+{
+    return "b" + std::bitset<32>(
+        static_cast<uint32_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
+}
+
+template<>
+inline std::string GenericTraceWrapper<int64_t>::getValue()
+{
+    return "b" + std::bitset<64>(
+        static_cast<uint64_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
 }
 
 template<>
 inline std::string GenericTraceWrapper<uint8_t>::getValue()
 {
-    return "b" + std::bitset<32>(*ptr).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<8>(*ptr).to_string() + " " + getSymbol() + "\n";
 }
 
 template<>
 inline std::string GenericTraceWrapper<uint16_t>::getValue()
 {
+    return "b" + std::bitset<16>(*ptr).to_string() + " " + getSymbol() + "\n";
+}
+
+template<>
+inline std::string GenericTraceWrapper<uint32_t>::getValue()
+{
     return "b" + std::bitset<32>(*ptr).to_string() + " " + getSymbol() + "\n";
 }
 
 template<>
-inline std::string GenericTraceWrapper<unsigned int>::getValue()
+inline std::string GenericTraceWrapper<uint64_t>::getValue()
 {
     return "b" + std::bitset<64>(*ptr).to_string() + " " + getSymbol() + "\n";
 }
@@ -305,6 +378,14 @@ inline std::string GenericTraceWrapper<float>::getValue()
 
 template<>
 inline std::string GenericTraceWrapper<double>::getValue()
+{
+    ss.str("");
+    ss << "r" << (*ptr) << " " << getSymbol() << "\n";
+    return ss.str();
+}
+
+template<>
+inline std::string GenericTraceWrapper<long double>::getValue()
 {
     ss.str("");
     ss << "r" << (*ptr) << " " << getSymbol() << "\n";

@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include "timeScale.hpp"
 #include "genericTrace.hpp"
+#include "timeScale.hpp"
 
 #include <vector>
 #include <fstream> // std::ofstream
@@ -26,17 +26,65 @@
 #include <set>
 #include <string>
 #include <random>
+#include <cassert>
+
+#define VARIABLE_TRACER_MAJOR 2
+#define VARIABLE_TRACER_MINOR 0
+#define VARIABLE_TRACER_PATCH 0
+
 
 /// @brief C++ variable tracer.
 class VariableTracer
 {
 private:
+    typedef struct scope_t
+    {
+        std::string name;
+        std::vector<GenericTrace *> traceList;
+        std::vector<scope_t> subscopes;
+        scope_t * parentScope;
+
+        /// @brief Constructor.
+        scope_t(std::string const & _name) :
+            name(_name),
+            traceList(),
+            subscopes(),
+            parentScope()
+        {
+            // Nothing to do.
+        }
+
+        inline void printScope(std::ofstream & stream) const
+        {
+            stream << "$scope module " << name << " $end\n";
+            for (auto const & trace : traceList)
+            {
+                stream << "    " << trace->getVar();
+            }
+            for (auto const & subscope : subscopes)
+            {
+                subscope.printScope(stream);
+            }
+            stream << "$upscope $end\n";
+        }
+
+        inline void deleteTraces()
+        {
+            for (auto trace : traceList)
+                delete (trace);
+            for (auto & subscope : subscopes)
+                subscope.deleteTraces();
+        }
+    } scope_t;
+
     /// Name of the trace file.
     std::string filename;
     /// The output file.
     std::ofstream outfile;
-    /// The list of traces.
-    std::vector<GenericTrace *> traceList;
+    /// The root of the scopes.
+    scope_t scopeRoot;
+    /// Pointer to the current scope.
+    scope_t * current_scope;
     /// The timescale.
     TimeScale timescale;
     /// The timescale.
@@ -54,22 +102,21 @@ public:
                    TimeScale const & _timescale) :
         filename(_filename),
         outfile(_filename),
-        traceList(),
+        scopeRoot("CPP"),
+        current_scope(&scopeRoot),
         timescale(_timescale),
         sampling(_timescale),
-        firstDump(true)
+        firstDump(true),
+        next_sample()
     {
-        // Nothing to do.
+        scopeRoot.parentScope = &scopeRoot;
     }
 
     /// @brief Destructor.
     ~VariableTracer()
     {
         // Delete the traces.
-        for (auto it : traceList)
-        {
-            delete (it);
-        }
+        scopeRoot.deleteTraces();
         // Close the output file.
         this->closeTrace();
     }
@@ -85,26 +132,48 @@ public:
         // Write the header.
         outfile << "$date\n";
         outfile << "    " + this->getDateTime() + "\n";
-        outfile << "$end\n\n";
+        outfile << "$end\n";
         outfile << "$version\n";
-        outfile << "    VariableTracer 2.1.0 - By Galfurian --- Mar 30, 2016\n";
-        outfile << "$end\n\n";
+        outfile << "    VariableTracer "
+                << VARIABLE_TRACER_MAJOR << "."
+                << VARIABLE_TRACER_MINOR << "."
+                << VARIABLE_TRACER_PATCH
+                << " - By Galfurian --- Mar 30, 2016\n";
+        outfile << "$end\n";
         outfile << "$timescale\n";
         outfile <<
                 "    " + std::to_string(static_cast<int>(timescale.getBase()));
         outfile << timescale.getMagnitudeString() + "\n";
-        outfile << "$end\n\n";
+        outfile << "$end\n";
 
-        outfile << "$scope\n";
-        outfile << "    module CPP\n";
-        outfile << "$end\n\n";
-        for (auto const & it : traceList)
-        {
-            outfile << it->getVar();
-        }
-        outfile << "\n";
-        outfile << "$upscope $end\n\n";
+        scopeRoot.printScope(outfile);
+
         outfile << "$enddefinitions $end\n";
+    }
+
+    void addScope(std::string const & scopeName)
+    {
+        assert(current_scope && "There is no current scope.");
+        assert(current_scope->parentScope && "Current scope has no parent.");
+        auto parentScope = current_scope->parentScope;
+        parentScope->subscopes.emplace_back(scope_t(scopeName));
+        parentScope->subscopes.back().parentScope = parentScope;
+        current_scope = &parentScope->subscopes.back();
+    }
+
+    void addSubScope(std::string const & scopeName)
+    {
+        assert(current_scope && "There is no current scope.");
+        current_scope->subscopes.emplace_back(scope_t(scopeName));
+        current_scope->subscopes.back().parentScope = current_scope;
+        current_scope = &current_scope->subscopes.back();
+    }
+
+    inline void closeScope()
+    {
+        assert(current_scope && "There is no current scope.");
+        assert(current_scope->parentScope && "Current scope has no parent.");
+        current_scope = current_scope->parentScope;
     }
 
     /// @brief Add a variable to the list of traces.
@@ -113,7 +182,8 @@ public:
     template<typename T>
     void addTrace(T & variable, const std::string & name)
     {
-        traceList.push_back(
+        assert(current_scope && "There is no current scope.");
+        current_scope->traceList.push_back(
             new GenericTraceWrapper<T>(
                 name, VariableTracer::getUniqueName(), &variable));
     }
@@ -128,20 +198,11 @@ public:
         if (firstDump) outfile << "$dumpvars\n";
         else if (!this->changed()) return;
         else if (next_sample > t) return;
-        else outfile << '#' << get_time(t) << "\n";
+        else outfile << '#' << get_time<uint64_t>(t) << "\n";
         // --------------------------------------------------------------------
         // VALUES
         // --------------------------------------------------------------------
-        for (auto const & it : traceList)
-        {
-            if (it->hasChanged() || firstDump)
-            {
-                // Print the trace.
-                outfile << it->getValue();
-                // Update previous value.
-                it->updatePrevious();
-            }
-        }
+        this->updateTraceRecursive(scopeRoot);
         // --------------------------------------------------------------------
         // END
         // --------------------------------------------------------------------
@@ -156,11 +217,7 @@ public:
     /// @brief Checks if some value has changed.
     inline bool changed() const
     {
-        for (auto const & it : traceList)
-        {
-            if (it->hasChanged()) return true;
-        }
-        return false;
+        return this->changedRecursive(scopeRoot);
     }
 
     /// @brief Closes the trace file.
@@ -170,9 +227,10 @@ public:
     }
 
 private:
-    inline std::string get_time(double const & t) const
+    template<typename T>
+    inline T get_time(long double const & t) const
     {
-        return std::to_string(t / timescale.getMagnitude());
+        return static_cast<T>(t / timescale.getMagnitude());
     }
 
     /// @brief Provides the current date.
@@ -206,7 +264,7 @@ private:
         /// Standard mersenne_twister_engine seeded with rd().
         static std::mt19937 gen(rd());
         // Create an uniform distribution.
-        static std::uniform_int_distribution<int> dis(0, characters - 1);
+        static std::uniform_int_distribution<size_t> dis(0, characters - 1);
         // Establish a new seed.
         std::string symbol;
         do
@@ -216,9 +274,38 @@ private:
             {
                 symbol += alphanum[dis(gen) % (sizeof(alphanum) - 1)];
             }
-        }
-        while (!usedSymbols.insert(symbol).second);
+        } while (!usedSymbols.insert(symbol).second);
         return symbol;
     }
 
+    inline void updateTraceRecursive(scope_t & scope)
+    {
+        for (auto const & trace : scope.traceList)
+        {
+            if (trace->hasChanged() || firstDump)
+            {
+                // Print the trace.
+                outfile << trace->getValue();
+                // Update previous value.
+                trace->updatePrevious();
+            }
+        }
+        for (auto & subscope : scope.subscopes)
+        {
+            this->updateTraceRecursive(subscope);
+        }
+    }
+
+    inline bool changedRecursive(scope_t const & scope) const
+    {
+        for (auto const & trace : scope.traceList)
+        {
+            if (trace->hasChanged()) return true;
+        }
+        for (auto & subscope : scope.subscopes)
+        {
+            if (this->changedRecursive(subscope)) return true;
+        }
+        return false;
+    }
 };
