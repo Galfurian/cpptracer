@@ -28,7 +28,7 @@
 #include <random>
 #include <cassert>
 
-#define VARIABLE_TRACER_MAJOR 3
+#define VARIABLE_TRACER_MAJOR 2
 #define VARIABLE_TRACER_MINOR 0
 #define VARIABLE_TRACER_PATCH 0
 
