@@ -319,22 +319,29 @@ inline std::string GenericTraceWrapper<bool>::getValue()
 template<>
 inline std::string GenericTraceWrapper<int8_t>::getValue()
 {
-    return "b" + std::bitset<8>(*ptr).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<8>(
+        static_cast<uint8_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
 }
+
 template<>
 inline std::string GenericTraceWrapper<int16_t>::getValue()
 {
-    return "b" + std::bitset<16>(*ptr).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<16>(
+        static_cast<uint16_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
 }
+
 template<>
 inline std::string GenericTraceWrapper<int32_t>::getValue()
 {
-    return "b" + std::bitset<32>(*ptr).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<32>(
+        static_cast<uint32_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
 }
+
 template<>
 inline std::string GenericTraceWrapper<int64_t>::getValue()
 {
-    return "b" + std::bitset<64>(*ptr).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<64>(
+        static_cast<uint64_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
 }
 
 template<>
@@ -342,16 +349,19 @@ inline std::string GenericTraceWrapper<uint8_t>::getValue()
 {
     return "b" + std::bitset<8>(*ptr).to_string() + " " + getSymbol() + "\n";
 }
+
 template<>
 inline std::string GenericTraceWrapper<uint16_t>::getValue()
 {
     return "b" + std::bitset<16>(*ptr).to_string() + " " + getSymbol() + "\n";
 }
+
 template<>
 inline std::string GenericTraceWrapper<uint32_t>::getValue()
 {
     return "b" + std::bitset<32>(*ptr).to_string() + " " + getSymbol() + "\n";
 }
+
 template<>
 inline std::string GenericTraceWrapper<uint64_t>::getValue()
 {

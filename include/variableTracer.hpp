@@ -264,7 +264,7 @@ private:
         /// Standard mersenne_twister_engine seeded with rd().
         static std::mt19937 gen(rd());
         // Create an uniform distribution.
-        static std::uniform_int_distribution<int> dis(0, characters - 1);
+        static std::uniform_int_distribution<size_t> dis(0, characters - 1);
         // Establish a new seed.
         std::string symbol;
         do
