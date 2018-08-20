@@ -27,18 +27,21 @@
 #define Abs(x)    ((x) < 0 ? -(x) : (x))
 #define Max(a, b) ((a) > (b) ? (a) : (b))
 
-inline bool is_equal(double a, double b, double tolerance = 1e-09)
+template<typename T>
+inline bool is_equal(T a, T b, double tolerance = 1e-09)
 {
-    double d = Max(Abs(a), Abs(b));
+    T d = Max(Abs(a), Abs(b));
     return static_cast<int>(d * 1e09) == 0 || (Abs(a - b) / d) <= tolerance;
 }
 
-inline bool is_lequal(double a, double b, double tolerance = 1e-09)
+template<typename T>
+inline bool is_lequal(T a, T b, double tolerance = 1e-09)
 {
     return is_equal(a, b, tolerance) || (a < b);
 }
 
-inline bool is_gequal(double a, double b, double tolerance = 1e-09)
+template<typename T>
+inline bool is_gequal(T a, T b, double tolerance = 1e-09)
 {
     return is_equal(a, b, tolerance) || (a > b);
 }
