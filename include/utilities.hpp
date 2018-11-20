@@ -37,7 +37,7 @@ inline unsigned int elfHash(std::string const & s)
     unsigned int x = 0;
     for (const auto c : s)
     {
-        hash = (hash << 4) + c;
+        hash = (hash << 4) + static_cast<unsigned int>(c);
         if ((x = hash & 0xF0000000L) != 0)
             hash ^= (x >> 24);
         hash &= ~x;
