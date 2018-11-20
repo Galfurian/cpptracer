@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8.4 FATAL_ERROR)
 
 # -----------------------------------------------------------------------------
 # Set the project name.
-SET(PROJECT_NAME cpptracer)
+SET(PROJECT_NAME test_compression)
 
 # -----------------------------------------------------------------------------
 # Create the project.
@@ -24,29 +24,24 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 # -----------------------------------------------------------------------------
-# Add the documentation generation.
-find_package(Doxygen)
-if (DOXYGEN_FOUND)
-    add_custom_target(doc
-                      ${DOXYGEN_EXECUTABLE} ${CMAKE_SOURCE_DIR}/doc/project.doxyfile
-                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                      COMMENT "Generating API documentation with Doxygen" VERBATIM)
-endif (DOXYGEN_FOUND)
-
-# -----------------------------------------------------------------------------
 # Set inlcuded directories.
 include_directories(
-    ./include
-    ./include/support)
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/tests/include
+)
 
 # -----------------------------------------------------------------------------
-# Add test directory.
-add_subdirectory(./tests/test_compression)
-add_subdirectory(./tests/test_datatypes)
-add_subdirectory(./tests/test_scope)
+# Add the target library.
+add_executable(${PROJECT_NAME} main.cpp)
 
-enable_testing()
-
-add_test(NAME test_compression COMMAND test_compression)
-add_test(NAME test_datatypes COMMAND test_datatypes)
-add_test(NAME test_scope COMMAND test_scope)
+# -----------------------------------------------------------------------------
+# Find zlib for traces compression.
+find_package(ZLIB REQUIRED)
+if (ZLIB_FOUND)
+    include_directories(${ZLIB_INCLUDE_DIRS})
+    target_link_libraries(
+        ${PROJECT_NAME}
+        ${ZLIB_LIBRARIES}
+    )
+    add_definitions(-DCOMPRESSION_ENABLED)
+endif (ZLIB_FOUND)

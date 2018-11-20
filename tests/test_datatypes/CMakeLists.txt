@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8.4 FATAL_ERROR)
 
 # -----------------------------------------------------------------------------
 # Set the project name.
-SET(PROJECT_NAME ProjectTest)
+SET(PROJECT_NAME test_datatypes)
 
 # -----------------------------------------------------------------------------
 # Create the project.
@@ -32,10 +32,7 @@ include_directories(
 
 # -----------------------------------------------------------------------------
 # Add the target library.
-add_executable(
-    ${PROJECT_NAME}
-    ${CMAKE_SOURCE_DIR}/tests/src/main.cpp
-)
+add_executable(${PROJECT_NAME} main.cpp)
 
 # -----------------------------------------------------------------------------
 # Find zlib for traces compression.
