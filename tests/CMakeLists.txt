@@ -36,3 +36,15 @@ add_executable(
     ${PROJECT_NAME}
     ${CMAKE_SOURCE_DIR}/tests/src/main.cpp
 )
+
+# -----------------------------------------------------------------------------
+# Find zlib for traces compression.
+find_package(ZLIB REQUIRED)
+if (ZLIB_FOUND)
+    include_directories(${ZLIB_INCLUDE_DIRS})
+    target_link_libraries(
+        ${PROJECT_NAME}
+        ${ZLIB_LIBRARIES}
+    )
+    add_definitions(-DCOMPRESSION_ENABLED)
+endif (ZLIB_FOUND)

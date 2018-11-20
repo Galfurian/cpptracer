@@ -18,7 +18,10 @@
 #pragma once
 
 #include "genericTrace.hpp"
+#include "compression.hpp"
 #include "timeScale.hpp"
+#include "utilities.hpp"
+#include "colors.hpp"
 
 #include <vector>
 #include <fstream> // std::ofstream
@@ -28,10 +31,9 @@
 #include <random>
 #include <cassert>
 
-#define VARIABLE_TRACER_MAJOR 2
+#define VARIABLE_TRACER_MAJOR 3
 #define VARIABLE_TRACER_MINOR 0
 #define VARIABLE_TRACER_PATCH 0
-
 
 /// @brief C++ variable tracer.
 class VariableTracer
@@ -54,7 +56,7 @@ private:
             // Nothing to do.
         }
 
-        inline void printScope(std::ofstream & stream) const
+        inline void printScope(std::ostringstream & stream) const
         {
             stream << "$scope module " << name << " $end\n";
             for (auto const & trace : traceList)
@@ -81,6 +83,8 @@ private:
     std::string filename;
     /// The output file.
     std::ofstream outfile;
+    /// The output buffer.
+    std::ostringstream outbuffer;
     /// The root of the scopes.
     scope_t scopeRoot;
     /// Pointer to the current scope.
@@ -93,6 +97,8 @@ private:
     bool firstDump;
     /// Next sampling time.
     double next_sample;
+    /// Enables traces compression.
+    bool compressTraces;
 
 public:
     /// @brief Constructor.
@@ -102,12 +108,14 @@ public:
                    TimeScale const & _timescale) :
         filename(_filename),
         outfile(_filename),
+        outbuffer(),
         scopeRoot("CPP"),
         current_scope(&scopeRoot),
         timescale(_timescale),
         sampling(_timescale),
         firstDump(true),
-        next_sample()
+        next_sample(),
+        compressTraces()
     {
         scopeRoot.parentScope = &scopeRoot;
     }
@@ -126,29 +134,39 @@ public:
         sampling = _sampling;
     }
 
+    inline void enableCompression()
+    {
+#ifndef COMPRESSION_ENABLED
+        std::cerr << "Cannot activate the compression without zlib.\n";
+#else
+        compressTraces = true;
+#endif
+    }
+
     /// @brief Creates the trace.
     void createTrace()
     {
         // Write the header.
-        outfile << "$date\n";
-        outfile << "    " + this->getDateTime() + "\n";
-        outfile << "$end\n";
-        outfile << "$version\n";
-        outfile << "    VariableTracer "
-                << VARIABLE_TRACER_MAJOR << "."
-                << VARIABLE_TRACER_MINOR << "."
-                << VARIABLE_TRACER_PATCH
-                << " - By Galfurian --- Mar 30, 2016\n";
-        outfile << "$end\n";
-        outfile << "$timescale\n";
-        outfile <<
-                "    " + std::to_string(static_cast<int>(timescale.getBase()));
-        outfile << timescale.getMagnitudeString() + "\n";
-        outfile << "$end\n";
+        outbuffer << "$date\n";
+        outbuffer << "    " + this->getDateTime() + "\n";
+        outbuffer << "$end\n";
+        outbuffer << "$version\n";
+        outbuffer << "    VariableTracer "
+                  << VARIABLE_TRACER_MAJOR << "."
+                  << VARIABLE_TRACER_MINOR << "."
+                  << VARIABLE_TRACER_PATCH
+                  << " - By Galfurian --- Mar 30, 2016\n";
+        outbuffer << "$end\n";
+        outbuffer << "$timescale\n";
+        outbuffer <<
+                  "    " +
+                  std::to_string(static_cast<int>(timescale.getBase()));
+        outbuffer << timescale.getMagnitudeString() + "\n";
+        outbuffer << "$end\n";
 
-        scopeRoot.printScope(outfile);
+        scopeRoot.printScope(outbuffer);
 
-        outfile << "$enddefinitions $end\n";
+        outbuffer << "$enddefinitions $end\n";
     }
 
     void addScope(std::string const & scopeName)
@@ -195,10 +213,10 @@ public:
         // --------------------------------------------------------------------
         // TIME
         // --------------------------------------------------------------------
-        if (firstDump) outfile << "$dumpvars\n";
+        if (firstDump) outbuffer << "$dumpvars\n";
         else if (!this->changed()) return;
         else if (next_sample > t) return;
-        else outfile << '#' << get_time<uint64_t>(t) << "\n";
+        else outbuffer << '#' << get_time<uint64_t>(t) << "\n";
         // --------------------------------------------------------------------
         // VALUES
         // --------------------------------------------------------------------
@@ -208,7 +226,7 @@ public:
         // --------------------------------------------------------------------
         if (firstDump)
         {
-            outfile << "$end\n";
+            outbuffer << "$end\n";
             firstDump = false;
         }
         next_sample += sampling.getValue();
@@ -223,7 +241,36 @@ public:
     /// @brief Closes the trace file.
     inline void closeTrace()
     {
-        if (outfile.is_open()) outfile.close();
+        if (outfile.is_open())
+        {
+#ifdef COMPRESSION_ENABLED
+            if (compressTraces)
+            {
+                // Log the compression start.
+                std::cout << KYEL << "Compressing traces..." << KRST << "\n";
+                // Save the original trace and the compressed trace.
+                std::string trace = outbuffer.str();
+                std::string compressed = Compression::compress(trace);
+                // Write the trace to file.
+                outfile << compressed;
+                // Compute the saved space.
+                auto saved = 100.0;
+                saved -= Utility::getPercent(compressed.capacity(),
+                                             trace.capacity());
+                // Log the compression statistics.
+                std::cout << KYEL << "Compression completed " << KRST << "\n"
+                          << std::setprecision(2)
+                          << "Original size   = "
+                          << trace.capacity() << " bytes\n"
+                          << "Compressed size = "
+                          << compressed.capacity() << " bytes\n"
+                          << "Saved space = " << saved << "%\n";
+            }
+#else
+            outfile << outbuffer.str();
+#endif
+            outfile.close();
+        }
     }
 
 private:
@@ -285,7 +332,7 @@ private:
             if (trace->hasChanged() || firstDump)
             {
                 // Print the trace.
-                outfile << trace->getValue();
+                outbuffer << trace->getValue();
                 // Update previous value.
                 trace->updatePrevious();
             }

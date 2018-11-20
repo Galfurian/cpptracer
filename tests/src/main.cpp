@@ -34,6 +34,9 @@ int main(int, char **)
 
     // Create the trace and add the variable to the trace.
     VariableTracer trace("trace.vcd", timeStep);
+    // Enable the compression.
+    trace.enableCompression();
+
     // The root scope is "CPP".
 
     // Here we add a sub-scope FP.
