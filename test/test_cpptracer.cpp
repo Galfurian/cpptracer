@@ -1,5 +1,42 @@
 #include "variableTracer.hpp"
-#include "sinSource.hpp"
+
+class SinSource {
+private:
+    /// The sinusoid offset.
+    double offset;
+    /// The sinusoid amplitude.
+    double amplitude;
+    /// The sinusoid frequency.
+    double frequency;
+
+public:
+    /// The output value.
+    double out;
+
+    /// @brief Constructor.
+    SinSource(const double &_offset,
+              const double &_amplitude,
+              const double &_frequency)
+        : offset(_offset),
+          amplitude(_amplitude),
+          frequency(_frequency),
+          out()
+    {
+        // Nothing to do.
+    }
+
+    /// @brief Destructor.
+    ~SinSource() = default;
+
+    /// @brief Advance the sinusoid.
+    /// @param t The current time.
+    /// @return The current value.
+    inline double compute(const double &t)
+    {
+        out = offset + amplitude * std::sin(2 * M_PI * frequency * t);
+        return out;
+    }
+};
 
 int main(int, char **)
 {
@@ -10,26 +47,26 @@ int main(int, char **)
     // Create the variables that have to be traced.
     // Floating Point (FP)
     long double _long_double = 1;
-    double _double = 1;
-    float _float = 1;
+    double _double           = 1;
+    float _float             = 1;
 
     // Unsigned (UINT)
     uint64_t _uint64_t = 0;
     uint32_t _uint32_t = 0;
     uint16_t _uint16_t = 0;
-    uint8_t _uint8_t = 0;
+    uint8_t _uint8_t   = 0;
 
     // Signed (INT)
     int64_t _int64_t = 0;
     int32_t _int32_t = 0;
     int16_t _int16_t = 0;
-    int8_t _int8_t = 0;
+    int8_t _int8_t   = 0;
 
     // Waves (WAVE)
     SinSource sinSource(0, 1, 0.5);
 
     // Auxiliary variables.
-    double first = 0;
+    double first  = 0;
     double second = 1;
 
     // Create the trace and add the variable to the trace.
@@ -84,26 +121,22 @@ int main(int, char **)
 
     trace.createTrace();
     // Initialize the trace.
-    for (double time = 0; time < simulatedTime; time += timeStep)
-    {
-        if (time <= 1)
-        {
+    for (double time = 0; time < simulatedTime; time += timeStep) {
+        if (time <= 1) {
             _long_double = _double = time;
-        }
-        else
-        {
+        } else {
             _long_double = _double = first + second;
-            first = second;
-            second = _double;
+            first                  = second;
+            second                 = _double;
         }
         _float *= static_cast<float>(M_PI);
 
-        _uint8_t = static_cast<uint8_t>(_uint8_t + 8);
+        _uint8_t  = static_cast<uint8_t>(_uint8_t + 8);
         _uint16_t = static_cast<uint16_t>(_uint16_t + 16);
         _uint32_t += 32u;
         _uint64_t += 64UL;
 
-        _int8_t = static_cast<int8_t>(_int8_t - 8);
+        _int8_t  = static_cast<int8_t>(_int8_t - 8);
         _int16_t = static_cast<int16_t>(_int16_t - 16);
         _int32_t -= 32;
         _int64_t -= 64;

@@ -1,44 +1,70 @@
 # -----------------------------------------------------------------------------
-# Check CMAKE Version.
-cmake_minimum_required(VERSION 2.8.4 FATAL_ERROR)
+# @brief  : Root cmake file.
+# @author : Enrico Fraccaroli
+# @create : 03/01/2022
+# @update : 03/01/2022
+# -----------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
+# Set the minimum CMake version, the project name and default build type.
+# -----------------------------------------------------------------------------
+cmake_minimum_required(VERSION 2.8.4...3.18 FATAL_ERROR)
+
 # Set the project name.
-SET(PROJECT_NAME cpptracer)
+project(cpptracer CXX)
+
+# Set the default build type to Debug.
+if(NOT CMAKE_BUILD_TYPE)
+    message(STATUS "Setting build type to 'Debug' as none was specified.")
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build." FORCE)
+endif()
 
 # -----------------------------------------------------------------------------
-# Create the project.
-project(${PROJECT_NAME} CXX)
+# Add options.
+# -----------------------------------------------------------------------------
+option(CPPTRACER_COMPRESS "Enables the option to compress VCD traces using zlib" OFF)
 
 # -----------------------------------------------------------------------------
-# Initialize CXXFLAGS.
+# Set the compilation flags.
+# -----------------------------------------------------------------------------
+# Set C++ Standard.
+set(CMAKE_CXX_STANDARD 20)
+
+# Set the actual flags.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic-errors")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic-errors")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-variable")
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 # -----------------------------------------------------------------------------
-# Set inlcuded directories.
-include_directories(include)
+# LIBRARY
+# -----------------------------------------------------------------------------
+# Add the C++ library.
+add_library(${PROJECT_NAME} INTERFACE)
+# Inlcude header directories.
+target_include_directories(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_DIR}/include)
+
+if (CPPTRACER_COMPRESS)
+    # Find zlib for traces compression.
+    find_package(ZLIB REQUIRED)
+    if (ZLIB_FOUND)
+        target_include_directories(${PROJECT_NAME} INTERFACE ${ZLIB_INCLUDE_DIRS})
+        target_link_libraries(${PROJECT_NAME} INTERFACE ${ZLIB_LIBRARIES})
+        add_definitions(-DCOMPRESSION_ENABLED)
+    endif (ZLIB_FOUND)
+endif (CPPTRACER_COMPRESS)
 
 # -----------------------------------------------------------------------------
-# Add test directory.
-add_subdirectory(tests)
+# Testing programs.
+# -----------------------------------------------------------------------------
 enable_testing()
-add_test(NAME ProjectTest COMMAND ProjectTest "test")
-
-# -----------------------------------------------------------------------------
-# Add the documentation generation.
-find_package(Doxygen)
-if (DOXYGEN_FOUND)
-    add_custom_target(doc
-            ${DOXYGEN_EXECUTABLE} ${CMAKE_SOURCE_DIR}/doc/project.doxyfile
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-            COMMENT "Generating API documentation with Doxygen" VERBATIM)
-endif (DOXYGEN_FOUND)
+add_subdirectory(test)
