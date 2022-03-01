@@ -1,8 +1,6 @@
-/// @file   utilities.hpp
-/// @author Enrico Fraccaroli
-/// @date   Jul 18 2017
-/// @copyright
-/// Copyright (c) 2017 Enrico Fraccaroli <enrico.fraccaroli@univr.it>
+/// @file utilities.hpp
+/// @author Enrico Fraccaroli (enry.frak@gmail.com)
+/// @brief Contains a set of utility functions.
 
 #pragma once
 
@@ -18,25 +16,23 @@
 #include <random>
 #include <set>
 
-namespace Utility
+namespace cpptracer::utility
 {
 
-inline void create_dir(std::string const & path)
+inline void create_dir(std::string const &path)
 {
     const int dir_err = system(("mkdir -p " + path).c_str());
-    if (dir_err == -1)
-    {
+    if (dir_err == -1) {
         printf("Error creating directory %s!\n", path.c_str());
         exit(1);
     }
 }
 
-inline unsigned int elfHash(std::string const & s)
+inline unsigned int elfHash(std::string const &s)
 {
     unsigned int hash = 0;
-    unsigned int x = 0;
-    for (const auto c : s)
-    {
+    unsigned int x    = 0;
+    for (const auto c : s) {
         hash = (hash << 4) + static_cast<unsigned int>(c);
         if ((x = hash & 0xF0000000L) != 0)
             hash ^= (x >> 24);
@@ -45,13 +41,13 @@ inline unsigned int elfHash(std::string const & s)
     return hash;
 }
 
-template<typename TDone, typename TTotal>
+template <typename TDone, typename TTotal>
 inline double getPercent(TDone done, TTotal total)
 {
     return (static_cast<double>(done) / static_cast<double>(total)) * 100.0;
 }
 
-template<typename TDone, typename TTotal>
+template <typename TDone, typename TTotal>
 inline std::string getPercentString(TDone done, TTotal total)
 {
     std::stringstream ss;
@@ -61,14 +57,14 @@ inline std::string getPercentString(TDone done, TTotal total)
     return ss.str();
 }
 
-inline double to_double(std::string const & s)
+inline double to_double(std::string const &s)
 {
     std::string::size_type sz;
     return std::stod(s, &sz);
 }
 
-template<typename T>
-inline T to_number(std::string const & s)
+template <typename T>
+inline T to_number(std::string const &s)
 {
     std::string::size_type sz;
     return static_cast<T>(std::stol(s, &sz));
@@ -77,4 +73,4 @@ inline T to_number(std::string const & s)
 /// @brief Provides the current date.
 std::string getDateTime();
 
-} // namespace Utility
+} // namespace cpptracer::utility

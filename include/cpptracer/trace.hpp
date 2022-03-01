@@ -1,19 +1,6 @@
-/// @file   genericTrace.hpp
-/// @author Enrico Fraccaroli
-/// @date   Jul 20, 2016
-/// @copyright
-/// Copyright (c) 2016,2017,2018 Enrico Fraccaroli <enrico.fraccaroli@gmail.com>
-/// Permission to use, copy, modify, and distribute this software for any
-/// purpose with or without fee is hereby granted, provided that the above
-/// copyright notice and this permission notice appear in all copies.
-///
-/// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-/// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-/// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-/// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-/// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-/// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-/// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+/// @file trace.hpp
+/// @author Enrico Fraccaroli (enry.frak@gmail.com)
+/// @brief Contains the trace class, which is stored inside the tracer.
 
 #pragma once
 
@@ -24,21 +11,23 @@
 #include <type_traits>
 #include <bitset>
 
-#include "doubleOperators.hpp"
+#include "feq.hpp"
 
-class GenericTrace
+namespace cpptracer
 {
+
+class Trace {
 public:
     /// @brief Constructor of the trace.
-    GenericTrace(std::string const & _name, std::string const & _symbol) :
-        name(_name),
-        symbol(_symbol)
+    Trace(std::string const &_name, std::string const &_symbol)
+        : name(_name),
+          symbol(_symbol)
     {
         // Nothing to do.
     }
 
     /// @brief Destructor.
-    virtual ~GenericTrace() = default;
+    virtual ~Trace() = default;
 
     /// @brief Provides the name of the trace.
     inline std::string getName()
@@ -73,13 +62,11 @@ protected:
     std::string symbol;
 };
 
-template<typename T>
-class GenericTraceWrapper :
-    public GenericTrace
-{
+template <typename T>
+class TraceWrapper : public Trace {
 public:
     /// A pointer to the variable that has to be traced.
-    T * ptr;
+    T *ptr;
     /// Previous value of the trace.
     T previous;
 
@@ -88,17 +75,17 @@ public:
     /// @param _symbol   The symbol to assign.
     /// @param _ptr      Pointer to the variable.
     /// @param _previous Previous value.
-    GenericTraceWrapper(std::string _name, std::string _symbol, T * _ptr) :
-        GenericTrace(_name, _symbol),
-        ptr(_ptr),
-        previous(),
-        ss()
+    TraceWrapper(std::string _name, std::string _symbol, T *_ptr)
+        : Trace(_name, _symbol),
+          ptr(_ptr),
+          previous(),
+          ss()
     {
         ss << std::setprecision(32);
     }
 
     /// @brief Destructor.
-    ~GenericTraceWrapper() override = default;
+    ~TraceWrapper() override = default;
 
     std::string getVar() override;
 
@@ -118,103 +105,102 @@ public:
 
 private:
     std::stringstream ss;
-
 };
 
 // ----------------------------------------------------------------------------
 // Provides specific definition.
-template<>
-inline std::string GenericTraceWrapper<bool>::getVar()
+template <>
+inline std::string TraceWrapper<bool>::getVar()
 {
     ss.str("");
     ss << "$var integer 1 " << getSymbol() << " " << getName() << " $end\n";
     return ss.str();
 }
 
-template<>
-inline std::string GenericTraceWrapper<int8_t>::getVar()
+template <>
+inline std::string TraceWrapper<int8_t>::getVar()
 {
     ss.str("");
     ss << "$var integer  8 " << getSymbol() << " " << getName() << " $end\n";
     return ss.str();
 }
 
-template<>
-inline std::string GenericTraceWrapper<int16_t>::getVar()
+template <>
+inline std::string TraceWrapper<int16_t>::getVar()
 {
     ss.str("");
     ss << "$var integer 16 " << getSymbol() << " " << getName() << " $end\n";
     return ss.str();
 }
 
-template<>
-inline std::string GenericTraceWrapper<int32_t>::getVar()
+template <>
+inline std::string TraceWrapper<int32_t>::getVar()
 {
     ss.str("");
     ss << "$var integer 32 " << getSymbol() << " " << getName() << " $end\n";
     return ss.str();
 }
 
-template<>
-inline std::string GenericTraceWrapper<int64_t>::getVar()
+template <>
+inline std::string TraceWrapper<int64_t>::getVar()
 {
     ss.str("");
     ss << "$var integer 64 " << getSymbol() << " " << getName() << " $end\n";
     return ss.str();
 }
 
-template<>
-inline std::string GenericTraceWrapper<uint8_t>::getVar()
+template <>
+inline std::string TraceWrapper<uint8_t>::getVar()
 {
     ss.str("");
     ss << "$var integer  8 " << getSymbol() << " " << getName() << " $end\n";
     return ss.str();
 }
 
-template<>
-inline std::string GenericTraceWrapper<uint16_t>::getVar()
+template <>
+inline std::string TraceWrapper<uint16_t>::getVar()
 {
     ss.str("");
     ss << "$var integer 16 " << getSymbol() << " " << getName() << " $end\n";
     return ss.str();
 }
 
-template<>
-inline std::string GenericTraceWrapper<uint32_t>::getVar()
+template <>
+inline std::string TraceWrapper<uint32_t>::getVar()
 {
     ss.str("");
     ss << "$var integer 32 " << getSymbol() << " " << getName() << " $end\n";
     return ss.str();
 }
 
-template<>
-inline std::string GenericTraceWrapper<uint64_t>::getVar()
+template <>
+inline std::string TraceWrapper<uint64_t>::getVar()
 {
     ss.str("");
     ss << "$var integer 64 " << getSymbol() << " " << getName() << " $end\n";
     return ss.str();
 }
 
-template<>
-inline std::string GenericTraceWrapper<float>::getVar()
+template <>
+inline std::string TraceWrapper<float>::getVar()
 {
     return "$var real 1 " + getSymbol() + " " + getName() + " $end\n";
 }
 
-template<>
-inline std::string GenericTraceWrapper<double>::getVar()
+template <>
+inline std::string TraceWrapper<double>::getVar()
 {
     return "$var real 1 " + getSymbol() + " " + getName() + " $end\n";
 }
 
-template<>
-inline std::string GenericTraceWrapper<long double>::getVar()
+template <>
+inline std::string TraceWrapper<long double>::getVar()
 {
     return "$var real 1 " + getSymbol() + " " + getName() + " $end\n";
 }
 
-template<>
-inline std::string GenericTraceWrapper<std::vector<bool>>::getVar()
+template <>
+inline std::string TraceWrapper<std::vector<bool>>::getVar()
 {
     ss.str("");
     ss << ptr->size();
@@ -224,85 +210,85 @@ inline std::string GenericTraceWrapper<std::vector<bool>>::getVar()
 
 // ----------------------------------------------------------------------------
 // Provides specific changing check.
-template<>
-inline bool GenericTraceWrapper<bool>::hasChanged()
+template <>
+inline bool TraceWrapper<bool>::hasChanged()
 {
     return (previous != (*ptr));
 }
 
-template<>
-inline bool GenericTraceWrapper<int8_t>::hasChanged()
+template <>
+inline bool TraceWrapper<int8_t>::hasChanged()
 {
     return (previous != (*ptr));
 }
 
-template<>
-inline bool GenericTraceWrapper<int16_t>::hasChanged()
+template <>
+inline bool TraceWrapper<int16_t>::hasChanged()
 {
     return (previous != (*ptr));
 }
 
-template<>
-inline bool GenericTraceWrapper<int32_t>::hasChanged()
+template <>
+inline bool TraceWrapper<int32_t>::hasChanged()
 {
     return (previous != (*ptr));
 }
 
-template<>
-inline bool GenericTraceWrapper<int64_t>::hasChanged()
+template <>
+inline bool TraceWrapper<int64_t>::hasChanged()
 {
     return (previous != (*ptr));
 }
 
-template<>
-inline bool GenericTraceWrapper<uint8_t>::hasChanged()
+template <>
+inline bool TraceWrapper<uint8_t>::hasChanged()
 {
     return (previous != (*ptr));
 }
 
-template<>
-inline bool GenericTraceWrapper<uint16_t>::hasChanged()
+template <>
+inline bool TraceWrapper<uint16_t>::hasChanged()
 {
     return (previous != (*ptr));
 }
 
-template<>
-inline bool GenericTraceWrapper<uint32_t>::hasChanged()
+template <>
+inline bool TraceWrapper<uint32_t>::hasChanged()
 {
     return (previous != (*ptr));
 }
 
-template<>
-inline bool GenericTraceWrapper<uint64_t>::hasChanged()
+template <>
+inline bool TraceWrapper<uint64_t>::hasChanged()
 {
     return (previous != (*ptr));
 }
 
-template<>
-inline bool GenericTraceWrapper<float>::hasChanged()
+template <>
+inline bool TraceWrapper<float>::hasChanged()
 {
     return !is_equal(previous, (*ptr));
 }
 
-template<>
-inline bool GenericTraceWrapper<double>::hasChanged()
+template <>
+inline bool TraceWrapper<double>::hasChanged()
 {
     return !is_equal(previous, (*ptr), 1e-12);
 }
 
-template<>
-inline bool GenericTraceWrapper<long double>::hasChanged()
+template <>
+inline bool TraceWrapper<long double>::hasChanged()
 {
     return !is_equal(previous, (*ptr), 1e-24);
 }
 
-template<>
-inline bool GenericTraceWrapper<std::vector<bool>>::hasChanged()
+template <>
+inline bool TraceWrapper<std::vector<bool>>::hasChanged()
 {
     auto it_prev = previous.begin(), it_curr = ptr->begin();
-    while ((it_prev != previous.end()) && (it_curr != ptr->end()))
-    {
-        if ((*it_curr) != (*it_prev)) return true;
+    while ((it_prev != previous.end()) && (it_curr != ptr->end())) {
+        if ((*it_curr) != (*it_prev))
+            return true;
         ++it_prev, ++it_curr;
     }
     return false;
@@ -310,94 +296,89 @@ inline bool GenericTraceWrapper<std::vector<bool>>::hasChanged()
 
 // ----------------------------------------------------------------------------
 // Provides specific values.
-template<>
-inline std::string GenericTraceWrapper<bool>::getValue()
+template <>
+inline std::string TraceWrapper<bool>::getValue()
 {
     return "b" + std::string((*ptr) ? "1" : "0") + " " + getSymbol() + "\n";
 }
 
-template<>
-inline std::string GenericTraceWrapper<int8_t>::getValue()
+template <>
+inline std::string TraceWrapper<int8_t>::getValue()
 {
-    return "b" + std::bitset<8>(
-        static_cast<uint8_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<8>(static_cast<uint8_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
 }
 
-template<>
-inline std::string GenericTraceWrapper<int16_t>::getValue()
+template <>
+inline std::string TraceWrapper<int16_t>::getValue()
 {
-    return "b" + std::bitset<16>(
-        static_cast<uint16_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<16>(static_cast<uint16_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
 }
 
-template<>
-inline std::string GenericTraceWrapper<int32_t>::getValue()
+template <>
+inline std::string TraceWrapper<int32_t>::getValue()
 {
-    return "b" + std::bitset<32>(
-        static_cast<uint32_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<32>(static_cast<uint32_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
 }
 
-template<>
-inline std::string GenericTraceWrapper<int64_t>::getValue()
+template <>
+inline std::string TraceWrapper<int64_t>::getValue()
 {
-    return "b" + std::bitset<64>(
-        static_cast<uint64_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
+    return "b" + std::bitset<64>(static_cast<uint64_t>(*ptr)).to_string() + " " + getSymbol() + "\n";
 }
 
-template<>
-inline std::string GenericTraceWrapper<uint8_t>::getValue()
+template <>
+inline std::string TraceWrapper<uint8_t>::getValue()
 {
     return "b" + std::bitset<8>(*ptr).to_string() + " " + getSymbol() + "\n";
 }
 
-template<>
-inline std::string GenericTraceWrapper<uint16_t>::getValue()
+template <>
+inline std::string TraceWrapper<uint16_t>::getValue()
 {
     return "b" + std::bitset<16>(*ptr).to_string() + " " + getSymbol() + "\n";
 }
 
-template<>
-inline std::string GenericTraceWrapper<uint32_t>::getValue()
+template <>
+inline std::string TraceWrapper<uint32_t>::getValue()
 {
     return "b" + std::bitset<32>(*ptr).to_string() + " " + getSymbol() + "\n";
 }
 
-template<>
-inline std::string GenericTraceWrapper<uint64_t>::getValue()
+template <>
+inline std::string TraceWrapper<uint64_t>::getValue()
 {
     return "b" + std::bitset<64>(*ptr).to_string() + " " + getSymbol() + "\n";
 }
 
-template<>
-inline std::string GenericTraceWrapper<float>::getValue()
+template <>
+inline std::string TraceWrapper<float>::getValue()
 {
     ss.str("");
     ss << "r" << (*ptr) << " " << getSymbol() << "\n";
     return ss.str();
 }
 
-template<>
-inline std::string GenericTraceWrapper<double>::getValue()
+template <>
+inline std::string TraceWrapper<double>::getValue()
 {
     ss.str("");
     ss << "r" << (*ptr) << " " << getSymbol() << "\n";
     return ss.str();
 }
 
-template<>
-inline std::string GenericTraceWrapper<long double>::getValue()
+template <>
+inline std::string TraceWrapper<long double>::getValue()
 {
     ss.str("");
     ss << "r" << (*ptr) << " " << getSymbol() << "\n";
     return ss.str();
 }
 
-template<>
-inline std::string GenericTraceWrapper<std::vector<bool>>::getValue()
+template <>
+inline std::string TraceWrapper<std::vector<bool>>::getValue()
 {
     std::string result("b");
-    for (auto const & it : (*ptr))
-    {
+    for (auto const &it : (*ptr)) {
         result.push_back((it) ? '1' : '0');
     }
     result.push_back(' ');
@@ -405,3 +386,5 @@ inline std::string GenericTraceWrapper<std::vector<bool>>::getValue()
     result.push_back('\n');
     return result;
 }
+
+} // namespace cpptracer

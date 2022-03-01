@@ -1,27 +1,14 @@
-/// @file   variableTracer.hpp
-/// @author Enrico Fraccaroli
-/// @date   Jul 20, 2016
-/// @copyright
-/// Copyright (c) 2016,2017,2018 Enrico Fraccaroli <enrico.fraccaroli@gmail.com>
-/// Permission to use, copy, modify, and distribute this software for any
-/// purpose with or without fee is hereby granted, provided that the above
-/// copyright notice and this permission notice appear in all copies.
-///
-/// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-/// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-/// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-/// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-/// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-/// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-/// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+/// @file tracer.hpp
+/// @author Enrico Fraccaroli (enry.frak@gmail.com)
+/// @brief Contains the tracer class.
 
 #pragma once
 
-#include "genericTrace.hpp"
 #include "compression.hpp"
 #include "timeScale.hpp"
 #include "utilities.hpp"
 #include "colors.hpp"
+#include "trace.hpp"
 
 #include <vector>
 #include <fstream> // std::ofstream
@@ -35,36 +22,35 @@
 #define VARIABLE_TRACER_MINOR 0
 #define VARIABLE_TRACER_PATCH 0
 
-/// @brief C++ variable tracer.
-class VariableTracer
+namespace cpptracer
 {
+
+/// @brief C++ variable tracer.
+class Tracer {
 private:
-    typedef struct scope_t
-    {
+    typedef struct scope_t {
         std::string name;
-        std::vector<GenericTrace *> traceList;
+        std::vector<Trace *> traceList;
         std::vector<scope_t> subscopes;
-        scope_t * parentScope;
+        scope_t *parentScope;
 
         /// @brief Constructor.
-        scope_t(std::string const & _name) :
-            name(_name),
-            traceList(),
-            subscopes(),
-            parentScope()
+        scope_t(std::string const &_name)
+            : name(_name),
+              traceList(),
+              subscopes(),
+              parentScope()
         {
             // Nothing to do.
         }
 
-        inline void printScope(std::ostringstream & stream) const
+        inline void printScope(std::ostringstream &stream) const
         {
             stream << "$scope module " << name << " $end\n";
-            for (auto const & trace : traceList)
-            {
+            for (auto const &trace : traceList) {
                 stream << "    " << trace->getVar();
             }
-            for (auto const & subscope : subscopes)
-            {
+            for (auto const &subscope : subscopes) {
                 subscope.printScope(stream);
             }
             stream << "$upscope $end\n";
@@ -74,7 +60,7 @@ private:
         {
             for (auto trace : traceList)
                 delete (trace);
-            for (auto & subscope : subscopes)
+            for (auto &subscope : subscopes)
                 subscope.deleteTraces();
         }
     } scope_t;
@@ -88,7 +74,7 @@ private:
     /// The root of the scopes.
     scope_t scopeRoot;
     /// Pointer to the current scope.
-    scope_t * current_scope;
+    scope_t *current_scope;
     /// The timescale.
     TimeScale timescale;
     /// The timescale.
@@ -104,24 +90,24 @@ public:
     /// @brief Constructor.
     /// @param _filename The name of the file.
     /// @param _timescale The timescale to use.
-    VariableTracer(std::string const & _filename,
-                   TimeScale const & _timescale) :
-        filename(_filename),
-        outfile(_filename),
-        outbuffer(),
-        scopeRoot("CPP"),
-        current_scope(&scopeRoot),
-        timescale(_timescale),
-        sampling(_timescale),
-        firstDump(true),
-        next_sample(),
-        compressTraces()
+    Tracer(std::string const &_filename,
+                   TimeScale const &_timescale)
+        : filename(_filename),
+          outfile(_filename),
+          outbuffer(),
+          scopeRoot("CPP"),
+          current_scope(&scopeRoot),
+          timescale(_timescale),
+          sampling(_timescale),
+          firstDump(true),
+          next_sample(),
+          compressTraces()
     {
         scopeRoot.parentScope = &scopeRoot;
     }
 
     /// @brief Destructor.
-    ~VariableTracer()
+    ~Tracer()
     {
         // Delete the traces.
         scopeRoot.deleteTraces();
@@ -129,7 +115,7 @@ public:
         this->closeTrace();
     }
 
-    inline void setSampling(TimeScale const & _sampling)
+    inline void setSampling(TimeScale const &_sampling)
     {
         sampling = _sampling;
     }
@@ -151,16 +137,15 @@ public:
         outbuffer << "    " + this->getDateTime() + "\n";
         outbuffer << "$end\n";
         outbuffer << "$version\n";
-        outbuffer << "    VariableTracer "
+        outbuffer << "    Tracer "
                   << VARIABLE_TRACER_MAJOR << "."
                   << VARIABLE_TRACER_MINOR << "."
                   << VARIABLE_TRACER_PATCH
                   << " - By Galfurian --- Mar 30, 2016\n";
         outbuffer << "$end\n";
         outbuffer << "$timescale\n";
-        outbuffer <<
-                  "    " +
-                  std::to_string(static_cast<int>(timescale.getBase()));
+        outbuffer << "    " +
+                         std::to_string(static_cast<int>(timescale.getBase()));
         outbuffer << timescale.getMagnitudeString() + "\n";
         outbuffer << "$end\n";
 
@@ -169,22 +154,22 @@ public:
         outbuffer << "$enddefinitions $end\n";
     }
 
-    void addScope(std::string const & scopeName)
+    void addScope(std::string const &scopeName)
     {
         assert(current_scope && "There is no current scope.");
         assert(current_scope->parentScope && "Current scope has no parent.");
         auto parentScope = current_scope->parentScope;
         parentScope->subscopes.emplace_back(scope_t(scopeName));
         parentScope->subscopes.back().parentScope = parentScope;
-        current_scope = &parentScope->subscopes.back();
+        current_scope                             = &parentScope->subscopes.back();
     }
 
-    void addSubScope(std::string const & scopeName)
+    void addSubScope(std::string const &scopeName)
     {
         assert(current_scope && "There is no current scope.");
         current_scope->subscopes.emplace_back(scope_t(scopeName));
         current_scope->subscopes.back().parentScope = current_scope;
-        current_scope = &current_scope->subscopes.back();
+        current_scope                               = &current_scope->subscopes.back();
     }
 
     inline void closeScope()
@@ -197,26 +182,30 @@ public:
     /// @brief Add a variable to the list of traces.
     /// @param name     The name of the trace.
     /// @param variable The variable which has to be traced.
-    template<typename T>
-    void addTrace(T & variable, const std::string & name)
+    template <typename T>
+    void addTrace(T &variable, const std::string &name)
     {
         assert(current_scope && "There is no current scope.");
         current_scope->traceList.push_back(
-            new GenericTraceWrapper<T>(
-                name, VariableTracer::getUniqueName(), &variable));
+            new TraceWrapper<T>(
+                name, Tracer::getUniqueName(), &variable));
     }
 
     /// @brief Updates the trace file with the current variable values.
     /// @param t The time at which the traces have been updated.
-    void updateTrace(const double & t)
+    void updateTrace(const double &t)
     {
         // --------------------------------------------------------------------
         // TIME
         // --------------------------------------------------------------------
-        if (firstDump) outbuffer << "$dumpvars\n";
-        else if (!this->changed()) return;
-        else if (next_sample > t) return;
-        else outbuffer << '#' << get_time<uint64_t>(t) << "\n";
+        if (firstDump)
+            outbuffer << "$dumpvars\n";
+        else if (!this->changed())
+            return;
+        else if (next_sample > t)
+            return;
+        else
+            outbuffer << '#' << get_time<uint64_t>(t) << "\n";
         // --------------------------------------------------------------------
         // VALUES
         // --------------------------------------------------------------------
@@ -224,8 +213,7 @@ public:
         // --------------------------------------------------------------------
         // END
         // --------------------------------------------------------------------
-        if (firstDump)
-        {
+        if (firstDump) {
             outbuffer << "$end\n";
             firstDump = false;
         }
@@ -241,22 +229,19 @@ public:
     /// @brief Closes the trace file.
     inline void closeTrace()
     {
-        if (outfile.is_open())
-        {
+        if (outfile.is_open()) {
 #ifdef COMPRESSION_ENABLED
-            if (compressTraces)
-            {
+            if (compressTraces) {
                 // Log the compression start.
                 std::cout << KYEL << "Compressing traces..." << KRST << "\n";
                 // Save the original trace and the compressed trace.
-                std::string trace = outbuffer.str();
-                std::string compressed = Compression::compress(trace);
+                std::string trace      = outbuffer.str();
+                std::string compressed = compression::compress(trace);
                 // Write the trace to file.
                 outfile << compressed;
                 // Compute the saved space.
                 auto saved = 100.0;
-                saved -= Utility::getPercent(compressed.capacity(),
-                                             trace.capacity());
+                saved -= utility::getPercent(compressed.capacity(), trace.capacity());
                 // Log the compression statistics.
                 std::cout << KYEL << "Compression completed " << KRST << "\n"
                           << std::setprecision(2)
@@ -274,8 +259,8 @@ public:
     }
 
 private:
-    template<typename T>
-    inline T get_time(long double const & t) const
+    template <typename T>
+    inline T get_time(long double const &t) const
     {
         return static_cast<T>(t / timescale.getMagnitude());
     }
@@ -284,7 +269,7 @@ private:
     std::string getDateTime()
     {
         time_t rawtime;
-        struct tm * timeinfo;
+        struct tm *timeinfo;
         char buffer[80];
 
         time(&rawtime);
@@ -314,45 +299,42 @@ private:
         static std::uniform_int_distribution<size_t> dis(0, characters - 1);
         // Establish a new seed.
         std::string symbol;
-        do
-        {
+        do {
             symbol.clear();
-            for (unsigned int it = 0; it < length; ++it)
-            {
+            for (unsigned int it = 0; it < length; ++it) {
                 symbol += alphanum[dis(gen) % (sizeof(alphanum) - 1)];
             }
         } while (!usedSymbols.insert(symbol).second);
         return symbol;
     }
 
-    inline void updateTraceRecursive(scope_t & scope)
+    inline void updateTraceRecursive(scope_t &scope)
     {
-        for (auto const & trace : scope.traceList)
-        {
-            if (trace->hasChanged() || firstDump)
-            {
+        for (auto const &trace : scope.traceList) {
+            if (trace->hasChanged() || firstDump) {
                 // Print the trace.
                 outbuffer << trace->getValue();
                 // Update previous value.
                 trace->updatePrevious();
             }
         }
-        for (auto & subscope : scope.subscopes)
-        {
+        for (auto &subscope : scope.subscopes) {
             this->updateTraceRecursive(subscope);
         }
     }
 
-    inline bool changedRecursive(scope_t const & scope) const
+    inline bool changedRecursive(scope_t const &scope) const
     {
-        for (auto const & trace : scope.traceList)
-        {
-            if (trace->hasChanged()) return true;
+        for (auto const &trace : scope.traceList) {
+            if (trace->hasChanged())
+                return true;
         }
-        for (auto & subscope : scope.subscopes)
-        {
-            if (this->changedRecursive(subscope)) return true;
+        for (auto &subscope : scope.subscopes) {
+            if (this->changedRecursive(subscope))
+                return true;
         }
         return false;
     }
 };
+
+} // namespace cpptracer

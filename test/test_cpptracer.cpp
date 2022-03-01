@@ -1,4 +1,4 @@
-#include "cpptracer/variableTracer.hpp"
+#include "cpptracer/tracer.hpp"
 
 class SinSource {
 private:
@@ -40,6 +40,8 @@ public:
 
 int main(int, char **)
 {
+    using namespace cpptracer;
+    
     // Define simulated time and timestep of the simulation.
     TimeScale simulatedTime(50, TimeScale::SEC);
     TimeScale timeStep(1, TimeScale::SEC);
@@ -70,7 +72,7 @@ int main(int, char **)
     double second = 1;
 
     // Create the trace and add the variable to the trace.
-    VariableTracer trace("trace.vcd", timeStep);
+    Tracer trace("trace.vcd", timeStep);
     // Enable the compression.
     trace.enableCompression();
 
