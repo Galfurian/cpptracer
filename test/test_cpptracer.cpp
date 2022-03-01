@@ -1,4 +1,4 @@
-#include "variableTracer.hpp"
+#include "cpptracer/variableTracer.hpp"
 
 class SinSource {
 private:
