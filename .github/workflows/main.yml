@@ -1,0 +1,41 @@
+name: Main
+on:
+  push:
+    branches-ignore:
+      - 'releases/**'
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+jobs:
+  test:
+    name: Build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            extra-cmake-arguments: -D CPPTRACER_COMPRESS=ON
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - name: Install zlib
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install zlib1g-dev
+
+      - name: Build
+        run: |
+          cmake -B build -D WARNINGS_AS_ERRORS=ON ${{ matrix.extra-cmake-arguments }}
+          cmake --build build --parallel 2
+
+      - name: Test
+        run: ctest -C Debug --test-dir build --no-tests=error --verbose

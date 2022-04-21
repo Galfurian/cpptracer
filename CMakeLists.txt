@@ -8,60 +8,68 @@
 # -----------------------------------------------------------------------------
 # Set the minimum CMake version, the project name and default build type.
 # -----------------------------------------------------------------------------
-cmake_minimum_required(VERSION 2.8.4...3.18 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1)
 
 # Set the project name.
 project(cpptracer CXX)
-
-# Set the default build type to Debug.
-if(NOT CMAKE_BUILD_TYPE)
-    message(STATUS "Setting build type to 'Debug' as none was specified.")
-    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build." FORCE)
-endif()
 
 # -----------------------------------------------------------------------------
 # Add options.
 # -----------------------------------------------------------------------------
 option(CPPTRACER_COMPRESS "Enables the option to compress VCD traces using zlib" OFF)
+option(STRICT_WARNINGS "Enable strict compiler warnings" ON)
+option(WARNINGS_AS_ERRORS "Treat all warnings as errors" OFF)
 
 # -----------------------------------------------------------------------------
 # Set the compilation flags.
 # -----------------------------------------------------------------------------
 # Set C++ Standard.
-set(CMAKE_CXX_STANDARD 20)
-
-# Set the actual flags.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic-errors")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-variable")
-
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
-elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+set(CMAKE_CXX_STANDARD 17)
 
 # -----------------------------------------------------------------------------
 # LIBRARY
 # -----------------------------------------------------------------------------
 # Add the C++ library.
 add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 # Inlcude header directories.
 target_include_directories(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_DIR}/include)
 
-if (CPPTRACER_COMPRESS)
+if(CPPTRACER_COMPRESS)
     # Find zlib for traces compression.
     find_package(ZLIB REQUIRED)
-    if (ZLIB_FOUND)
-        target_include_directories(${PROJECT_NAME} INTERFACE ${ZLIB_INCLUDE_DIRS})
-        target_link_libraries(${PROJECT_NAME} INTERFACE ${ZLIB_LIBRARIES})
-        add_definitions(-DCOMPRESSION_ENABLED)
-    endif (ZLIB_FOUND)
-endif (CPPTRACER_COMPRESS)
+    if(ZLIB_FOUND)
+        target_link_libraries(${PROJECT_NAME} INTERFACE ZLIB::ZLIB)
+        target_compile_definitions(${PROJECT_NAME} INTERFACE COMPRESSION_ENABLED)
+    endif()
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # Disable warnings that suggest using MSVC-specific safe functions
+    target_compile_definitions(${PROJECT_NAME} INTERFACE _CRT_SECURE_NO_WARNINGS)
+    if(WARNINGS_AS_ERRORS)
+        target_compile_options(${PROJECT_NAME} INTERFACE /WX)
+    endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    if(WARNINGS_AS_ERRORS)
+        target_compile_options(${PROJECT_NAME} INTERFACE -Werror)
+    endif()
+endif()
+
+if(STRICT_WARNINGS)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        # Mark system headers as external for MSVC explicitly
+        # https://devblogs.microsoft.com/cppblog/broken-warnings-theory
+        target_compile_options(${PROJECT_NAME} INTERFACE /experimental:external)
+        target_compile_options(${PROJECT_NAME} INTERFACE /external:I ${CMAKE_BINARY_DIR})
+        target_compile_options(${PROJECT_NAME} INTERFACE /external:anglebrackets)
+        target_compile_options(${PROJECT_NAME} INTERFACE /external:W0)
+
+        target_compile_options(${PROJECT_NAME} INTERFACE /W4)
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options(${PROJECT_NAME} INTERFACE -Wall -Wextra -pedantic)
+    endif()
+endif()
 
 # -----------------------------------------------------------------------------
 # Testing programs.
