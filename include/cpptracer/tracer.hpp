@@ -245,12 +245,12 @@ public:
             std::cout << KYEL << "Compressing traces..." << KRST << "\n";
             // Save the original trace and the compressed trace.
             std::string trace      = outbuffer.str();
-            std::string compressed = Compression::compress(trace);
+            std::string compressed = compression::compress(trace);
             // Write the trace to file.
             outfile << compressed;
             // Compute the saved space.
             auto saved = 100.0;
-            saved -= Utility::getPercent(compressed.capacity(),
+            saved -= utility::getPercent(compressed.capacity(),
                                          trace.capacity());
             // Log the compression statistics.
             std::cout << KYEL << "Compression completed " << KRST << "\n"
