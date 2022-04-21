@@ -17,19 +17,14 @@ project(cpptracer CXX)
 # Add options.
 # -----------------------------------------------------------------------------
 option(CPPTRACER_COMPRESS "Enables the option to compress VCD traces using zlib" OFF)
+option(STRICT_WARNINGS "Enable strict compiler warnings" ON)
+option(WARNINGS_AS_ERRORS "Treat all warnings as errors" OFF)
 
 # -----------------------------------------------------------------------------
 # Set the compilation flags.
 # -----------------------------------------------------------------------------
 # Set C++ Standard.
 set(CMAKE_CXX_STANDARD 17)
-
-# Set the actual flags.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic-errors")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-variable")
 
 # -----------------------------------------------------------------------------
 # LIBRARY
@@ -48,6 +43,33 @@ if (CPPTRACER_COMPRESS)
         add_definitions(-DCOMPRESSION_ENABLED)
     endif (ZLIB_FOUND)
 endif (CPPTRACER_COMPRESS)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # Disable warnings that suggest using MSVC-specific safe functions
+    target_compile_definitions(${PROJECT_NAME} INTERFACE _CRT_SECURE_NO_WARNINGS)
+    if(WARNINGS_AS_ERRORS)
+        target_compile_options(${PROJECT_NAME} INTERFACE /WX)
+    endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    if(WARNINGS_AS_ERRORS)
+        target_compile_options(${PROJECT_NAME} INTERFACE -Werror)
+    endif()
+endif()
+
+if(STRICT_WARNINGS)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        # Mark system headers as external for MSVC explicitly
+        # https://devblogs.microsoft.com/cppblog/broken-warnings-theory
+        target_compile_options(${PROJECT_NAME} INTERFACE /experimental:external)
+        target_compile_options(${PROJECT_NAME} INTERFACE /external:I ${CMAKE_BINARY_DIR})
+        target_compile_options(${PROJECT_NAME} INTERFACE /external:anglebrackets)
+        target_compile_options(${PROJECT_NAME} INTERFACE /external:W0)
+
+        target_compile_options(${PROJECT_NAME} INTERFACE /W4)
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options(${PROJECT_NAME} INTERFACE -Wall -Wextra -pedantic)
+    endif()
+endif()
 
 # -----------------------------------------------------------------------------
 # Testing programs.
