@@ -34,15 +34,14 @@ add_library(${PROJECT_NAME} INTERFACE)
 # Inlcude header directories.
 target_include_directories(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_DIR}/include)
 
-if (CPPTRACER_COMPRESS)
+if(CPPTRACER_COMPRESS)
     # Find zlib for traces compression.
     find_package(ZLIB REQUIRED)
-    if (ZLIB_FOUND)
-        target_include_directories(${PROJECT_NAME} INTERFACE ${ZLIB_INCLUDE_DIRS})
-        target_link_libraries(${PROJECT_NAME} INTERFACE ${ZLIB_LIBRARIES})
-        add_definitions(-DCOMPRESSION_ENABLED)
-    endif (ZLIB_FOUND)
-endif (CPPTRACER_COMPRESS)
+    if(ZLIB_FOUND)
+        target_link_libraries(${PROJECT_NAME} INTERFACE ZLIB::ZLIB)
+        target_compile_definitions(${PROJECT_NAME} INTERFACE COMPRESSION_ENABLED)
+    endif()
+endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # Disable warnings that suggest using MSVC-specific safe functions
