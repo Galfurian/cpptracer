@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------
 # Set the minimum CMake version, the project name and default build type.
 # -----------------------------------------------------------------------------
-cmake_minimum_required(VERSION 2.8.4...3.18 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1)
 
 # Set the project name.
 project(cpptracer CXX)
