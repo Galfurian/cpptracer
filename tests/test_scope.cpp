@@ -1,23 +1,23 @@
-#include "variableTracer.hpp"
+#include "cpptracer/tracer.hpp"
 
-#ifndef M_2_FOR_PI
-#define M_2_FOR_PI    6.2831853071795864
+#ifndef M_PI
+#define M_PI 3.14159265358979323846 /* pi */
 #endif
 
 int main(int, char **)
 {
     // Define simulated time and timestep of the simulation.
-    TimeScale simulatedTime(50, TimeScale::SEC);
-    TimeScale timeStep(1, TimeScale::SEC);
+    cpptracer::TimeScale simulatedTime(50, cpptracer::TimeScale::SEC);
+    cpptracer::TimeScale timeStep(1, cpptracer::TimeScale::SEC);
 
     // Signed (INT)
     int64_t _int64_t = 0;
     int32_t _int32_t = 0;
     int16_t _int16_t = 0;
-    int8_t _int8_t = 0;
+    int8_t _int8_t   = 0;
 
     // Create the trace and add the variable to the trace.
-    vcdpp::Tracer tracer("test_scope.vcd", timeStep);
+    cpptracer::Tracer tracer("test_scope.vcd", timeStep);
 
     // The root scope is "CPP".
 
@@ -37,9 +37,8 @@ int main(int, char **)
 
     tracer.createTrace();
     // Initialize the trace.
-    for (double time = 0; time < simulatedTime; time += timeStep)
-    {
-        _int8_t = static_cast<int8_t>(_int8_t - 8);
+    for (double time = 0; time < simulatedTime; time += timeStep) {
+        _int8_t  = static_cast<int8_t>(_int8_t - 8);
         _int16_t = static_cast<int16_t>(_int16_t - 16);
         _int32_t -= 32;
         _int64_t -= 64;
