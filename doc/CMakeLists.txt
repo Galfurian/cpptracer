@@ -26,7 +26,7 @@ if(DOXYGEN_FOUND)
                 COMMENT "Generating API documentation with Doxygen" VERBATIM
         )
         add_custom_target(
-                doc
+                cpptracer_doc
                 DEPENDS
                 ${DOXYGEN_INDEX_FILE}
                 ${DOXYFILE_IN}
