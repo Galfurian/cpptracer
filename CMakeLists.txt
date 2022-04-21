@@ -28,7 +28,7 @@ option(CPPTRACER_COMPRESS "Enables the option to compress VCD traces using zlib"
 # Set the compilation flags.
 # -----------------------------------------------------------------------------
 # Set C++ Standard.
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
 # Set the actual flags.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
