@@ -51,15 +51,6 @@ public:
             subscope->printScopeHeader(stream);
         stream << "$upscope $end\n";
     }
-
-    /// @brief Deletes the traces inside the scope, recursively.
-    inline void deleteTraces()
-    {
-        for (auto trace : traces)
-            delete trace;
-        for (auto subscope : subscopes)
-            subscope->deleteTraces();
-    }
 };
 
 } // namespace cpptracer
