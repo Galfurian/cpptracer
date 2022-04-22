@@ -13,18 +13,15 @@ cmake_minimum_required(VERSION 3.1)
 # Set the project name.
 project(cpptracer CXX)
 
+# Set C++ Standard.
+set(CMAKE_CXX_STANDARD 17)
+
 # -----------------------------------------------------------------------------
 # Add options.
 # -----------------------------------------------------------------------------
 option(CPPTRACER_COMPRESS "Enables the option to compress VCD traces using zlib" OFF)
 option(STRICT_WARNINGS "Enable strict compiler warnings" ON)
 option(WARNINGS_AS_ERRORS "Treat all warnings as errors" OFF)
-
-# -----------------------------------------------------------------------------
-# Set the compilation flags.
-# -----------------------------------------------------------------------------
-# Set C++ Standard.
-set(CMAKE_CXX_STANDARD 17)
 
 # -----------------------------------------------------------------------------
 # DOCUMENTATION
@@ -40,6 +37,9 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 # Inlcude header directories.
 target_include_directories(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_DIR}/include)
 
+# -----------------------------------------------------------------------------
+# Set the compilation flags.
+# -----------------------------------------------------------------------------
 if(CPPTRACER_COMPRESS)
     # Find zlib for traces compression.
     find_package(ZLIB REQUIRED)
