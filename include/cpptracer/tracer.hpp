@@ -168,10 +168,10 @@ public:
     /// @param name     The name of the trace.
     /// @param variable The variable which has to be traced.
     template <typename T>
-    void addTrace(T &variable, const std::string &name)
+    void addTrace(const T &variable, const std::string &name)
     {
         assert(current_scope && "There is no current scope.");
-        current_scope->traces.push_back(new TraceWrapper<T>(name, utility::get_unique_name(3), &variable));
+        current_scope->traces.push_back(new TraceWrapper(name, utility::get_unique_name(3), &variable));
     }
 
     /// @brief Updates the trace file with the current variable values.
