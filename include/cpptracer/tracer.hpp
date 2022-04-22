@@ -9,6 +9,7 @@
 #include "utilities.hpp"
 #include "version.hpp"
 #include "colors.hpp"
+#include "scope.hpp"
 #include "trace.hpp"
 
 #include <vector>
@@ -22,59 +23,6 @@
 
 namespace cpptracer
 {
-
-/// @brief Hierarchical group of traces.
-class Scope {
-public:
-    /// Name of the scope.
-    std::string name;
-    /// List of traces inside the scope.
-    std::vector<Trace *> traces;
-    /// List of subscopes.
-    std::vector<Scope *> subscopes;
-    /// Pointer to the parent scope, if null this is the root.
-    Scope *parent;
-
-    /// @brief Construct a new scope with the given name.
-    /// @param _name name of the scope.
-    Scope(std::string const &_name)
-        : name(_name),
-          traces(),
-          subscopes(),
-          parent()
-    {
-        // Nothing to do.
-    }
-
-    ~Scope()
-    {
-        for (auto trace : traces)
-            delete trace;
-        for (auto subscope : subscopes)
-            delete subscope;
-    }
-
-    /// @brief Prints the scope header on the output stream.
-    /// @param stream the output stream.
-    inline void printScopeHeader(std::ostringstream &stream) const
-    {
-        stream << "$scope module " << name << " $end\n";
-        for (auto trace : traces)
-            stream << "    " << trace->getVar();
-        for (auto subscope : subscopes)
-            subscope->printScopeHeader(stream);
-        stream << "$upscope $end\n";
-    }
-
-    /// @brief Deletes the traces inside the scope, recursively.
-    inline void deleteTraces()
-    {
-        for (auto trace : traces)
-            delete trace;
-        for (auto subscope : subscopes)
-            subscope->deleteTraces();
-    }
-};
 
 /// @brief C++ variable tracer.
 class Tracer {
