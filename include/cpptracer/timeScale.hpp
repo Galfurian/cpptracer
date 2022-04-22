@@ -33,7 +33,6 @@ private:
 public:
     /// @brief Constructor.
     /// @param _base  The value of time.
-    /// @param _magnitude The scale of the trace.
     explicit TimeScale(uint32_t _base)
         : base(_base),
           magnitude(SEC),
@@ -60,6 +59,8 @@ public:
         return value;
     }
 
+    /// @brief Returns the base value.
+    /// @return the base value.
     inline double getBase() const
     {
         return base;
@@ -100,36 +101,70 @@ public:
     }
 };
 
+/// @brief Checks if the first time value is lesser than the second.
+/// @param lhs the first value.
+/// @param rhs the second value.
+/// @return true if the first value is lesser than the second.
+/// @return false otherwise.
 inline bool operator<(const TimeScale &lhs, const TimeScale &rhs)
 {
     return lhs.getValue() < rhs.getValue();
 }
 
+/// @brief Checks if the first time value is lesser than the floating point time value.
+/// @param lhs the first value.
+/// @param rhs the floating point time value.
+/// @return true if the first value is lesser than the second.
+/// @return false otherwise.
 inline bool operator<(const TimeScale &lhs, const double &rhs)
 {
     return lhs.getValue() < rhs;
 }
 
+/// @brief Checks if the first floating point time value is lesser than the time value.
+/// @param lhs the floating point time value.
+/// @param rhs the second value.
+/// @return true if the first value is lesser than the second.
+/// @return false otherwise.
 inline bool operator<(const double &lhs, const TimeScale &rhs)
 {
     return lhs < rhs.getValue();
 }
 
+/// @brief Checks if the first time value is greather than the second.
+/// @param lhs the first value.
+/// @param rhs the second value.
+/// @return true if the first value is greather than the second.
+/// @return false otherwise.
 inline bool operator>(const TimeScale &lhs, const TimeScale &rhs)
 {
     return lhs.getValue() > rhs.getValue();
 }
 
-inline bool operator>(const double &lhs, const TimeScale &rhs)
-{
-    return lhs > rhs.getValue();
-}
-
+/// @brief Checks if the first time value is greather than the floating point time value.
+/// @param lhs the time value.
+/// @param rhs the floating point time value.
+/// @return true if the first value is greather than the second.
+/// @return false otherwise.
 inline bool operator>(const TimeScale &lhs, const double &rhs)
 {
     return lhs.getValue() > rhs;
 }
 
+/// @brief Checks if the first floating point time value is greather than the time value.
+/// @param lhs the floating point time value.
+/// @param rhs the time value.
+/// @return true if the first value is greather than the second.
+/// @return false otherwise.
+inline bool operator>(const double &lhs, const TimeScale &rhs)
+{
+    return lhs > rhs.getValue();
+}
+
+/// @brief Sums the time value to the floating point time value.
+/// @param lhs the floating point time value.
+/// @param rhs the time value.
+/// @return the floating point time value plus the time value.
 inline double operator+=(double &lhs, const TimeScale &rhs)
 {
     lhs += rhs.getValue();

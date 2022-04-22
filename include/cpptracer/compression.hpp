@@ -19,7 +19,10 @@ namespace cpptracer::compression
 #define BUFFER_SIZE 32768
 
 /// @brief Compress a STL string using zlib with given compression level and
-///         return the binary data.
+/// return the binary data.
+/// @param str the input string to compress.
+/// @param level the compression level.
+/// @return the compressed string.
 std::string compress(std::string const &str, int level = Z_BEST_COMPRESSION)
 {
     // Variable used to track return value from zlib.
@@ -72,6 +75,8 @@ std::string compress(std::string const &str, int level = Z_BEST_COMPRESSION)
 }
 
 /// @brief Decompress an STL string using zlib and return the original data.
+/// @param str the input string.
+/// @return the decompressed string.
 std::string decompress(std::string const &str)
 {
     // z_stream is zlib's control structure

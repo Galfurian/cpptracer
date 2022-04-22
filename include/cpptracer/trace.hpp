@@ -74,7 +74,6 @@ public:
     /// @param _name     The name of the trace.
     /// @param _symbol   The symbol to assign.
     /// @param _ptr      Pointer to the variable.
-    /// @param _previous Previous value.
     TraceWrapper(std::string _name, std::string _symbol, T *_ptr)
         : Trace(_name, _symbol),
           ptr(_ptr),

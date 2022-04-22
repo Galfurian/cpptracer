@@ -9,26 +9,17 @@
 namespace cpptracer
 {
 
-#define Abs(x)    ((x) < 0 ? -(x) : (x))
-#define Max(a, b) ((a) > (b) ? (a) : (b))
-
+/// @brief Checks if the two values are equal.
+/// @param a first value.
+/// @param b second value.
+/// @param tolerance the tollerance for checking equality.
+/// @return true if they are equal.
+/// @return false if they are different values.
 template <typename T>
 inline bool is_equal(T a, T b, double tolerance = 1e-09)
 {
-    T d = Max(Abs(a), Abs(b));
-    return static_cast<int>(d * 1e09) == 0 || (Abs(a - b) / d) <= tolerance;
-}
-
-template <typename T>
-inline bool is_lequal(T a, T b, double tolerance = 1e-09)
-{
-    return is_equal(a, b, tolerance) || (a < b);
-}
-
-template <typename T>
-inline bool is_gequal(T a, T b, double tolerance = 1e-09)
-{
-    return is_equal(a, b, tolerance) || (a > b);
+    T d = std::max(std::abs(a), std::abs(b));
+    return static_cast<int>(d * 1e09) == 0 || (std::abs(a - b) / d) <= tolerance;
 }
 
 } // namespace cpptracer

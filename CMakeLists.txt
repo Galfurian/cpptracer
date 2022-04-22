@@ -103,6 +103,7 @@ if(DOXYGEN_FOUND)
         include/cpptracer/trace.hpp
         include/cpptracer/tracer.hpp
         include/cpptracer/utilities.hpp
+        include/cpptracer/version.hpp
         README.md
     )
 endif()
