@@ -66,7 +66,7 @@ template <typename T>
 class TraceWrapper : public Trace {
 public:
     /// A pointer to the variable that has to be traced.
-    T *ptr;
+    const T *ptr;
     /// Previous value of the trace.
     T previous;
 
@@ -74,7 +74,7 @@ public:
     /// @param _name     The name of the trace.
     /// @param _symbol   The symbol to assign.
     /// @param _ptr      Pointer to the variable.
-    TraceWrapper(std::string _name, std::string _symbol, T *_ptr)
+    TraceWrapper(std::string _name, std::string _symbol, const T *_ptr)
         : Trace(_name, _symbol),
           ptr(_ptr),
           previous(),
@@ -284,8 +284,8 @@ inline bool TraceWrapper<long double>::hasChanged()
 template <>
 inline bool TraceWrapper<std::vector<bool>>::hasChanged()
 {
-    auto it_prev = previous.begin(), it_curr = ptr->begin();
-    while ((it_prev != previous.end()) && (it_curr != ptr->end())) {
+    auto it_prev = previous.cbegin(), it_curr = ptr->cbegin();
+    while ((it_prev != previous.cend()) && (it_curr != ptr->cend())) {
         if ((*it_curr) != (*it_prev))
             return true;
         ++it_prev, ++it_curr;
