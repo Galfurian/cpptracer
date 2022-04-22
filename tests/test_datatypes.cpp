@@ -43,7 +43,7 @@ int main(int, char **)
     double second = 1;
 
     // Create the trace and add the variable to the trace.
-    cpptracer::Tracer tracer("test_datatypes.vcd", timeStep);
+    cpptracer::Tracer tracer("test_datatypes.vcd", timeStep, "root");
     // Add traces.
     tracer.addTrace(_long_double, "long_double");
     tracer.addTrace(_double, "double");
