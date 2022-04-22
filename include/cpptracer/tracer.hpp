@@ -89,9 +89,9 @@ public:
     /// @brief Constructor.
     /// @param _filename The name of the file.
     /// @param _timescale The timescale to use.
-    Tracer(std::string const &_filename,
+    Tracer(std::string _filename,
            TimeScale const &_timescale)
-        : filename(_filename),
+        : filename(std::move(_filename)),
           outbuffer(),
           scopeRoot("CPP"),
           current_scope(&scopeRoot),
