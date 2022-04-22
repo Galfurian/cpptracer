@@ -29,21 +29,29 @@ public:
     /// Name of the scope.
     std::string name;
     /// List of traces inside the scope.
-    std::vector<Trace *> trace_list;
+    std::vector<Trace *> traces;
     /// List of subscopes.
-    std::vector<Scope> subscopes;
+    std::vector<Scope *> subscopes;
     /// Pointer to the parent scope, if null this is the root.
-    Scope *parent_scope;
+    Scope *parent;
 
     /// @brief Construct a new scope with the given name.
     /// @param _name name of the scope.
     Scope(std::string const &_name)
         : name(_name),
-          trace_list(),
+          traces(),
           subscopes(),
-          parent_scope()
+          parent()
     {
         // Nothing to do.
+    }
+
+    ~Scope()
+    {
+        for (auto trace : traces)
+            delete trace;
+        for (auto subscope : subscopes)
+            delete subscope;
     }
 
     /// @brief Prints the scope header on the output stream.
@@ -51,22 +59,20 @@ public:
     inline void printScopeHeader(std::ostringstream &stream) const
     {
         stream << "$scope module " << name << " $end\n";
-        for (auto const &trace : trace_list) {
+        for (auto trace : traces)
             stream << "    " << trace->getVar();
-        }
-        for (auto const &subscope : subscopes) {
-            subscope.printScopeHeader(stream);
-        }
+        for (auto subscope : subscopes)
+            subscope->printScopeHeader(stream);
         stream << "$upscope $end\n";
     }
 
     /// @brief Deletes the traces inside the scope, recursively.
     inline void deleteTraces()
     {
-        for (auto trace : trace_list)
-            delete (trace);
-        for (auto &subscope : subscopes)
-            subscope.deleteTraces();
+        for (auto trace : traces)
+            delete trace;
+        for (auto subscope : subscopes)
+            subscope->deleteTraces();
     }
 };
 
@@ -78,7 +84,7 @@ private:
     /// The output buffer.
     std::ostringstream outbuffer;
     /// The root of the scopes.
-    Scope scopeRoot;
+    Scope *root_scope;
     /// Pointer to the current scope.
     Scope *current_scope;
     /// The timescale.
@@ -86,11 +92,11 @@ private:
     /// The timescale.
     TimeScale sampling;
     /// Identifies the first dump of the values.
-    bool firstDump;
+    bool first_dump;
     /// Next sampling time.
     double next_sample;
     /// Enables traces compression.
-    bool compressTraces;
+    bool compress_traces;
 
 public:
     /// @brief Constructor.
@@ -102,22 +108,22 @@ public:
            std::string root)
         : filename(std::move(_filename)),
           outbuffer(),
-          scopeRoot(std::move(root)),
-          current_scope(&scopeRoot),
+          root_scope(new Scope(root)),
+          current_scope(root_scope),
           timescale(_timescale),
           sampling(_timescale),
-          firstDump(true),
+          first_dump(true),
           next_sample(),
-          compressTraces()
+          compress_traces()
     {
-        scopeRoot.parent_scope = &scopeRoot;
+        root_scope->parent = root_scope;
     }
 
     /// @brief Destructor.
     ~Tracer()
     {
         // Delete the traces.
-        scopeRoot.deleteTraces();
+        delete root_scope;
         // Close the output file.
         this->closeTrace();
     }
@@ -135,7 +141,7 @@ public:
 #ifndef COMPRESSION_ENABLED
         std::cerr << "Cannot activate the compression without zlib.\n";
 #else
-        compressTraces = true;
+        compress_traces = true;
 #endif
     }
 
@@ -158,7 +164,7 @@ public:
         outbuffer << timescale.getMagnitudeString() + "\n";
         outbuffer << "$end\n";
 
-        scopeRoot.printScopeHeader(outbuffer);
+        root_scope->printScopeHeader(outbuffer);
 
         outbuffer << "$enddefinitions $end\n";
     }
@@ -169,18 +175,18 @@ public:
     {
         if (current_scope == nullptr)
             throw std::runtime_error("There is no current scope.");
-        if (current_scope->parent_scope == nullptr)
+        if (current_scope->parent == nullptr)
             throw std::runtime_error("Current scope has no parent.");
         // Get the parent scope.
-        auto parent_scope = current_scope->parent_scope;
+        auto parent = current_scope->parent;
         // Create the new scope.
-        auto new_scope = Scope(scope_name);
+        auto new_scope = new Scope(scope_name);
         // Set the parent of the new scope.
-        new_scope.parent_scope = parent_scope;
+        new_scope->parent = parent;
         // Add the new scope to the parent.
-        parent_scope->subscopes.emplace_back(new_scope);
+        parent->subscopes.emplace_back(new_scope);
         // Set the current scope.
-        current_scope = &parent_scope->subscopes.back();
+        current_scope = new_scope;
     }
 
     /// @brief Adds a new scope, as a child of the current scope.
@@ -190,13 +196,13 @@ public:
         if (current_scope == nullptr)
             throw std::runtime_error("There is no current scope.");
         // Create the new scope.
-        auto new_scope = Scope(scope_name);
+        auto new_scope = new Scope(scope_name);
         // Set the parent of the new scope.
-        new_scope.parent_scope = current_scope;
+        new_scope->parent = current_scope;
         // Add the new scope to the parent.
         current_scope->subscopes.emplace_back(new_scope);
         // Set the current scope.
-        current_scope = &current_scope->subscopes.back();
+        current_scope = new_scope;
     }
 
     /// @brief Closes the current scope.
@@ -204,10 +210,10 @@ public:
     {
         if (current_scope == nullptr)
             throw std::runtime_error("There is no current scope.");
-        if (current_scope->parent_scope == nullptr)
+        if (current_scope->parent == nullptr)
             throw std::runtime_error("Current scope has no parent.");
         // Set the parent scope as current scope.
-        current_scope = current_scope->parent_scope;
+        current_scope = current_scope->parent;
     }
 
     /// @brief Add a variable to the list of traces.
@@ -217,7 +223,7 @@ public:
     void addTrace(T &variable, const std::string &name)
     {
         assert(current_scope && "There is no current scope.");
-        current_scope->trace_list.push_back(new TraceWrapper<T>(name, utility::get_unique_name(3), &variable));
+        current_scope->traces.push_back(new TraceWrapper<T>(name, utility::get_unique_name(3), &variable));
     }
 
     /// @brief Updates the trace file with the current variable values.
@@ -225,7 +231,7 @@ public:
     void updateTrace(const double &t)
     {
         // Write time.
-        if (firstDump)
+        if (first_dump)
             outbuffer << "$dumpvars\n";
         else if (!this->changed())
             return;
@@ -234,11 +240,11 @@ public:
         else
             outbuffer << '#' << this->getScaledTime<uint64_t>(t) << "\n";
         // Write the values.
-        this->updateTraceRecursive(scopeRoot);
+        this->updateTraceRecursive(root_scope);
         // Write the closure.
-        if (firstDump) {
+        if (first_dump) {
             outbuffer << "$end\n";
-            firstDump = false;
+            first_dump = false;
         }
         // Set the time of the next sample.
         next_sample += sampling.getValue();
@@ -247,15 +253,17 @@ public:
     /// @brief Checks if some value has changed.
     inline bool changed() const
     {
-        return this->changedRecursive(scopeRoot);
+        return this->changedRecursive(root_scope);
     }
 
     /// @brief Closes the trace file.
     inline void closeTrace()
     {
+        if (outbuffer.str().empty())
+            return;
         // The output file.
         std::ofstream outfile;
-        if (compressTraces) {
+        if (compress_traces) {
 #ifdef COMPRESSION_ENABLED
             filename += ".gz";
 #endif
@@ -266,7 +274,7 @@ public:
             return;
         }
 #ifdef COMPRESSION_ENABLED
-        if (compressTraces) {
+        if (compress_traces) {
             // Log the compression start.
             std::cout << KYEL << "Compressing traces..." << KRST << "\n";
             // Save the original trace and the compressed trace.
@@ -286,12 +294,16 @@ public:
                       << "Compressed size = "
                       << compressed.capacity() << " bytes\n"
                       << "Saved space = " << saved << "%\n";
+        } else {
+            outfile << outbuffer.str();
         }
 #else
         outfile << outbuffer.str();
 #endif
         // Close the output file.
         outfile.close();
+        // Clear the output buffer.
+        outbuffer.clear();
     }
 
 private:
@@ -306,30 +318,30 @@ private:
 
     /// @brief Issue each trace to save the current value as `previous value`.
     /// @param scope the scope from which we start the update.
-    inline void updateTraceRecursive(Scope &scope)
+    inline void updateTraceRecursive(Scope *scope)
     {
-        for (auto const &trace : scope.trace_list) {
-            if (trace->hasChanged() || firstDump) {
+        for (auto const &trace : scope->traces) {
+            if (trace->hasChanged() || first_dump) {
                 // Print the trace.
                 outbuffer << trace->getValue();
                 // Update previous value.
                 trace->updatePrevious();
             }
         }
-        for (auto &subscope : scope.subscopes) {
+        for (auto &subscope : scope->subscopes) {
             this->updateTraceRecursive(subscope);
         }
     }
 
     /// @brief Checks if at least one variable has changed inside/below a scope.
     /// @param scope the scope from which we start the check.
-    inline bool changedRecursive(Scope const &scope) const
+    inline bool changedRecursive(Scope *scope) const
     {
-        for (auto const &trace : scope.trace_list) {
+        for (auto const &trace : scope->traces) {
             if (trace->hasChanged())
                 return true;
         }
-        for (auto &subscope : scope.subscopes) {
+        for (auto &subscope : scope->subscopes) {
             if (this->changedRecursive(subscope))
                 return true;
         }

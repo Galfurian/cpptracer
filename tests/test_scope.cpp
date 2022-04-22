@@ -47,4 +47,5 @@ int main(int, char **)
     }
     // Close the trace.
     tracer.closeTrace();
+    return 0;
 }
