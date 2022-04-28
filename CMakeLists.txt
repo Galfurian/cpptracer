@@ -115,3 +115,10 @@ endif(DOXYGEN_FOUND)
 if (BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif (BUILD_EXAMPLES)
+
+
+# -----------------------------------------------------------------------------
+# Tests
+# -----------------------------------------------------------------------------
+enable_testing()
+add_subdirectory(tests)
