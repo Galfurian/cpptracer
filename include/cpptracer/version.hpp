@@ -7,8 +7,11 @@
 namespace cpptracer
 {
 
-#define VARIABLE_TRACER_MAJOR 2 ///< Major version.
-#define VARIABLE_TRACER_MINOR 0 ///< Minor version.
-#define VARIABLE_TRACER_PATCH 0 ///< Patch version.
+#define RELEASE_AUTHOR        "Enrico Fraccaroli"   ///< Current release author.
+#define RELEASE_EMAIL         "enry.frak@gmail.com" ///< Current correspondance.
+#define RELEASE_DATE          "2022/04/28"          ///< Current release date.
+#define VARIABLE_TRACER_MAJOR 2                     ///< Major version.
+#define VARIABLE_TRACER_MINOR 0                     ///< Minor version.
+#define VARIABLE_TRACER_PATCH 0                     ///< Patch version.
 
 } // namespace cpptracer

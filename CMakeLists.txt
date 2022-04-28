@@ -22,6 +22,7 @@ set(CMAKE_CXX_STANDARD 17)
 option(CPPTRACER_COMPRESS "Enables the option to compress VCD traces using zlib" OFF)
 option(STRICT_WARNINGS "Enable strict compiler warnings" ON)
 option(WARNINGS_AS_ERRORS "Treat all warnings as errors" OFF)
+option(BUILD_EXAMPLES "Build examples" OFF)
 
 # -----------------------------------------------------------------------------
 # LIBRARY
@@ -75,7 +76,7 @@ endif()
 # DOCUMENTATION
 # -----------------------------------------------------------------------------
 find_package(Doxygen)
-if(DOXYGEN_FOUND)
+if (DOXYGEN_FOUND)
     # Doxygen theme
     include(FetchContent)
     FetchContent_Declare(DoxygenAwesome
@@ -106,10 +107,11 @@ if(DOXYGEN_FOUND)
         include/cpptracer/version.hpp
         README.md
     )
-endif()
+endif(DOXYGEN_FOUND)
 
 # -----------------------------------------------------------------------------
-# Testing programs.
+# Examples
 # -----------------------------------------------------------------------------
-enable_testing()
-add_subdirectory(tests)
+if (BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif (BUILD_EXAMPLES)

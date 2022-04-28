@@ -86,10 +86,11 @@ public:
     /// @brief Activate compression, only if enabled.
     inline void enableCompression()
     {
-#ifndef COMPRESSION_ENABLED
-        std::cerr << "Cannot activate the compression without zlib.\n";
-#else
+#ifdef COMPRESSION_ENABLED
         compress_traces = true;
+#else
+        std::cerr << "Cannot activate the compression without zlib.\n";
+        std::cerr << "I'm going to create a normal trace.\n";
 #endif
     }
 
@@ -105,7 +106,7 @@ public:
                   << VARIABLE_TRACER_MAJOR << "."
                   << VARIABLE_TRACER_MINOR << "."
                   << VARIABLE_TRACER_PATCH
-                  << " - By Galfurian --- Mar 30, 2016\n";
+                  << " - By " RELEASE_AUTHOR " <" RELEASE_EMAIL "> --- " RELEASE_DATE "\n";
         outbuffer << "$end\n";
         outbuffer << "$timescale\n";
         outbuffer << "    " + std::to_string(static_cast<int>(timescale.getBase()));
@@ -205,24 +206,23 @@ public:
     }
 
     /// @brief Closes the trace file.
-    inline void closeTrace()
+    inline bool closeTrace()
     {
         if (outbuffer.str().empty())
-            return;
+            return true;
         // The output file.
         std::ofstream outfile;
-        if (compress_traces) {
-#ifdef COMPRESSION_ENABLED
-            filename += ".gz";
-#endif
+        if (this->isCompressionEnabled()) {
+            outfile.open(filename + ".gz", std::ios_base::trunc);
+        } else {
+            outfile.open(filename, std::ios_base::trunc);
         }
-        outfile.open(filename, std::ios_base::trunc);
         if (!outfile.is_open()) {
             std::cerr << "Failed to open the trace file'" << filename << "'\n";
-            return;
+            return false;
         }
+        if (this->isCompressionEnabled()) {
 #ifdef COMPRESSION_ENABLED
-        if (compress_traces) {
             // Log the compression start.
             std::cout << KYEL << "Compressing traces..." << KRST << "\n";
             // Save the original trace and the compressed trace.
@@ -232,8 +232,7 @@ public:
             outfile << compressed;
             // Compute the saved space.
             auto saved = 100.0;
-            saved -= utility::get_percent(compressed.capacity(),
-                                          trace.capacity());
+            saved -= utility::get_percent(compressed.capacity(), trace.capacity());
             // Log the compression statistics.
             std::cout << KYEL << "Compression completed " << KRST << "\n"
                       << std::setprecision(2)
@@ -242,19 +241,28 @@ public:
                       << "Compressed size = "
                       << compressed.capacity() << " bytes\n"
                       << "Saved space = " << saved << "%\n";
+#endif
         } else {
             outfile << outbuffer.str();
         }
-#else
-        outfile << outbuffer.str();
-#endif
         // Close the output file.
         outfile.close();
         // Clear the output buffer.
-        outbuffer.clear();
+        outbuffer.str("");
+        return true;
     }
 
 private:
+    /// @brief Activate compression, only if enabled.
+    inline bool isCompressionEnabled() const
+    {
+#ifdef COMPRESSION_ENABLED
+        return compress_traces;
+#else
+        return false;
+#endif
+    }
+
     /// @brief Scales the given time to the current magnitude.
     /// @param t the input time.
     /// @return the scaled time.
