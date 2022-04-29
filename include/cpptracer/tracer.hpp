@@ -261,6 +261,16 @@ public:
         return true;
     }
 
+    /**
+     * @brief Returns time for next sample
+     *
+     * @return time of the next sample
+     */
+    inline double nextSampleTime() const
+    {
+        return next_sample;
+    }
+
 private:
     /// @brief Activate compression, only if enabled.
     inline bool isCompressionEnabled() const
