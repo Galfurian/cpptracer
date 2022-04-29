@@ -45,6 +45,9 @@ private:
     double next_sample;
     /// Enables traces compression.
     bool compress_traces;
+    /// Number of traces from all scopes
+    /// Used to set unique id for each trace based on its index
+    size_t traces_cout = 0 ;
 
 public:
     /// @brief Constructor.
@@ -177,7 +180,8 @@ public:
     void addTrace(const T &variable, const std::string &name)
     {
         assert(current_scope && "There is no current scope.");
-        current_scope->traces.push_back(new TraceWrapper(name, utility::get_unique_name(3), &variable));
+        current_scope->traces.push_back(new TraceWrapper(name, std::to_string(traces_cout), &variable));
+        ++traces_cout;
     }
 
     /// @brief Updates the trace file with the current variable values.

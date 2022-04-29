@@ -13,8 +13,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <cassert>
-#include <random>
-#include <set>
 
 namespace cpptracer::utility
 {
@@ -104,33 +102,6 @@ inline std::string get_date_time()
     strftime(buffer, 80, "%b %d, %Y %I:%M:%S", timeinfo);
     std::string str(buffer);
     return str;
-}
-
-/// @brief Generates a unique name of the given length.
-/// @param length of the name.
-/// @return The generated name.
-static inline std::string get_unique_name(unsigned length = 3)
-{
-    static const size_t characters = 27;
-    // Define the usable character.
-    static const char alphanum[characters] = "abcdefghijklmnopqrstuvwxyz";
-    /// Set of already used symbols.
-    static std::set<std::string> usedSymbols;
-    /// Will be used to obtain a seed for the random number engine
-    static std::random_device rd;
-    /// Standard mersenne_twister_engine seeded with rd().
-    static std::mt19937 gen(rd());
-    // Create an uniform distribution.
-    static std::uniform_int_distribution<size_t> dis(0, characters - 1);
-    // Establish a new seed.
-    std::string symbol;
-    do {
-        symbol.clear();
-        for (unsigned int it = 0; it < length; ++it) {
-            symbol += alphanum[dis(gen) % (sizeof(alphanum) - 1)];
-        }
-    } while (!usedSymbols.insert(symbol).second);
-    return symbol;
 }
 
 } // namespace cpptracer::utility
