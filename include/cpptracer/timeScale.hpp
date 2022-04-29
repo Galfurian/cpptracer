@@ -33,7 +33,7 @@ private:
 public:
     /// @brief Constructor.
     /// @param _base  The value of time.
-    explicit TimeScale(uint32_t _base)
+    constexpr explicit TimeScale(uint32_t _base)
         : base(_base),
           magnitude(SEC),
           value()
@@ -44,7 +44,7 @@ public:
     /// @brief Constructor.
     /// @param _base  The value of time.
     /// @param _magnitude The scale of the trace.
-    TimeScale(uint32_t _base, Enum _magnitude)
+    constexpr TimeScale(uint32_t _base, Enum _magnitude)
         : base(_base),
           magnitude(_magnitude),
           value()
@@ -54,21 +54,21 @@ public:
 
     /// @brief Return the scale dimension.
     /// @return The value of the scale.
-    inline double getValue() const
+    constexpr inline double getValue() const
     {
         return value;
     }
 
     /// @brief Returns the base value.
     /// @return the base value.
-    inline double getBase() const
+    constexpr inline double getBase() const
     {
         return base;
     }
 
     /// @brief Return the dimension of the scale.
     /// @return The magnitude of the scale.
-    inline double getMagnitude() const
+    constexpr inline double getMagnitude() const
     {
         if (magnitude == SEC)
             return 1;
