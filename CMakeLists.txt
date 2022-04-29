@@ -76,7 +76,7 @@ endif()
 # DOCUMENTATION
 # -----------------------------------------------------------------------------
 find_package(Doxygen)
-if (DOXYGEN_FOUND)
+if(DOXYGEN_FOUND)
     # Doxygen theme
     include(FetchContent)
     FetchContent_Declare(DoxygenAwesome
@@ -107,14 +107,14 @@ if (DOXYGEN_FOUND)
         include/cpptracer/version.hpp
         README.md
     )
-endif(DOXYGEN_FOUND)
+endif()
 
 # -----------------------------------------------------------------------------
 # Examples
 # -----------------------------------------------------------------------------
-if (BUILD_EXAMPLES)
+if(BUILD_EXAMPLES)
     add_subdirectory(examples)
-endif (BUILD_EXAMPLES)
+endif()
 
 
 # -----------------------------------------------------------------------------
