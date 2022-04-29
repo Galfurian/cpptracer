@@ -47,7 +47,10 @@ private:
     bool compress_traces;
     /// Number of traces from all scopes
     /// Used to set unique id for each trace based on its index
-    size_t traces_cout = 0 ;
+    size_t traces_cout = 0;
+    /// Version text to display in $version section
+    /// If empty, information about the library will be displayed
+    std::string version_text;
 
 public:
     /// @brief Constructor.
@@ -110,11 +113,15 @@ public:
         outbuffer << "    " + utility::get_date_time() + "\n";
         outbuffer << "$end\n";
         outbuffer << "$version\n";
-        outbuffer << "    Tracer "
-                  << VARIABLE_TRACER_MAJOR << "."
-                  << VARIABLE_TRACER_MINOR << "."
-                  << VARIABLE_TRACER_PATCH
-                  << " - By " RELEASE_AUTHOR " <" RELEASE_EMAIL "> --- " RELEASE_DATE "\n";
+        if (version_text.empty()) {
+            outbuffer << "    Tracer "
+                << VARIABLE_TRACER_MAJOR << "."
+                << VARIABLE_TRACER_MINOR << "."
+                << VARIABLE_TRACER_PATCH
+                << " - By " RELEASE_AUTHOR " <" RELEASE_EMAIL "> --- " RELEASE_DATE "\n";
+        } else {
+            outbuffer << version_text;
+        }
         outbuffer << "$end\n";
         outbuffer << "$timescale\n";
         outbuffer << "    " + std::to_string(static_cast<int>(timescale.getBase()));
@@ -259,6 +266,16 @@ public:
         // Clear the output buffer.
         outbuffer.str("");
         return true;
+    }
+
+    /**
+     * @brief Set version text
+     *
+     * @param versionText to disaplay in $version section
+     */
+    inline void setVersionText(std::string _version_text)
+    {
+        version_text = std::move(_version_text);
     }
 
     /**
