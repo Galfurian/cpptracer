@@ -23,8 +23,8 @@ public:
 
     /// @brief Construct a new scope with the given name.
     /// @param _name name of the scope.
-    Scope(std::string const &_name)
-        : name(_name),
+    Scope(std::string _name)
+        : name(std::move(_name)),
           traces(),
           subscopes(),
           parent()
