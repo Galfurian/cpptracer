@@ -67,6 +67,11 @@ public:
         root_scope->parent = root_scope;
     }
 
+    /**
+     * @brief Move constructor
+     */
+    Tracer(Tracer &&other) = default;
+
     /// @brief Destructor.
     ~Tracer()
     {
