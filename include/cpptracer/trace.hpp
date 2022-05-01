@@ -19,9 +19,9 @@ namespace cpptracer
 class Trace {
 public:
     /// @brief Constructor of the trace.
-    Trace(std::string const &_name, std::string const &_symbol)
-        : name(_name),
-          symbol(_symbol)
+    Trace(std::string _name, std::string _symbol)
+        : name(std::move(_name)),
+          symbol(std::move(_symbol))
     {
         // Nothing to do.
     }
@@ -30,13 +30,13 @@ public:
     virtual ~Trace() = default;
 
     /// @brief Provides the name of the trace.
-    inline std::string getName()
+    inline const std::string &getName() const
     {
         return name;
     }
 
     /// @brief Provides the symbol of the trace.
-    inline std::string getSymbol()
+    inline const std::string &getSymbol() const
     {
         return symbol;
     }
@@ -75,7 +75,7 @@ public:
     /// @param _symbol   The symbol to assign.
     /// @param _ptr      Pointer to the variable.
     TraceWrapper(std::string _name, std::string _symbol, const T *_ptr)
-        : Trace(_name, _symbol),
+        : Trace(std::move(_name), std::move(_symbol)),
           ptr(_ptr),
           previous(),
           ss()

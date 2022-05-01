@@ -45,6 +45,12 @@ private:
     double next_sample;
     /// Enables traces compression.
     bool compress_traces;
+    /// Number of traces from all scopes
+    /// Used to set unique id for each trace based on its index
+    size_t traces_cout = 0;
+    /// Version text to display in $version section
+    /// If empty, information about the library will be displayed
+    std::string version_text;
 
 public:
     /// @brief Constructor.
@@ -66,6 +72,11 @@ public:
     {
         root_scope->parent = root_scope;
     }
+
+    /**
+     * @brief Move constructor
+     */
+    Tracer(Tracer &&other) = default;
 
     /// @brief Destructor.
     ~Tracer()
@@ -102,11 +113,15 @@ public:
         outbuffer << "    " + utility::get_date_time() + "\n";
         outbuffer << "$end\n";
         outbuffer << "$version\n";
-        outbuffer << "    Tracer "
-                  << VARIABLE_TRACER_MAJOR << "."
-                  << VARIABLE_TRACER_MINOR << "."
-                  << VARIABLE_TRACER_PATCH
-                  << " - By " RELEASE_AUTHOR " <" RELEASE_EMAIL "> --- " RELEASE_DATE "\n";
+        if (version_text.empty()) {
+            outbuffer << "    Tracer "
+                << VARIABLE_TRACER_MAJOR << "."
+                << VARIABLE_TRACER_MINOR << "."
+                << VARIABLE_TRACER_PATCH
+                << " - By " RELEASE_AUTHOR " <" RELEASE_EMAIL "> --- " RELEASE_DATE "\n";
+        } else {
+            outbuffer << version_text;
+        }
         outbuffer << "$end\n";
         outbuffer << "$timescale\n";
         outbuffer << "    " + std::to_string(static_cast<int>(timescale.getBase()));
@@ -120,7 +135,7 @@ public:
 
     /// @brief Adds a new scope, as a sibling of the current scope.
     /// @param scope_name the name of the new scope.
-    void addScope(std::string const &scope_name)
+    void addScope(std::string scope_name)
     {
         if (current_scope == nullptr)
             throw std::runtime_error("There is no current scope.");
@@ -129,7 +144,7 @@ public:
         // Get the parent scope.
         auto parent = current_scope->parent;
         // Create the new scope.
-        auto new_scope = new Scope(scope_name);
+        auto new_scope = new Scope(std::move(scope_name));
         // Set the parent of the new scope.
         new_scope->parent = parent;
         // Add the new scope to the parent.
@@ -140,12 +155,12 @@ public:
 
     /// @brief Adds a new scope, as a child of the current scope.
     /// @param scope_name the name of the new scope.
-    void addSubScope(std::string const &scope_name)
+    void addSubScope(std::string scope_name)
     {
         if (current_scope == nullptr)
             throw std::runtime_error("There is no current scope.");
         // Create the new scope.
-        auto new_scope = new Scope(scope_name);
+        auto new_scope = new Scope(std::move(scope_name));
         // Set the parent of the new scope.
         new_scope->parent = current_scope;
         // Add the new scope to the parent.
@@ -169,10 +184,11 @@ public:
     /// @param name     The name of the trace.
     /// @param variable The variable which has to be traced.
     template <typename T>
-    void addTrace(const T &variable, const std::string &name)
+    void addTrace(const T &variable, std::string name)
     {
         assert(current_scope && "There is no current scope.");
-        current_scope->traces.push_back(new TraceWrapper(name, utility::get_unique_name(3), &variable));
+        current_scope->traces.push_back(new TraceWrapper(std::move(name), std::to_string(traces_cout), &variable));
+        ++traces_cout;
     }
 
     /// @brief Updates the trace file with the current variable values.
@@ -250,6 +266,26 @@ public:
         // Clear the output buffer.
         outbuffer.str("");
         return true;
+    }
+
+    /**
+     * @brief Set version text
+     *
+     * @param versionText to disaplay in $version section
+     */
+    inline void setVersionText(std::string _version_text)
+    {
+        version_text = std::move(_version_text);
+    }
+
+    /**
+     * @brief Returns time for next sample
+     *
+     * @return time of the next sample
+     */
+    inline double nextSampleTime() const
+    {
+        return next_sample;
     }
 
 private:
