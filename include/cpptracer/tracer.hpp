@@ -180,12 +180,14 @@ public:
     /// @param name     The name of the trace.
     /// @param variable The variable which has to be traced.
     template <typename T>
-    void addTrace(const T &variable, std::string name)
+    auto addTrace(const T &variable, std::string name)
     {
         if (current_scope == nullptr)
             throw std::runtime_error("There is no current scope.");
-        current_scope->traces.push_back(new TraceWrapper(std::move(name), std::to_string(traces_cout), &variable));
+        auto trace = new TraceWrapper(std::move(name), std::to_string(traces_cout), &variable);
+        current_scope->traces.push_back(trace);
         ++traces_cout;
+        return trace;
     }
 
     /// @brief Updates the trace file with the current variable values.

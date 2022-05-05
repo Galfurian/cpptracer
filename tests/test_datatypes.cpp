@@ -38,7 +38,7 @@ inline auto operator+(const std::array<bool, N1> &lhs, const std::array<bool, N2
 int main(int, char **)
 {
     // Define simulated time and timestep of the simulation.
-    cpptracer::TimeScale simulatedTime(50, cpptracer::TimeUnit::SEC);
+    cpptracer::TimeScale simulatedTime(1000, cpptracer::TimeUnit::SEC);
     cpptracer::TimeScale timeStep(1, cpptracer::TimeUnit::SEC);
 
     // Create the variables that have to be traced.

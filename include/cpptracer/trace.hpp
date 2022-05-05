@@ -113,7 +113,7 @@ public:
 
     /// @brief Changes the output precision for floating point values.
     /// @param _precision the desired output precision.
-    void setOutputPrecision(unsigned _precision)
+    void setPrecision(unsigned _precision)
     {
         precision = _precision;
     }
@@ -231,19 +231,19 @@ inline std::string TraceWrapper<uint64_t>::getVar() const
 template <>
 inline std::string TraceWrapper<float>::getVar() const
 {
-    return "$var real 1 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var real 32 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<double>::getVar() const
 {
-    return "$var real 1 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var real 64 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<long double>::getVar() const
 {
-    return "$var real 1 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var real 64 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
@@ -416,7 +416,7 @@ template <>
 inline std::string TraceWrapper<float>::getValue() const
 {
     static char buffer[512] = { 0 };
-    snprintf(buffer, 512, "r%.*f %s\n", precision, *ptr, this->getSymbol().c_str());
+    snprintf(buffer, 512, "r%.*e %s\n", precision, *ptr, this->getSymbol().c_str());
     return buffer;
 }
 
@@ -424,7 +424,7 @@ template <>
 inline std::string TraceWrapper<double>::getValue() const
 {
     static char buffer[512] = { 0 };
-    snprintf(buffer, 512, "r%.*f %s\n", precision, *ptr, this->getSymbol().c_str());
+    snprintf(buffer, 512, "r%.*e %s\n", precision, *ptr, this->getSymbol().c_str());
     return buffer;
 }
 
@@ -432,7 +432,7 @@ template <>
 inline std::string TraceWrapper<long double>::getValue() const
 {
     static char buffer[512] = { 0 };
-    snprintf(buffer, 512, "r%.*Lf %s\n", precision, *ptr, this->getSymbol().c_str());
+    snprintf(buffer, 512, "r%.*Le %s\n", precision, *ptr, this->getSymbol().c_str());
     return buffer;
 }
 
