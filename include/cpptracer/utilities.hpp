@@ -13,6 +13,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <cassert>
+#include <cmath>
+#include <vector>
+
+#include "bitops.hpp"
 
 namespace cpptracer::utility
 {
@@ -26,6 +30,37 @@ inline void create_dir(std::string const &path)
         printf("Error creating directory %s!\n", path.c_str());
         exit(1);
     }
+}
+
+/// @brief Transforms the given value to a binary string.
+/// @tparam length of the binary output.
+/// @tparam T type of the input value.
+/// @param value to print.
+/// @return the string representing the binary value.
+template <unsigned long length, typename T>
+const std::string dec_to_binary(T value)
+{
+    static char buffer[length + 1] = { 0 };
+    for (unsigned long i = 0; i < length; ++i)
+        buffer[i] = bit_check(value, length - i - 1) ? '1' : '0';
+    return std::string(buffer);
+}
+
+const std::string vec_to_binary(const std::vector<bool> & vec)
+{
+    std::string buffer(vec.size(), '0');
+    for (unsigned i = 0; i < vec.size(); ++i)
+        buffer[i] = vec[i] ? '1' : '0';
+    return buffer;
+}
+
+template<std::size_t N>
+const std::string array_to_binary(const std::array<bool, N> & array)
+{
+    std::string buffer(array.size(), '0');
+    for (unsigned i = 0; i < array.size(); ++i)
+        buffer[i] = array[i] ? '1' : '0';
+    return buffer;
 }
 
 /// @brief PJW hash function is a non-cryptographic hash function created by
