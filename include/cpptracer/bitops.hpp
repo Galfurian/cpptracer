@@ -16,7 +16,7 @@ namespace cpptracer
 template <typename T>
 constexpr inline auto bit_check(T value, T bit)
 {
-    return value & T(1) << bit;
+    return value & (T(1) << bit);
 }
 
 #define bitmask_set(V, M)          ((V) | (M))   ///< Sets the bits identified by the mask.

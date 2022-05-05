@@ -41,7 +41,7 @@ const std::string dec_to_binary(T value)
 {
     static char buffer[length + 1] = { 0 };
     for (unsigned long i = 0; i < length; ++i)
-        buffer[i] = bit_check<T>(value, length - i - 1) ? '1' : '0';
+        buffer[i] = bit_check<T>(value, static_cast<T>(length - i - 1)) ? '1' : '0';
     return std::string(buffer);
 }
 
