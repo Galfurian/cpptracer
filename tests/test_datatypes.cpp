@@ -3,6 +3,9 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846 /* pi */
 #endif
+#ifndef M_PIf
+#define M_PIf 3.14159265358979323846f /* pi */
+#endif
 
 inline bool add_bits(bool b1, bool b2, bool &carry)
 {
@@ -43,9 +46,9 @@ int main(int, char **)
 
     // Create the variables that have to be traced.
     // Floating Point (FP)
-    long double _long_double = 1;
-    double _double           = 1;
-    float _float             = 1;
+    long double _long_double = 1.;
+    double _double           = 1.;
+    float _float             = 1.;
 
     // Unsigned (UINT)
     uint64_t _uint64_t = 0;
@@ -78,17 +81,16 @@ int main(int, char **)
     std::array<bool, 7> stl_array{ false, false, false, false, false, false, false };
 
     // Auxiliary variables.
-    double first  = 0;
-    double second = 1;
     std::vector<bool> stl_vector_one{ true };
     std::array<bool, 1> stl_array_one{ true };
 
     // Create the trace and add the variable to the trace.
     cpptracer::Tracer tracer("datatypes.vcd", timeStep, "root");
+    
     // Add traces.
-    tracer.addTrace(_long_double, "long_double");
-    tracer.addTrace(_double, "double");
-    tracer.addTrace(_float, "float");
+    auto long_double_trace = tracer.addTrace(_long_double, "long_double");
+    auto double_trace      = tracer.addTrace(_double, "double");
+    auto float_trace       = tracer.addTrace(_float, "float");
     tracer.addTrace(_uint64_t, "uint64_t");
     tracer.addTrace(_uint32_t, "uint32_t");
     tracer.addTrace(_uint16_t, "uint16_t");
@@ -101,29 +103,31 @@ int main(int, char **)
     tracer.addTrace(_bool, "bool");
     tracer.addTrace(stl_vector, "stl_vector");
     tracer.addTrace(stl_array, "stl_array");
+
     // Create the header.
     tracer.createTrace();
+
+    // Set the precision for the floating-point traces.    
+    long_double_trace->setPrecision(9);
+    double_trace->setPrecision(6);
+    float_trace->setPrecision(3);
+
     // Initialize the trace.
     for (double time = 0; time < simulatedTime; time += timeStep) {
-        if (time <= 1) {
-            _long_double = _double = time;
-        } else {
-            _long_double = _double = first + second;
-            first                  = second;
-            second                 = _double;
-        }
-        _float *= static_cast<float>(M_PI);
+        _long_double *= M_PI;
+        _double *= M_PI;
+        _float *= M_PIf;
 
-        _uint8_t  += 8u;
+        _uint8_t += 8u;
         _uint16_t += 16u;
         _uint32_t += 32u;
         _uint64_t += 64UL;
 
-        _int8_t  -= 8;
+        _int8_t -= 8;
         _int16_t -= 16;
         _int32_t -= 32;
         _int64_t -= 64;
-        
+
         _bool = !_bool;
 
         stl_vector = stl_vector + stl_vector_one;
