@@ -118,15 +118,15 @@ int main(int, char **)
         _double *= M_PI;
         _float *= M_PIf;
 
-        _uint8_t += static_cast<uint8_t>(8);
-        _uint16_t += static_cast<uint16_t>(16);
-        _uint32_t += static_cast<uint32_t>(32);
-        _uint64_t += static_cast<uint64_t>(64);
+        _uint8_t = static_cast<uint8_t>(_uint8_t + 8u);
+        _uint16_t = static_cast<uint16_t>(_uint16_t + 16u);
+        _uint32_t = static_cast<uint32_t>(_uint32_t + 32U);
+        _uint64_t = static_cast<uint64_t>(_uint64_t + 64U);
 
-        _int8_t -= static_cast<int8_t>(8);
-        _int16_t -= static_cast<int16_t>(16);
-        _int32_t -= static_cast<int32_t>(32);
-        _int64_t -= static_cast<int64_t>(64);
+        _int8_t = static_cast<int8_t>(_int8_t - 8);
+        _int16_t = static_cast<int16_t>(_int16_t - 16);
+        _int32_t = static_cast<int32_t>(_int32_t - 32);
+        _int64_t = static_cast<int64_t>(_int64_t - 64);
 
         _bool = !_bool;
 

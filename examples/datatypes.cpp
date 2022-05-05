@@ -72,10 +72,10 @@ int main(int, char **)
         _double *= M_PI;
         _float *= M_PIf;
 
-        _uint8_t += static_cast<uint8_t>(8);
-        _uint16_t += static_cast<uint16_t>(16);
-        _uint32_t += static_cast<uint32_t>(32);
-        _uint64_t += static_cast<uint64_t>(64);
+        _uint8_t += static_cast<uint8_t>(8u);
+        _uint16_t += static_cast<uint16_t>(16U);
+        _uint32_t += static_cast<uint32_t>(32U);
+        _uint64_t += static_cast<uint64_t>(64U);
 
         _int8_t -= static_cast<int8_t>(8);
         _int16_t -= static_cast<int16_t>(16);
