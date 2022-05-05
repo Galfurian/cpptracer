@@ -4,11 +4,42 @@
 #define M_PI 3.14159265358979323846 /* pi */
 #endif
 
+inline bool add_bits(bool b1, bool b2, bool &carry)
+{
+    bool sum = (b1 ^ b2) ^ carry;
+    carry    = (b1 && b2) || (b1 && carry) || (b2 && carry);
+    return sum;
+}
+
+inline std::vector<bool> operator+(const std::vector<bool> &lhs, const std::vector<bool> &rhs)
+{
+    std::vector<bool> result(lhs.size());
+    size_t N1 = lhs.size(), N2 = rhs.size();
+    bool carry = false;
+    for (size_t it = 0; it < result.size(); ++it)
+        result[result.size() - it - 1] = add_bits(
+            (it < N1) ? lhs[N1 - it - 1] : false,
+            (it < N2) ? rhs[N2 - it - 1] : false, carry);
+    return result;
+}
+
+template <size_t N1, size_t N2>
+inline auto operator+(const std::array<bool, N1> &lhs, const std::array<bool, N2> &rhs)
+{
+    std::array<bool, std::max(N1, N2)> result;
+    bool carry = false;
+    for (size_t it = 0; it < result.size(); ++it)
+        result[result.size() - it - 1] = add_bits(
+            (it < N1) ? lhs[N1 - it - 1] : false,
+            (it < N2) ? rhs[N2 - it - 1] : false, carry);
+    return result;
+}
+
 int main(int, char **)
 {
     // Define simulated time and timestep of the simulation.
-    cpptracer::TimeScale simulatedTime(50, cpptracer::TimeScale::SEC);
-    cpptracer::TimeScale timeStep(1, cpptracer::TimeScale::SEC);
+    cpptracer::TimeScale simulatedTime(50, cpptracer::TimeUnit::SEC);
+    cpptracer::TimeScale timeStep(1, cpptracer::TimeUnit::SEC);
 
     // Create the variables that have to be traced.
     // Floating Point (FP)
@@ -38,9 +69,19 @@ int main(int, char **)
     // The sinusoid wave.
     double sine_wave = 0.5;
 
+    // Bool
+    bool _bool = false;
+
+    // Vector.
+    std::vector<bool> stl_vector{ false, false, false, false };
+    // Array.
+    std::array<bool, 7> stl_array{ false, false, false, false, false, false, false };
+
     // Auxiliary variables.
     double first  = 0;
     double second = 1;
+    std::vector<bool> stl_vector_one{ true };
+    std::array<bool, 1> stl_array_one{ true };
 
     // Create the trace and add the variable to the trace.
     cpptracer::Tracer tracer("datatypes.vcd", timeStep, "root");
@@ -57,6 +98,9 @@ int main(int, char **)
     tracer.addTrace(_int32_t, "int32_t");
     tracer.addTrace(_int16_t, "int16_t");
     tracer.addTrace(_int8_t, "int8_t");
+    tracer.addTrace(_bool, "bool");
+    tracer.addTrace(stl_vector, "stl_vector");
+    tracer.addTrace(stl_array, "stl_array");
     // Create the header.
     tracer.createTrace();
     // Initialize the trace.
@@ -70,15 +114,20 @@ int main(int, char **)
         }
         _float *= static_cast<float>(M_PI);
 
-        _uint8_t  = static_cast<uint8_t>(_uint8_t + 8);
-        _uint16_t = static_cast<uint16_t>(_uint16_t + 16);
+        _uint8_t  += 8u;
+        _uint16_t += 16u;
         _uint32_t += 32u;
         _uint64_t += 64UL;
 
-        _int8_t  = static_cast<int8_t>(_int8_t - 8);
-        _int16_t = static_cast<int16_t>(_int16_t - 16);
+        _int8_t  -= 8;
+        _int16_t -= 16;
         _int32_t -= 32;
         _int64_t -= 64;
+        
+        _bool = !_bool;
+
+        stl_vector = stl_vector + stl_vector_one;
+        stl_array  = stl_array + stl_array_one;
 
         sine_wave = offset + amplitude * std::sin(2 * M_PI * frequency * time);
         // Update the trace.

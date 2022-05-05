@@ -7,8 +7,8 @@
 int main(int, char **)
 {
     // Define simulated time and timestep of the simulation.
-    cpptracer::TimeScale simulatedTime(50, cpptracer::TimeScale::SEC);
-    cpptracer::TimeScale timeStep(1, cpptracer::TimeScale::SEC);
+    cpptracer::TimeScale simulatedTime(50, cpptracer::TimeUnit::SEC);
+    cpptracer::TimeScale timeStep(1, cpptracer::TimeUnit::SEC);
 
     // Signed (INT)
     int64_t _int64_t = 0;

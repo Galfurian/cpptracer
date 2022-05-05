@@ -12,7 +12,6 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <cassert>
 #include <cmath>
 #include <vector>
 

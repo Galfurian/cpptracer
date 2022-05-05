@@ -12,14 +12,10 @@
 #include "scope.hpp"
 #include "trace.hpp"
 
-#include <vector>
-#include <fstream> // std::ofstream
-#include <iomanip> // std::setprecision
-#include <set>
-#include <string>
-#include <random>
-#include <cassert>
 #include <stdexcept>
+#include <iomanip> // std::setprecision
+#include <fstream> // std::ofstream
+#include <string>
 
 namespace cpptracer
 {
@@ -125,8 +121,7 @@ public:
         }
         outbuffer << "$end\n";
         outbuffer << "$timescale\n";
-        outbuffer << "    " + std::to_string(static_cast<int>(timescale.getBase()));
-        outbuffer << timescale.getMagnitudeString() + "\n";
+        outbuffer << "    " << timescale.getTimeNumber() << timescale.getTimeUnit().toString() << "\n";
         outbuffer << "$end\n";
 
         root_scope->printScopeHeader(outbuffer);
@@ -187,7 +182,8 @@ public:
     template <typename T>
     void addTrace(const T &variable, std::string name)
     {
-        assert(current_scope && "There is no current scope.");
+        if (current_scope == nullptr)
+            throw std::runtime_error("There is no current scope.");
         current_scope->traces.push_back(new TraceWrapper(std::move(name), std::to_string(traces_cout), &variable));
         ++traces_cout;
     }
@@ -306,7 +302,7 @@ private:
     template <typename T>
     inline T getScaledTime(long double const &t) const
     {
-        return static_cast<T>(t / timescale.getMagnitude());
+        return static_cast<T>(t / timescale.getTimeUnit().toValue());
     }
 
     /// @brief Issue each trace to save the current value as `previous value`.

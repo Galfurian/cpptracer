@@ -4,52 +4,94 @@
 
 #pragma once
 
-#include <string>
 #include <iostream>
+#include <string>
 
 namespace cpptracer
 {
 
-/// @brief Class used to store timing dimensions.
-class TimeScale {
+class TimeUnit {
 public:
     /// Possible granularity of time.
-    typedef enum Enums {
+    enum Enums {
         SEC, ///< Seconds
         MS,  ///< Milliseconds
         US,  ///< Microseconds
         NS,  ///< Nanoseconds
-        PS   ///< Picoseconds
-    } Enum;
+        PS,  ///< Picoseconds
+        FS   ///< Femtoseconds
+    } time_unit;
 
+    constexpr TimeUnit(Enums _time_unit)
+        : time_unit(_time_unit)
+    {
+    }
+
+    /// @brief Return the numberical value of the time unit.
+    /// @return the numberical value of the time unit.
+    constexpr inline double toValue() const
+    {
+        if (time_unit == MS)
+            return 1e-03;
+        if (time_unit == US)
+            return 1e-06;
+        if (time_unit == NS)
+            return 1e-09;
+        if (time_unit == PS)
+            return 1e-12;
+        if (time_unit == FS)
+            return 1e-15;
+        return 1;
+    }
+
+    constexpr inline const char *toString() const
+    {
+        if (time_unit == SEC)
+            return "s";
+        if (time_unit == MS)
+            return "ms";
+        if (time_unit == US)
+            return "us";
+        if (time_unit == NS)
+            return "ns";
+        if (time_unit == PS)
+            return "ps";
+        if (time_unit == FS)
+            return "fs";
+        return "s";
+    }
+};
+
+/// @brief Class used to store timing dimensions.
+class TimeScale {
 private:
-    /// The base value.
-    uint32_t base;
-    /// The magnitude.
-    Enum magnitude;
+    /// The time number.
+    unsigned time_number;
+    /// The time unit.
+    TimeUnit time_unit;
     /// The real value.
     double value;
 
 public:
-    /// @brief Constructor.
-    /// @param _base  The value of time.
-    constexpr explicit TimeScale(uint32_t _base)
-        : base(_base),
-          magnitude(SEC),
-          value()
+    /// @brief Constructs a time scale in terms of seconds.
+    /// @param _time_number the time number.
+    constexpr explicit TimeScale(unsigned _time_number)
+        : time_number(_time_number),
+          time_unit(TimeUnit::SEC),
+          value(time_number * time_unit.toValue())
     {
-        value = base * getMagnitude();
+        // Nothing to do.
     }
 
-    /// @brief Constructor.
-    /// @param _base  The value of time.
-    /// @param _magnitude The scale of the trace.
-    constexpr TimeScale(uint32_t _base, Enum _magnitude)
-        : base(_base),
-          magnitude(_magnitude),
-          value()
+    /// @brief Constructs a time scale.
+    /// @param _time_number the time number.
+    /// @param _time_unit the time unit.
+    constexpr TimeScale(unsigned _time_number, TimeUnit _time_unit)
+        : time_number(_time_number),
+          time_unit(_time_unit),
+          value(time_number * time_unit.toValue())
     {
-        value = base * getMagnitude();
+        // Nothing to do.
     }
 
     /// @brief Return the scale dimension.
@@ -59,45 +101,18 @@ public:
         return value;
     }
 
-    /// @brief Returns the base value.
-    /// @return the base value.
-    constexpr inline double getBase() const
+    /// @brief Returns the time number.
+    /// @return the time number.
+    constexpr inline unsigned getTimeNumber() const
     {
-        return base;
+        return time_number;
     }
 
-    /// @brief Return the dimension of the scale.
-    /// @return The magnitude of the scale.
-    constexpr inline double getMagnitude() const
+    /// @brief Return the time unit.
+    /// @return the time unit.
+    constexpr inline const TimeUnit &getTimeUnit() const
     {
-        if (magnitude == SEC)
-            return 1;
-        if (magnitude == MS)
-            return 1e-03;
-        if (magnitude == US)
-            return 1e-06;
-        if (magnitude == NS)
-            return 1e-09;
-        if (magnitude == PS)
-            return 1e-12;
-        return 1;
-    }
-
-    /// @brief Return the string value for the scale.
-    /// @return The scale as string.
-    inline std::string getMagnitudeString() const
-    {
-        if (magnitude == SEC)
-            return "s";
-        if (magnitude == MS)
-            return "ms";
-        if (magnitude == US)
-            return "us";
-        if (magnitude == NS)
-            return "ns";
-        if (magnitude == PS)
-            return "ps";
-        return "s";
+        return time_unit;
     }
 };
 
