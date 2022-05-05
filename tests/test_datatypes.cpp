@@ -86,7 +86,7 @@ int main(int, char **)
 
     // Create the trace and add the variable to the trace.
     cpptracer::Tracer tracer("datatypes.vcd", timeStep, "root");
-    
+
     // Add traces.
     auto long_double_trace = tracer.addTrace(_long_double, "long_double");
     auto double_trace      = tracer.addTrace(_double, "double");
@@ -107,7 +107,7 @@ int main(int, char **)
     // Create the header.
     tracer.createTrace();
 
-    // Set the precision for the floating-point traces.    
+    // Set the precision for the floating-point traces.
     long_double_trace->setPrecision(9);
     double_trace->setPrecision(6);
     float_trace->setPrecision(3);
@@ -118,15 +118,15 @@ int main(int, char **)
         _double *= M_PI;
         _float *= M_PIf;
 
-        _uint8_t += 8u;
-        _uint16_t += 16u;
-        _uint32_t += 32u;
-        _uint64_t += 64UL;
+        _uint8_t += static_cast<uint8_t>(8);
+        _uint16_t += static_cast<uint16_t>(16);
+        _uint32_t += static_cast<uint32_t>(32);
+        _uint64_t += static_cast<uint64_t>(64);
 
-        _int8_t -= 8;
-        _int16_t -= 16;
-        _int32_t -= 32;
-        _int64_t -= 64;
+        _int8_t -= static_cast<int8_t>(8);
+        _int16_t -= static_cast<int16_t>(16);
+        _int32_t -= static_cast<int32_t>(32);
+        _int64_t -= static_cast<int64_t>(64);
 
         _bool = !_bool;
 
