@@ -361,7 +361,7 @@ inline bool TraceWrapper<std::array<bool, N>>::hasChanged() const
 template <>
 inline std::string TraceWrapper<bool>::getValue() const
 {
-    return "b" + utility::dec_to_binary<1>((*ptr)) + " " + this->getSymbol() + "\n";
+    return "b" + std::string((*ptr) ? "1" : "0") + " " + this->getSymbol() + "\n";
 }
 
 template <>
