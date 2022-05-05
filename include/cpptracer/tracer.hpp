@@ -43,8 +43,10 @@ private:
     bool first_dump;
     /// Next sampling time.
     double next_sample;
+#ifdef COMPRESSION_ENABLED
     /// Enables traces compression.
-    bool compress_traces;
+    bool compress_traces = false;
+#endif
     /// Number of traces from all scopes
     /// Used to set unique id for each trace based on its index
     size_t traces_cout = 0;
@@ -67,8 +69,7 @@ public:
           timescale(_timescale),
           sampling(_timescale),
           first_dump(true),
-          next_sample(),
-          compress_traces()
+          next_sample()
     {
         root_scope->parent = root_scope;
     }
