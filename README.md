@@ -1,6 +1,6 @@
 # CPPTracer
 
-[![Build Status](https://travis-ci.org/Galfurian/CPPTracer.svg?branch=master)](https://travis-ci.org/Galfurian/CPPTracer)
+[![Main](https://github.com/Galfurian/cpptracer/actions/workflows/main.yml/badge.svg)](https://github.com/Galfurian/cpptracer/actions/workflows/main.yml)
 
 The Tracer is a class which allows to generate vcd files from c++ variables. It
 can be of use for tracing variables during the simulation of both discrete and
