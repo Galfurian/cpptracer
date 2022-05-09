@@ -48,7 +48,7 @@ const std::string dec_to_binary(T value)
 /// @brief Transforms the given vector of booleans to a binary string.
 /// @param vec the vector to transform.
 /// @return the string representing the vector of booleans.
-const std::string vec_to_binary(const std::vector<bool> &vec)
+inline const std::string vec_to_binary(const std::vector<bool> &vec)
 {
     std::string buffer(vec.size(), '0');
     for (unsigned i = 0; i < vec.size(); ++i)
