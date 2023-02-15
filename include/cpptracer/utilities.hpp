@@ -47,7 +47,7 @@ inline const std::string dec_to_binary(T value)
 #else
     std::string buffer(length, '0');
     std::string::iterator it = buffer.begin();
-    for (std::size_t i = 0; i < length; ++i)
+    for (unsigned long i = 0; i < length; ++i)
         *it++ = bit_check(value, length - i - 1) ? '1' : '0';
     return buffer;
 #endif
