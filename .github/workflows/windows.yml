@@ -23,5 +23,5 @@ jobs:
               uses: actions/checkout@v2
             - name: Build
               run: |
-                  cmake -B build -DSTOPWATCH_BUILD_EXAMPLES=ON -DSTOPWATCH_WARNINGS_AS_ERRORS=ON
+                  cmake -B build -DCPPTRACER_BUILD_EXAMPLES=ON -DCPPTRACER_WARNINGS_AS_ERRORS=ON
                   cmake --build build --parallel 2

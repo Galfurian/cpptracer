@@ -28,7 +28,7 @@ jobs:
             - name: Generate documentation
               run: |
                   cmake -B build -DDOXYGEN_WARN_AS_ERROR=NO
-                  cmake --build build --target stopwatch_documentation
+                  cmake --build build --target cpptracer_documentation
     build:
         name: Build
         strategy:
@@ -82,5 +82,5 @@ jobs:
                   sudo apt-get install -y ${{ matrix.pkgs }}
             - name: Build
               run: |
-                  cmake -B build -DSTOPWATCH_BUILD_EXAMPLES=ON -DSTOPWATCH_WARNINGS_AS_ERRORS=ON
+                  cmake -B build -DCPPTRACER_BUILD_EXAMPLES=ON -DCPPTRACER_WARNINGS_AS_ERRORS=ON
                   cmake --build build --parallel 2
