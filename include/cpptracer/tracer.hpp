@@ -180,11 +180,11 @@ public:
     /// @param name     The name of the trace.
     /// @param variable The variable which has to be traced.
     template <typename T>
-    Trace *addTrace(const T &variable, std::string name)
+    TraceWrapper<T> *addTrace(const T &variable, std::string name)
     {
         if (current_scope == nullptr)
             throw std::runtime_error("There is no current scope.");
-        Trace *trace = new TraceWrapper(std::move(name), std::to_string(traces_cout), &variable);
+        TraceWrapper<T> *trace = new TraceWrapper<T>(std::move(name), std::to_string(traces_cout), &variable);
         current_scope->traces.push_back(trace);
         ++traces_cout;
         return trace;
