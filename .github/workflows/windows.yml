@@ -1,0 +1,27 @@
+name: Windows
+on:
+    push:
+        branches-ignore:
+            - "releases/**"
+        paths-ignore:
+            - "**.md"
+            - ".gitignore"
+            - "macos.yml"
+            - "ubuntu.yml"
+    pull_request:
+        paths-ignore:
+            - "**.md"
+            - ".gitignore"
+            - "macos.yml"
+            - "ubuntu.yml"
+jobs:
+    test:
+        name: Build
+        runs-on: windows-latest
+        steps:
+            - name: Clone repo
+              uses: actions/checkout@v2
+            - name: Build
+              run: |
+                  cmake -B build -DSTOPWATCH_BUILD_EXAMPLES=ON -DSTOPWATCH_WARNINGS_AS_ERRORS=ON
+                  cmake --build build --parallel 2

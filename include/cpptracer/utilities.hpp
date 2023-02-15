@@ -15,8 +15,6 @@
 #include <cmath>
 #include <vector>
 
-#include "bitops.hpp"
-
 namespace cpptracer::utility
 {
 
@@ -36,50 +34,32 @@ inline void create_dir(std::string const &path)
 /// @tparam T type of the input value.
 /// @param value to print.
 /// @return the string representing the binary value.
-template <unsigned long length, typename T>
-inline const std::string dec_to_binary(T value)
+template <typename T>
+const std::string dec_to_binary(T value, const T length)
 {
-#if 0
-    static char buffer[length + 1] = { 0 };
-    for (unsigned long i = 0; i < length; ++i)
-        buffer[i] = bit_check(value, length - i - 1) ? '1' : '0';
-    return std::string(buffer);
-#else
-    unsigned long __value = static_cast<unsigned long>(value);
-    std::string buffer(length, '0');
+    std::string buffer(static_cast<std::size_t>(length), '0');
     std::string::iterator it = buffer.begin();
-    for (unsigned long i = 0; i < length; ++i)
-        *it++ = bit_check(__value, length - i - 1UL) ? '1' : '0';
+    for (T i = 0; i < length; ++i)
+        *it++ = (value & (T(1) << (length - i - T(1)))) ? '1' : '0';
     return buffer;
-#endif
 }
 
-inline const std::string vector_to_binary(const std::vector<bool> &vector)
+const std::string vector_to_binary(const std::vector<bool> &vector)
 {
     std::string buffer(vector.size(), '0');
-#if 0
-    for (unsigned i = 0; i < vector.size(); ++i)
-        buffer[i] = vector[i] ? '1' : '0';
-#else
     std::string::iterator it = buffer.begin();
     for (std::vector<bool>::const_iterator cit = vector.cbegin(); cit != vector.cend(); ++cit, ++it)
         *it = *cit ? '1' : '0';
-#endif
     return buffer;
 }
 
 template <std::size_t N>
-inline const std::string array_to_binary(const std::array<bool, N> &array)
+const std::string array_to_binary(const std::array<bool, N> &array)
 {
     std::string buffer(N, '0');
-#if 0
-    for (unsigned i = 0; i < array.size(); ++i)
-        buffer[i] = array[i] ? '1' : '0';
-#else
     std::string::iterator it = buffer.begin();
     for (typename std::array<bool, N>::const_iterator cit = array.cbegin(); cit != array.cend(); ++cit, ++it)
         *it = *cit ? '1' : '0';
-#endif
     return buffer;
 }
 
