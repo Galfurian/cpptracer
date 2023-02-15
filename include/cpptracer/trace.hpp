@@ -415,31 +415,31 @@ inline std::string TraceWrapper<uint64_t>::getValue() const
 template <>
 inline std::string TraceWrapper<float>::getValue() const
 {
-    static char buffer[512] = { 0 };
-    snprintf(buffer, 512, "r%.*e %s\n", precision, *ptr, symbol.c_str());
+    std::string buffer(512, 0);
+    snprintf(&buffer[0], buffer.size(), "r%.*e %s", precision, *ptr, symbol.c_str());
     return buffer;
 }
 
 template <>
 inline std::string TraceWrapper<double>::getValue() const
 {
-    static char buffer[512] = { 0 };
-    snprintf(buffer, 512, "r%.*e %s\n", precision, *ptr, symbol.c_str());
+    std::string buffer(512, 0);
+    snprintf(&buffer[0], buffer.size(), "r%.*e %s", precision, *ptr, symbol.c_str());
     return buffer;
 }
 
 template <>
 inline std::string TraceWrapper<long double>::getValue() const
 {
-    static char buffer[512] = { 0 };
-    snprintf(buffer, 512, "r%.*Le %s\n", precision, *ptr, symbol.c_str());
+    std::string buffer(512, 0);
+    snprintf(&buffer[0], buffer.size(), "r%.*Le %s", precision, *ptr, symbol.c_str());
     return buffer;
 }
 
 template <>
 inline std::string TraceWrapper<std::vector<bool>>::getValue() const
 {
-    return "b" + utility::vec_to_binary(*ptr) + " " + symbol + "\n";
+    return "b" + utility::vector_to_binary(*ptr) + " " + symbol + "\n";
 }
 
 template <std::size_t N>

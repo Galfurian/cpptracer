@@ -68,7 +68,7 @@ if(STRICT_WARNINGS)
 
         target_compile_options(${PROJECT_NAME} INTERFACE /W4)
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        target_compile_options(${PROJECT_NAME} INTERFACE -Wall -Wextra -pedantic)
+        target_compile_options(${PROJECT_NAME} INTERFACE -Wall -Wextra -Wconversion -pedantic)
     endif()
 endif()
 

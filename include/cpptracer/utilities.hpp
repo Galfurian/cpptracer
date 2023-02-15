@@ -45,15 +45,16 @@ inline const std::string dec_to_binary(T value)
         buffer[i] = bit_check(value, length - i - 1) ? '1' : '0';
     return std::string(buffer);
 #else
+    unsigned long __value = static_cast<unsigned long>(value);
     std::string buffer(length, '0');
     std::string::iterator it = buffer.begin();
     for (unsigned long i = 0; i < length; ++i)
-        *it++ = bit_check(value, length - i - 1) ? '1' : '0';
+        *it++ = bit_check(__value, length - i - 1UL) ? '1' : '0';
     return buffer;
 #endif
 }
 
-inline const std::string vec_to_binary(const std::vector<bool> &vector)
+inline const std::string vector_to_binary(const std::vector<bool> &vector)
 {
     std::string buffer(vector.size(), '0');
 #if 0
@@ -68,7 +69,7 @@ inline const std::string vec_to_binary(const std::vector<bool> &vector)
 }
 
 template <std::size_t N>
-const std::string array_to_binary(const std::array<bool, N> &array)
+inline const std::string array_to_binary(const std::array<bool, N> &array)
 {
     std::string buffer(N, '0');
 #if 0
