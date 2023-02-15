@@ -13,9 +13,6 @@ cmake_minimum_required(VERSION 3.1)
 # Set the project name.
 project(cpptracer CXX)
 
-# Set C++ Standard.
-set(CMAKE_CXX_STANDARD 17)
-
 # -----------------------------------------------------------------------------
 # Add options.
 # -----------------------------------------------------------------------------
@@ -65,6 +62,8 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_DIR}/include)
 # Set compilation flags.
 target_compile_options(${PROJECT_NAME} INTERFACE ${CPPTRACER_COMPILE_OPTIONS})
+# Set compiler flags.
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 # If compression is enabled.
 if(CPPTRACER_COMPRESS)
     # Find zlib for traces compression.
@@ -90,7 +89,9 @@ if(CPPTRACER_BUILD_EXAMPLES)
     # Add a defines inside the code.
     target_compile_definitions(${PROJECT_NAME}_compression PRIVATE _USE_MATH_DEFINES)
     # Set compilation flags.
-    target_compile_options(${PROJECT_NAME}_compression PUBLIC ${CPPTRACER_COMPILE_OPTIONS})
+    target_compile_options(${PROJECT_NAME}_compression PRIVATE ${CPPTRACER_COMPILE_OPTIONS})
+    # Set compiler flags.
+    target_compile_features(${PROJECT_NAME}_compression PRIVATE cxx_std_17)
     
     # Add the executable.
     add_executable(${PROJECT_NAME}_datatypes ${PROJECT_SOURCE_DIR}/examples/datatypes.cpp)
@@ -99,7 +100,9 @@ if(CPPTRACER_BUILD_EXAMPLES)
     # Add a defines inside the code.
     target_compile_definitions(${PROJECT_NAME}_datatypes PRIVATE _USE_MATH_DEFINES)
     # Set compilation flags.
-    target_compile_options(${PROJECT_NAME}_datatypes PUBLIC ${CPPTRACER_COMPILE_OPTIONS})
+    target_compile_options(${PROJECT_NAME}_datatypes PRIVATE ${CPPTRACER_COMPILE_OPTIONS})
+    # Set compiler flags.
+    target_compile_features(${PROJECT_NAME}_datatypes PRIVATE cxx_std_17)
 
     # Add the executable.
     add_executable(${PROJECT_NAME}_scope ${PROJECT_SOURCE_DIR}/examples/scope.cpp)
@@ -108,7 +111,9 @@ if(CPPTRACER_BUILD_EXAMPLES)
     # Add a defines inside the code.
     target_compile_definitions(${PROJECT_NAME}_scope PRIVATE _USE_MATH_DEFINES)
     # Set compilation flags.
-    target_compile_options(${PROJECT_NAME}_scope PUBLIC ${CPPTRACER_COMPILE_OPTIONS})
+    target_compile_options(${PROJECT_NAME}_scope PRIVATE ${CPPTRACER_COMPILE_OPTIONS})
+    # Set compiler flags.
+    target_compile_features(${PROJECT_NAME}_scope PRIVATE cxx_std_17)
 
 endif()
 

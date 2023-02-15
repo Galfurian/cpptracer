@@ -49,12 +49,12 @@ int main(int, char **)
         _float *= static_cast<float>(M_PI);
         _uint8_t  = static_cast<std::uint8_t>(_uint8_t + 8);
         _uint16_t = static_cast<std::uint16_t>(_uint16_t + 16);
-        _uint32_t += std::uint32_t(32);
-        _uint64_t += std::uint64_t(64);
+        _uint32_t += static_cast<std::uint32_t>(32);
+        _uint64_t += static_cast<std::uint64_t>(64);
         _int8_t  = static_cast<std::int8_t>(_int8_t - 8);
         _int16_t = static_cast<std::int16_t>(_int16_t - 16);
-        _int32_t -= std::int32_t(32);
-        _int64_t -= std::int64_t(64);
+        _int32_t -= static_cast<std::int32_t>(32);
+        _int64_t -= static_cast<std::int64_t>(64);
         // Update the trace.
         tracer.updateTrace(time);
     }

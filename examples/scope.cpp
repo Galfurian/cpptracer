@@ -40,8 +40,8 @@ int main(int, char **)
     for (double time = 0; time < simulatedTime; time += timeStep) {
         _int8_t  = static_cast<std::int8_t>(_int8_t - 8);
         _int16_t = static_cast<std::int16_t>(_int16_t - 16);
-        _int32_t -= std::int32_t(32);
-        _int64_t -= std::int64_t(64);
+        _int32_t -= static_cast<std::int32_t>(32);
+        _int64_t -= static_cast<std::int64_t>(64);
         // Update the trace.
         tracer.updateTrace(time);
     }
