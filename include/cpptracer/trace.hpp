@@ -56,9 +56,9 @@ public:
 
 protected:
     /// The name of the trace.
-    std::string name;
+    const std::string name;
     /// The symbol assigned to the trace.
-    std::string symbol;
+    const std::string symbol;
 };
 
 template <typename T>
@@ -177,85 +177,85 @@ public:
 template <>
 inline std::string TraceWrapper<bool>::getVar() const
 {
-    return "$var integer 1 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var integer 1 " + symbol + " " + name + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<int8_t>::getVar() const
 {
-    return "$var integer  8 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var integer  8 " + symbol + " " + name + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<int16_t>::getVar() const
 {
-    return "$var integer 16 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var integer 16 " + symbol + " " + name + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<int32_t>::getVar() const
 {
-    return "$var integer 32 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var integer 32 " + symbol + " " + name + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<int64_t>::getVar() const
 {
-    return "$var integer 64 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var integer 64 " + symbol + " " + name + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<uint8_t>::getVar() const
 {
-    return "$var integer  8 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var integer  8 " + symbol + " " + name + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<uint16_t>::getVar() const
 {
-    return "$var integer 16 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var integer 16 " + symbol + " " + name + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<uint32_t>::getVar() const
 {
-    return "$var integer 32 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var integer 32 " + symbol + " " + name + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<uint64_t>::getVar() const
 {
-    return "$var integer 64 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var integer 64 " + symbol + " " + name + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<float>::getVar() const
 {
-    return "$var real 32 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var real 32 " + symbol + " " + name + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<double>::getVar() const
 {
-    return "$var real 64 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var real 64 " + symbol + " " + name + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<long double>::getVar() const
 {
-    return "$var real 64 " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var real 64 " + symbol + " " + name + " $end\n";
 }
 
 template <>
 inline std::string TraceWrapper<std::vector<bool>>::getVar() const
 {
-    return "$var wire " + std::to_string(ptr->size()) + " " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var wire " + std::to_string(ptr->size()) + " " + symbol + " " + name + " $end\n";
 }
 
 template <std::size_t N>
 inline std::string TraceWrapper<std::array<bool, N>>::getVar() const
 {
-    return "$var wire " + std::to_string(N) + " " + this->getSymbol() + " " + this->getName() + " $end\n";
+    return "$var wire " + std::to_string(N) + " " + symbol + " " + name + " $end\n";
 }
 
 // ----------------------------------------------------------------------------
@@ -361,62 +361,62 @@ inline bool TraceWrapper<std::array<bool, N>>::hasChanged() const
 template <>
 inline std::string TraceWrapper<bool>::getValue() const
 {
-    return "b" + utility::dec_to_binary<1>((*ptr)) + " " + this->getSymbol() + "\n";
+    return std::string((*ptr) ? "b1" : "b0") + symbol + "\n";
 }
 
 template <>
 inline std::string TraceWrapper<int8_t>::getValue() const
 {
-    return "b" + utility::dec_to_binary<8>(*ptr) + " " + this->getSymbol() + "\n";
+    return "b" + utility::dec_to_binary<8>(*ptr) + " " + symbol + "\n";
 }
 
 template <>
 inline std::string TraceWrapper<int16_t>::getValue() const
 {
-    return "b" + utility::dec_to_binary<16>(*ptr) + " " + this->getSymbol() + "\n";
+    return "b" + utility::dec_to_binary<16>(*ptr) + " " + symbol + "\n";
 }
 
 template <>
 inline std::string TraceWrapper<int32_t>::getValue() const
 {
-    return "b" + utility::dec_to_binary<32>(*ptr) + " " + this->getSymbol() + "\n";
+    return "b" + utility::dec_to_binary<32>(*ptr) + " " + symbol + "\n";
 }
 
 template <>
 inline std::string TraceWrapper<int64_t>::getValue() const
 {
-    return "b" + utility::dec_to_binary<64>(*ptr) + " " + this->getSymbol() + "\n";
+    return "b" + utility::dec_to_binary<64>(*ptr) + " " + symbol + "\n";
 }
 
 template <>
 inline std::string TraceWrapper<uint8_t>::getValue() const
 {
-    return "b" + utility::dec_to_binary<8>(*ptr) + " " + this->getSymbol() + "\n";
+    return "b" + utility::dec_to_binary<8>(*ptr) + " " + symbol + "\n";
 }
 
 template <>
 inline std::string TraceWrapper<uint16_t>::getValue() const
 {
-    return "b" + utility::dec_to_binary<16>(*ptr) + " " + this->getSymbol() + "\n";
+    return "b" + utility::dec_to_binary<16>(*ptr) + " " + symbol + "\n";
 }
 
 template <>
 inline std::string TraceWrapper<uint32_t>::getValue() const
 {
-    return "b" + utility::dec_to_binary<32>(*ptr) + " " + this->getSymbol() + "\n";
+    return "b" + utility::dec_to_binary<32>(*ptr) + " " + symbol + "\n";
 }
 
 template <>
 inline std::string TraceWrapper<uint64_t>::getValue() const
 {
-    return "b" + utility::dec_to_binary<64>(*ptr) + " " + this->getSymbol() + "\n";
+    return "b" + utility::dec_to_binary<64>(*ptr) + " " + symbol + "\n";
 }
 
 template <>
 inline std::string TraceWrapper<float>::getValue() const
 {
     static char buffer[512] = { 0 };
-    snprintf(buffer, 512, "r%.*e %s\n", precision, *ptr, this->getSymbol().c_str());
+    snprintf(buffer, 512, "r%.*e %s\n", precision, *ptr, symbol.c_str());
     return buffer;
 }
 
@@ -424,7 +424,7 @@ template <>
 inline std::string TraceWrapper<double>::getValue() const
 {
     static char buffer[512] = { 0 };
-    snprintf(buffer, 512, "r%.*e %s\n", precision, *ptr, this->getSymbol().c_str());
+    snprintf(buffer, 512, "r%.*e %s\n", precision, *ptr, symbol.c_str());
     return buffer;
 }
 
@@ -432,20 +432,20 @@ template <>
 inline std::string TraceWrapper<long double>::getValue() const
 {
     static char buffer[512] = { 0 };
-    snprintf(buffer, 512, "r%.*Le %s\n", precision, *ptr, this->getSymbol().c_str());
+    snprintf(buffer, 512, "r%.*Le %s\n", precision, *ptr, symbol.c_str());
     return buffer;
 }
 
 template <>
 inline std::string TraceWrapper<std::vector<bool>>::getValue() const
 {
-    return "b" + utility::vec_to_binary(*ptr) + " " + this->getSymbol() + "\n";
+    return "b" + utility::vec_to_binary(*ptr) + " " + symbol + "\n";
 }
 
 template <std::size_t N>
 inline std::string TraceWrapper<std::array<bool, N>>::getValue() const
 {
-    return "b" + utility::array_to_binary(*ptr) + " " + this->getSymbol() + "\n";
+    return "b" + utility::array_to_binary(*ptr) + " " + symbol + "\n";
 }
 
 } // namespace cpptracer

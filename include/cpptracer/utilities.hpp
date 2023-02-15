@@ -37,28 +37,48 @@ inline void create_dir(std::string const &path)
 /// @param value to print.
 /// @return the string representing the binary value.
 template <unsigned long length, typename T>
-const std::string dec_to_binary(T value)
+inline const std::string dec_to_binary(T value)
 {
+#if 0
     static char buffer[length + 1] = { 0 };
     for (unsigned long i = 0; i < length; ++i)
         buffer[i] = bit_check(value, length - i - 1) ? '1' : '0';
     return std::string(buffer);
+#else
+    std::string buffer(length, '0');
+    std::string::iterator it = buffer.begin();
+    for (std::size_t i = 0; i < length; ++i)
+        *it++ = bit_check(value, length - i - 1) ? '1' : '0';
+    return buffer;
+#endif
 }
 
-const std::string vec_to_binary(const std::vector<bool> & vec)
+inline const std::string vec_to_binary(const std::vector<bool> &vector)
 {
-    std::string buffer(vec.size(), '0');
-    for (unsigned i = 0; i < vec.size(); ++i)
-        buffer[i] = vec[i] ? '1' : '0';
+    std::string buffer(vector.size(), '0');
+#if 0
+    for (unsigned i = 0; i < vector.size(); ++i)
+        buffer[i] = vector[i] ? '1' : '0';
+#else
+    std::string::iterator it = buffer.begin();
+    for (std::vector<bool>::const_iterator cit = vector.cbegin(); cit != vector.cend(); ++cit, ++it)
+        *it = *cit ? '1' : '0';
+#endif
     return buffer;
 }
 
-template<std::size_t N>
-const std::string array_to_binary(const std::array<bool, N> & array)
+template <std::size_t N>
+const std::string array_to_binary(const std::array<bool, N> &array)
 {
-    std::string buffer(array.size(), '0');
+    std::string buffer(N, '0');
+#if 0
     for (unsigned i = 0; i < array.size(); ++i)
         buffer[i] = array[i] ? '1' : '0';
+#else
+    std::string::iterator it = buffer.begin();
+    for (typename std::array<bool, N>::const_iterator cit = array.cbegin(); cit != array.cend(); ++cit, ++it)
+        *it = *cit ? '1' : '0';
+#endif
     return buffer;
 }
 
