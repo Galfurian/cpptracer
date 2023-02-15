@@ -11,10 +11,10 @@ int main(int, char **)
     cpptracer::TimeScale timeStep(1, cpptracer::TimeUnit::SEC);
 
     // Signed (INT)
-    int64_t _int64_t = 0;
-    int32_t _int32_t = 0;
-    int16_t _int16_t = 0;
-    int8_t _int8_t   = 0;
+    std::int64_t _int64_t = 0;
+    std::int32_t _int32_t = 0;
+    std::int16_t _int16_t = 0;
+    std::int8_t _int8_t   = 0;
 
     // Create the trace and add the variable to the trace.
     cpptracer::Tracer tracer("scope.vcd", timeStep, "CPP");
@@ -38,10 +38,10 @@ int main(int, char **)
     tracer.createTrace();
     // Initialize the trace.
     for (double time = 0; time < simulatedTime; time += timeStep) {
-        _int8_t  = static_cast<int8_t>(_int8_t - 8);
-        _int16_t = static_cast<int16_t>(_int16_t - 16);
-        _int32_t -= 32;
-        _int64_t -= 64;
+        _int8_t  = static_cast<std::int8_t>(_int8_t - 8);
+        _int16_t = static_cast<std::int16_t>(_int16_t - 16);
+        _int32_t = static_cast<std::int32_t>(_int32_t - 32);
+        _int64_t = static_cast<std::int64_t>(_int64_t - 64);
         // Update the trace.
         tracer.updateTrace(time);
     }

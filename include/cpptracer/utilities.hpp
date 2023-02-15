@@ -15,8 +15,6 @@
 #include <cmath>
 #include <vector>
 
-#include "bitops.hpp"
-
 namespace cpptracer::utility
 {
 
@@ -36,36 +34,32 @@ inline void create_dir(std::string const &path)
 /// @tparam T type of the input value.
 /// @param value to print.
 /// @return the string representing the binary value.
-template <unsigned long length, typename T>
-const std::string dec_to_binary(T value)
+template <typename T>
+const std::string dec_to_binary(T value, const T length)
 {
-    static char buffer[length + 1] = { 0 };
-    for (unsigned long i = 0; i < length; ++i)
-        buffer[i] = bit_check<T>(value, static_cast<T>(length - i - 1)) ? '1' : '0';
-    return std::string(buffer);
-}
-
-/// @brief Transforms the given vector of booleans to a binary string.
-/// @param vec the vector to transform.
-/// @return the string representing the vector of booleans.
-inline const std::string vec_to_binary(const std::vector<bool> &vec)
-{
-    std::string buffer(vec.size(), '0');
-    for (unsigned i = 0; i < vec.size(); ++i)
-        buffer[i] = vec[i] ? '1' : '0';
+    std::string buffer(static_cast<std::size_t>(length), '0');
+    std::string::iterator it = buffer.begin();
+    for (T i = 0; i < length; ++i)
+        *it++ = (value & (T(1) << (length - i - T(1)))) ? '1' : '0';
     return buffer;
 }
 
-/// @brief Transforms the given array of booleans to a binary string.
-/// @tparam N the number of bits.
-/// @param array the array to transform
-/// @return the string representing the array of booleans.
+const std::string vector_to_binary(const std::vector<bool> &vector)
+{
+    std::string buffer(vector.size(), '0');
+    std::string::iterator it = buffer.begin();
+    for (std::vector<bool>::const_iterator cit = vector.cbegin(); cit != vector.cend(); ++cit, ++it)
+        *it = *cit ? '1' : '0';
+    return buffer;
+}
+
 template <std::size_t N>
 const std::string array_to_binary(const std::array<bool, N> &array)
 {
-    std::string buffer(array.size(), '0');
-    for (unsigned i = 0; i < array.size(); ++i)
-        buffer[i] = array[i] ? '1' : '0';
+    std::string buffer(N, '0');
+    std::string::iterator it = buffer.begin();
+    for (typename std::array<bool, N>::const_iterator cit = array.cbegin(); cit != array.cend(); ++cit, ++it)
+        *it = *cit ? '1' : '0';
     return buffer;
 }
 

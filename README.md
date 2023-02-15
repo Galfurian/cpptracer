@@ -1,6 +1,8 @@
 # CPPTracer
 
-[![Main](https://github.com/Galfurian/cpptracer/actions/workflows/main.yml/badge.svg)](https://github.com/Galfurian/cpptracer/actions/workflows/main.yml)
+[![Ubuntu](https://github.com/Galfurian/cpptracer/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/Galfurian/cpptracer/actions/workflows/ubuntu.yml)
+[![Windows](https://github.com/Galfurian/cpptracer/actions/workflows/windows.yml/badge.svg)](https://github.com/Galfurian/cpptracer/actions/workflows/windows.yml)
+[![MacOS](https://github.com/Galfurian/cpptracer/actions/workflows/macos.yml/badge.svg)](https://github.com/Galfurian/cpptracer/actions/workflows/macos.yml)
 
 The Tracer is a class which allows to generate vcd files from c++ variables. It
 can be of use for tracing variables during the simulation of both discrete and

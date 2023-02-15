@@ -1,0 +1,86 @@
+name: Ubuntu
+on:
+    push:
+        branches-ignore:
+            - "releases/**"
+        paths-ignore:
+            - "**.md"
+            - ".gitignore"
+            - "macos.yml"
+            - "windows.yml"
+    pull_request:
+        paths-ignore:
+            - "**.md"
+            - ".gitignore"
+            - "macos.yml"
+            - "windows.yml"
+jobs:
+    doxygen:
+        name: Doxygen
+        runs-on: ubuntu-latest
+        steps:
+            - name: Clone repository
+              uses: actions/checkout@v3
+            - name: Install dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y doxygen
+            - name: Generate documentation
+              run: |
+                  cmake -B build -DDOXYGEN_WARN_AS_ERROR=NO
+                  cmake --build build --target cpptracer_documentation
+    build:
+        name: Build
+        strategy:
+            fail-fast: false
+            matrix:
+                include: [
+                        # You can access the following values via ${{ matrix.??? }}
+                        #
+                        #   pkgs         : apt-get package names.  It can include multiple package names which are delimited by space.
+                        #   cc           : C compiler executable.
+                        #   cxx          : C++ compiler executable for `make ctocpptest`.
+                        #   x32          : Set 'true' if compiler supports x32.  Otherwise, set 'false'.
+                        #                  Set 'fail' if it supports x32 but fails for now.  'fail' cases must be removed.
+                        #   x86          : Set 'true' if compiler supports x86 (-m32).  Otherwise, set 'false'.
+                        #                  Set 'fail' if it supports x86 but fails for now.  'fail' cases must be removed.
+                        #   cxxtest      : Set 'true' if it can be compiled as C++ code.  Otherwise, set 'false'.
+                        #   freestanding : Set 'true' if it can be compiled and execute freestanding code.  Otherwise, set 'false'.
+                        #                  Usually, it requires Linux, x86_64 and gcc/g++.
+                        #   os           : GitHub Actions YAML workflow label.  See https://github.com/actions/virtual-environments#available-environments
+                        # gcc
+                        { pkgs: "", cc: gcc, cxx: g++, os: ubuntu-latest },
+                        { pkgs: "gcc-12 g++-12", cc: gcc-12, cxx: g++-12, os: ubuntu-22.04 },
+                        { pkgs: "gcc-11 g++-11", cc: gcc-11, cxx: g++-11, os: ubuntu-22.04 },
+                        { pkgs: "gcc-10 g++-10", cc: gcc-10, cxx: g++-10, os: ubuntu-22.04 },
+                        { pkgs: "gcc-9 g++-9", cc: gcc-9, cxx: g++-9, os: ubuntu-22.04 },
+                        { pkgs: "gcc-8 g++-8", cc: gcc-8, cxx: g++-8, os: ubuntu-20.04 },
+                        { pkgs: "gcc-7 g++-7", cc: gcc-7, cxx: g++-7, os: ubuntu-20.04 },
+                        # clang
+                        { pkgs: "", cc: clang, cxx: clang++, os: ubuntu-latest },
+                        { pkgs: "clang-14", cc: clang-14, cxx: clang++-14, os: ubuntu-22.04 },
+                        { pkgs: "clang-13", cc: clang-13, cxx: clang++-13, os: ubuntu-22.04 },
+                        { pkgs: "clang-12", cc: clang-12, cxx: clang++-12, os: ubuntu-22.04 },
+                        { pkgs: "clang-11", cc: clang-11, cxx: clang++-11, os: ubuntu-22.04 },
+                        { pkgs: "clang-10", cc: clang-10, cxx: clang++-10, os: ubuntu-20.04 },
+                        { pkgs: "clang-9", cc: clang-9, cxx: clang++-9, os: ubuntu-20.04 },
+                        { pkgs: "clang-8", cc: clang-8, cxx: clang++-8, os: ubuntu-20.04 },
+                        { pkgs: "clang-7", cc: clang-7, cxx: clang++-7, os: ubuntu-20.04 },
+                    ]
+        runs-on: ${{ matrix.os }}
+        # Set environment variables
+        env:
+            # We globally set CC and CXX.
+            CC: ${{ matrix.cc }}
+            CXX: ${{ matrix.cxx }}
+        steps:
+            - name: Clone repository
+              uses: actions/checkout@v3
+            - name: Install dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y ${{ matrix.pkgs }}
+            - name: Build
+              run: |
+                  cmake -B build -DCPPTRACER_BUILD_EXAMPLES=ON -DCPPTRACER_WARNINGS_AS_ERRORS=ON
+                  cmake --build build --parallel 2

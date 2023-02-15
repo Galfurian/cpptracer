@@ -15,15 +15,15 @@ int main(int, char **)
     double _double           = 1;
     float _float             = 1;
     // Unsigned (UINT)
-    uint64_t _uint64_t = 0;
-    uint32_t _uint32_t = 0;
-    uint16_t _uint16_t = 0;
-    uint8_t _uint8_t   = 0;
+    std::uint64_t _uint64_t = 0;
+    std::uint32_t _uint32_t = 0;
+    std::uint16_t _uint16_t = 0;
+    std::uint8_t _uint8_t   = 0;
     // Signed (INT)
-    int64_t _int64_t = 0;
-    int32_t _int32_t = 0;
-    int16_t _int16_t = 0;
-    int8_t _int8_t   = 0;
+    std::int64_t _int64_t = 0;
+    std::int32_t _int32_t = 0;
+    std::int16_t _int16_t = 0;
+    std::int8_t _int8_t   = 0;
     // Create the trace and add the variable to the trace.
     cpptracer::Tracer tracer("compressed_trace.vcd", timeStep, "root");
     // Enable the compression.
@@ -44,17 +44,17 @@ int main(int, char **)
     tracer.createTrace();
     // Initialize the trace.
     for (double time = 0; time < simulatedTime; time += timeStep) {
-        _long_double = sin(time);
-        _double      = cos(time);
+        _long_double = std::sin(time);
+        _double      = std::cos(time);
         _float *= static_cast<float>(M_PI);
-        _uint8_t  = static_cast<uint8_t>(_uint8_t + 8);
-        _uint16_t = static_cast<uint16_t>(_uint16_t + 16);
-        _uint32_t += 32u;
-        _uint64_t += 64UL;
-        _int8_t  = static_cast<int8_t>(_int8_t - 8);
-        _int16_t = static_cast<int16_t>(_int16_t - 16);
-        _int32_t -= 32;
-        _int64_t -= 64;
+        _uint8_t  = static_cast<std::uint8_t>(_uint8_t + 8);
+        _uint16_t = static_cast<std::uint16_t>(_uint16_t + 16);
+        _uint32_t = static_cast<std::uint32_t>(_uint32_t + 32);
+        _uint64_t = static_cast<std::uint64_t>(_uint64_t + 64);
+        _int8_t   = static_cast<std::int8_t>(_int8_t - 8);
+        _int16_t  = static_cast<std::int16_t>(_int16_t - 16);
+        _int32_t  = static_cast<std::int32_t>(_int32_t - 32);
+        _int64_t  = static_cast<std::int64_t>(_int64_t - 64);
         // Update the trace.
         tracer.updateTrace(time);
     }
