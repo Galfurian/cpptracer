@@ -112,10 +112,10 @@ public:
         outbuffer << "$version\n";
         if (version_text.empty()) {
             outbuffer << "    Tracer "
-                << VARIABLE_TRACER_MAJOR << "."
-                << VARIABLE_TRACER_MINOR << "."
-                << VARIABLE_TRACER_PATCH
-                << " - By " RELEASE_AUTHOR " <" RELEASE_EMAIL "> --- " RELEASE_DATE "\n";
+                      << VARIABLE_TRACER_MAJOR << "."
+                      << VARIABLE_TRACER_MINOR << "."
+                      << VARIABLE_TRACER_PATCH
+                      << " - By " RELEASE_AUTHOR " <" RELEASE_EMAIL "> --- " RELEASE_DATE "\n";
         } else {
             outbuffer << version_text;
         }
@@ -180,11 +180,11 @@ public:
     /// @param name     The name of the trace.
     /// @param variable The variable which has to be traced.
     template <typename T>
-    auto addTrace(const T &variable, std::string name)
+    Trace *addTrace(const T &variable, std::string name)
     {
         if (current_scope == nullptr)
             throw std::runtime_error("There is no current scope.");
-        auto trace = new TraceWrapper(std::move(name), std::to_string(traces_cout), &variable);
+        Trace *trace = new TraceWrapper(std::move(name), std::to_string(traces_cout), &variable);
         current_scope->traces.push_back(trace);
         ++traces_cout;
         return trace;
