@@ -304,7 +304,7 @@ private:
     template <typename T>
     inline T getScaledTime(long double const &t) const
     {
-        return static_cast<T>(t / timescale.getTimeUnit().toValue());
+        return static_cast<T>(std::round(t / timescale.getTimeUnit().toValue()));
     }
 
     /// @brief Issue each trace to save the current value as `previous value`.

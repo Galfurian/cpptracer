@@ -87,6 +87,7 @@ int main(int, char **)
     // Create the trace and add the variable to the trace.
     cpptracer::Tracer tracer("datatypes.vcd", timeStep, "root");
 
+
     // Add traces.
     auto long_double_trace = tracer.addTrace(_long_double, "long_double");
     auto double_trace      = tracer.addTrace(_double, "double");
@@ -107,6 +108,7 @@ int main(int, char **)
     // Create the header.
     tracer.createTrace();
 
+    // Set the precision for the floating-point traces.
     // Set the precision for the floating-point traces.
     long_double_trace->setPrecision(9);
     double_trace->setPrecision(6);

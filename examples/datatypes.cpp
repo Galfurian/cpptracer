@@ -91,6 +91,8 @@ int main(int, char **)
     tracer.createTrace();
 
     // Set the precision for the floating-point traces.
+
+    // Set the precision for the floating-point traces.
     long_double_trace->setPrecision(9);
     double_trace->setPrecision(6);
     float_trace->setPrecision(3);
@@ -115,6 +117,7 @@ int main(int, char **)
         vector += true;
 
         sine_wave = offset + amplitude * std::sin(2 * M_PI * frequency * time);
+
 
         // Update the trace.
         tracer.updateTrace(time);
