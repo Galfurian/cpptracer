@@ -5,6 +5,7 @@
 #pragma once
 
 #include <type_traits>
+#include <cstdint>
 #include <iomanip>
 #include <string>
 #include <vector>
