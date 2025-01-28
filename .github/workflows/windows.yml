@@ -1,27 +1,55 @@
 name: Windows
+
+# Trigger the workflow on push or pull requests for main and develop branches
 on:
-    push:
-        branches-ignore:
-            - "releases/**"
-        paths-ignore:
-            - "**.md"
-            - ".gitignore"
-            - "macos.yml"
-            - "ubuntu.yml"
-    pull_request:
-        paths-ignore:
-            - "**.md"
-            - ".gitignore"
-            - "macos.yml"
-            - "ubuntu.yml"
+  push:
+    branches:
+    - main
+    - develop
+    paths:
+    - '**/*.c'
+    - '**/*.cpp'
+    - '**/*.h'
+    - '**/*.hpp'
+    - '**/CMakeLists.txt'
+    - '**/Makefile'
+    - '**/cmake/**'
+    - '.github/workflows/windows.yml'
+  pull_request:
+    branches:
+    - main
+    - develop
+    paths:
+    - '**/*.c'
+    - '**/*.cpp'
+    - '**/*.h'
+    - '**/*.hpp'
+    - '**/CMakeLists.txt'
+    - '**/Makefile'
+    - '**/cmake/**'
+    - '.github/workflows/windows.yml'
+
 jobs:
-    test:
-        name: Build
-        runs-on: windows-latest
-        steps:
-            - name: Clone repo
-              uses: actions/checkout@v2
-            - name: Build
-              run: |
-                  cmake -B build -DCPPTRACER_BUILD_EXAMPLES=ON -DCPPTRACER_WARNINGS_AS_ERRORS=ON
-                  cmake --build build --parallel 2
+  build:
+    name: Build and Test (Windows)
+    runs-on: windows-latest
+
+    steps:
+    # Step: Clone the project.
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    # Step: Configure Project.
+    - name: Configure Project
+      run: |
+        cmake -B build -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON -DWARNINGS_AS_ERRORS=ON -DSTRICT_WARNINGS=ON
+
+    # Step: Build Project.
+    - name: Build Project
+      run: |
+        cmake --build build --config Debug --parallel 2
+
+    # Step: Run Tests.
+    - name: Run Tests
+      run: |
+          ctest --test-dir build --build-config Debug --verbose

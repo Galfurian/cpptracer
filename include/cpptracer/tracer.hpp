@@ -7,7 +7,6 @@
 #include "compression.hpp"
 #include "timeScale.hpp"
 #include "utilities.hpp"
-#include "version.hpp"
 #include "colors.hpp"
 #include "scope.hpp"
 #include "trace.hpp"
@@ -16,6 +15,10 @@
 #include <iomanip> // std::setprecision
 #include <fstream> // std::ofstream
 #include <string>
+
+#define CPPTRACER_MAJOR_VERSION 3 ///< Major version of the library.
+#define CPPTRACER_MINOR_VERSION 0 ///< Minor version of the library.
+#define CPPTRACER_MICRO_VERSION 0 ///< Micro version of the library.
 
 namespace cpptracer
 {
@@ -39,7 +42,7 @@ private:
     bool first_dump;
     /// Next sampling time.
     double next_sample;
-#ifdef COMPRESSION_ENABLED
+#ifdef ENABLE_COMPRESSION
     /// Enables traces compression.
     bool compress_traces = false;
 #endif
@@ -70,9 +73,8 @@ public:
         root_scope->parent = root_scope;
     }
 
-    /**
-     * @brief Move constructor
-     */
+    /// @brief Use the default move constructor.
+    /// @param other the other tracer.
     Tracer(Tracer &&other) = default;
 
     /// @brief Destructor.
@@ -94,7 +96,7 @@ public:
     /// @brief Activate compression, only if enabled.
     inline void enableCompression()
     {
-#ifdef COMPRESSION_ENABLED
+#ifdef ENABLE_COMPRESSION
         compress_traces = true;
 #else
         std::cerr << "Cannot activate the compression without zlib.\n";
@@ -112,10 +114,10 @@ public:
         outbuffer << "$version\n";
         if (version_text.empty()) {
             outbuffer << "    Tracer "
-                      << VARIABLE_TRACER_MAJOR << "."
-                      << VARIABLE_TRACER_MINOR << "."
-                      << VARIABLE_TRACER_PATCH
-                      << " - By " RELEASE_AUTHOR " <" RELEASE_EMAIL "> --- " RELEASE_DATE "\n";
+                      << CPPTRACER_MAJOR_VERSION << "."
+                      << CPPTRACER_MINOR_VERSION << "."
+                      << CPPTRACER_MICRO_VERSION
+                      << " - By Enrico Fraccaroli (Galfurian) <enry.frak@gmail.com>\n";
         } else {
             outbuffer << version_text;
         }
@@ -177,8 +179,10 @@ public:
     }
 
     /// @brief Add a variable to the list of traces.
-    /// @param name     The name of the trace.
-    /// @param variable The variable which has to be traced.
+    /// @tparam T the type of the variable.
+    /// @param variable the variable which has to be traced.
+    /// @param name the name of the trace.
+    /// @return a pointer to the trace handler.
     template <typename T>
     TraceWrapper<T> *addTrace(const T &variable, std::string name)
     {
@@ -215,12 +219,14 @@ public:
     }
 
     /// @brief Checks if some value has changed.
+    /// @return true if at least one value has changed, false otherwise.
     inline bool changed() const
     {
         return this->changedRecursive(root_scope);
     }
 
     /// @brief Closes the trace file.
+    /// @return true on success, false otherwise.
     inline bool closeTrace()
     {
         if (outbuffer.str().empty())
@@ -237,7 +243,7 @@ public:
             return false;
         }
         if (this->isCompressionEnabled()) {
-#ifdef COMPRESSION_ENABLED
+#ifdef ENABLE_COMPRESSION
             // Log the compression start.
             std::cout << KYEL << "Compressing traces..." << KRST << "\n";
             // Save the original trace and the compressed trace.
@@ -267,31 +273,26 @@ public:
         return true;
     }
 
-    /**
-     * @brief Set version text
-     *
-     * @param versionText to disaplay in $version section
-     */
+    /// @brief Sets the version text to display in $version section
+    /// @param _version_text the version text.
     inline void setVersionText(std::string _version_text)
     {
         version_text = std::move(_version_text);
     }
 
-    /**
-     * @brief Returns time for next sample
-     *
-     * @return time of the next sample
-     */
+    /// @brief Returns the time for the next sample.
+    /// @return the time for the next sample.
     inline double nextSampleTime() const
     {
         return next_sample;
     }
 
 private:
-    /// @brief Activate compression, only if enabled.
+    /// @brief Checks if the compression is enabled.
+    /// @return true if the compression is enabled, false otherwise.
     inline bool isCompressionEnabled() const
     {
-#ifdef COMPRESSION_ENABLED
+#ifdef ENABLE_COMPRESSION
         return compress_traces;
 #else
         return false;

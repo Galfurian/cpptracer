@@ -15,9 +15,12 @@
 namespace cpptracer
 {
 
+/// @brief Class used to store a trace.
 class Trace {
 public:
     /// @brief Constructor of the trace.
+    /// @param _name the name of the trace.
+    /// @param _symbol the symbol assigned to the trace.
     Trace(std::string _name, std::string _symbol)
         : name(std::move(_name)),
           symbol(std::move(_symbol))
@@ -29,21 +32,25 @@ public:
     virtual ~Trace() = default;
 
     /// @brief Provides the name of the trace.
+    /// @return the name of the trace.
     inline const std::string &getName() const
     {
         return name;
     }
 
     /// @brief Provides the symbol of the trace.
+    /// @return the symbol of the trace.
     inline const std::string &getSymbol() const
     {
         return symbol;
     }
 
     /// @brief Provides the $var of the trace.
+    /// @return the $var of the trace.
     virtual std::string getVar() const = 0;
 
     /// @brief Provides the current value of the trace.
+    /// @return the current value of the trace.
     virtual std::string getValue() const = 0;
 
     /// @brief Checks if the value has changed w.r.t. the previous one.
@@ -61,10 +68,14 @@ protected:
     const std::string symbol;
 };
 
+/// @brief Class used to store a trace of a specific type.
+/// @tparam T the type of the traced variable.
 template <typename T>
 class TraceWrapper : public Trace {
 public:
+    /// @brief The type of the traced variable.
     using value_type   = T;
+    /// @brief The pointer type of the traced variable.
     using pointer_type = const T *;
 
     /// A pointer to the variable that has to be traced.
@@ -73,9 +84,10 @@ public:
     value_type previous;
 
     /// @brief Constructor.
-    /// @param _name     The name of the trace.
-    /// @param _symbol   The symbol to assign.
-    /// @param _ptr      Pointer to the variable.
+    /// @param _name the name of the trace.
+    /// @param _symbol the symbol to assign.
+    /// @param _ptr pointer to the variable.
+    /// @param _precision the desired output precision.
     TraceWrapper(std::string _name, std::string _symbol, pointer_type _ptr, unsigned _precision = 32)
         : Trace(std::move(_name), std::move(_symbol)),
           ptr(_ptr),
@@ -92,20 +104,14 @@ public:
         }
     }
 
-    /// @brief Destructor.
     ~TraceWrapper() override = default;
 
     std::string getVar() const override;
 
-    /// @brief Provides the current value of the trace.
     std::string getValue() const override;
 
-    /// @brief Checks if the value has changed w.r.t. the previous one.
-    /// @return <b>True</b> if the value has changed,<br>
-    ///         <b>False</b> otherwise.
     bool hasChanged() const override;
 
-    /// @brief Updates the previous value with the current value.
     void updatePrevious() override
     {
         previous = (*ptr);
@@ -118,6 +124,8 @@ public:
         precision = _precision;
     }
 
+    /// @brief Sets the tollerance for checking equality between floating point values.
+    /// @param _tolerance the tollerance for checking equality.
     void setTolerance(double _tolerance)
     {
         tolerance = _tolerance;
@@ -130,10 +138,14 @@ private:
     double tolerance;
 };
 
+/// @brief Specialization for bool arrays.
+/// @tparam N the size of the array.
 template <std::size_t N>
 class TraceWrapper<std::array<bool, N>> : public Trace {
 public:
+    /// @brief The type of the traced variable.
     using value_type   = std::array<bool, N>;
+    /// @brief The pointer type of the traced variable.
     using pointer_type = const std::array<bool, N> *;
 
     /// A pointer to the variable that has to be traced.
@@ -152,20 +164,14 @@ public:
     {
     }
 
-    /// @brief Destructor.
     ~TraceWrapper() override = default;
 
     std::string getVar() const override;
 
-    /// @brief Provides the current value of the trace.
     std::string getValue() const override;
 
-    /// @brief Checks if the value has changed w.r.t. the previous one.
-    /// @return <b>True</b> if the value has changed,<br>
-    ///         <b>False</b> otherwise.
     bool hasChanged() const override;
 
-    /// @brief Updates the previous value with the current value.
     void updatePrevious() override
     {
         previous = (*ptr);

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#ifdef COMPRESSION_ENABLED
+#ifdef ENABLE_COMPRESSION
 
 #include <stdexcept>
 #include <sstream>
