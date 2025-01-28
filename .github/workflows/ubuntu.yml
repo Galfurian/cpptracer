@@ -1,86 +1,88 @@
 name: Ubuntu
+
+# Trigger the workflow on push or pull requests for main and develop branches
 on:
-    push:
-        branches-ignore:
-            - "releases/**"
-        paths-ignore:
-            - "**.md"
-            - ".gitignore"
-            - "macos.yml"
-            - "windows.yml"
-    pull_request:
-        paths-ignore:
-            - "**.md"
-            - ".gitignore"
-            - "macos.yml"
-            - "windows.yml"
+  push:
+    branches:
+    - main
+    - develop
+    paths:
+    - '**/*.c'
+    - '**/*.cpp'
+    - '**/*.h'
+    - '**/*.hpp'
+    - '**/CMakeLists.txt'
+    - '**/Makefile'
+    - '**/cmake/**'
+    - '.github/workflows/ubuntu.yml'
+  pull_request:
+    branches:
+    - main
+    - develop
+    paths:
+    - '**/*.c'
+    - '**/*.cpp'
+    - '**/*.h'
+    - '**/*.hpp'
+    - '**/CMakeLists.txt'
+    - '**/Makefile'
+    - '**/cmake/**'
+    - '.github/workflows/ubuntu.yml'
+
 jobs:
-    doxygen:
-        name: Doxygen
-        runs-on: ubuntu-latest
-        steps:
-            - name: Clone repository
-              uses: actions/checkout@v3
-            - name: Install dependencies
-              run: |
-                  sudo apt-get update
-                  sudo apt-get install -y doxygen
-            - name: Generate documentation
-              run: |
-                  cmake -B build -DDOXYGEN_WARN_AS_ERROR=NO
-                  cmake --build build --target cpptracer_documentation
-    build:
-        name: Build
-        strategy:
-            fail-fast: false
-            matrix:
-                include: [
-                        # You can access the following values via ${{ matrix.??? }}
-                        #
-                        #   pkgs         : apt-get package names.  It can include multiple package names which are delimited by space.
-                        #   cc           : C compiler executable.
-                        #   cxx          : C++ compiler executable for `make ctocpptest`.
-                        #   x32          : Set 'true' if compiler supports x32.  Otherwise, set 'false'.
-                        #                  Set 'fail' if it supports x32 but fails for now.  'fail' cases must be removed.
-                        #   x86          : Set 'true' if compiler supports x86 (-m32).  Otherwise, set 'false'.
-                        #                  Set 'fail' if it supports x86 but fails for now.  'fail' cases must be removed.
-                        #   cxxtest      : Set 'true' if it can be compiled as C++ code.  Otherwise, set 'false'.
-                        #   freestanding : Set 'true' if it can be compiled and execute freestanding code.  Otherwise, set 'false'.
-                        #                  Usually, it requires Linux, x86_64 and gcc/g++.
-                        #   os           : GitHub Actions YAML workflow label.  See https://github.com/actions/virtual-environments#available-environments
-                        # gcc
-                        { pkgs: "", cc: gcc, cxx: g++, os: ubuntu-latest },
-                        { pkgs: "gcc-12 g++-12", cc: gcc-12, cxx: g++-12, os: ubuntu-22.04 },
-                        { pkgs: "gcc-11 g++-11", cc: gcc-11, cxx: g++-11, os: ubuntu-22.04 },
-                        { pkgs: "gcc-10 g++-10", cc: gcc-10, cxx: g++-10, os: ubuntu-22.04 },
-                        { pkgs: "gcc-9 g++-9", cc: gcc-9, cxx: g++-9, os: ubuntu-22.04 },
-                        { pkgs: "gcc-8 g++-8", cc: gcc-8, cxx: g++-8, os: ubuntu-20.04 },
-                        { pkgs: "gcc-7 g++-7", cc: gcc-7, cxx: g++-7, os: ubuntu-20.04 },
-                        # clang
-                        { pkgs: "", cc: clang, cxx: clang++, os: ubuntu-latest },
-                        { pkgs: "clang-14", cc: clang-14, cxx: clang++-14, os: ubuntu-22.04 },
-                        { pkgs: "clang-13", cc: clang-13, cxx: clang++-13, os: ubuntu-22.04 },
-                        { pkgs: "clang-12", cc: clang-12, cxx: clang++-12, os: ubuntu-22.04 },
-                        { pkgs: "clang-11", cc: clang-11, cxx: clang++-11, os: ubuntu-22.04 },
-                        { pkgs: "clang-10", cc: clang-10, cxx: clang++-10, os: ubuntu-20.04 },
-                        { pkgs: "clang-9", cc: clang-9, cxx: clang++-9, os: ubuntu-20.04 },
-                        { pkgs: "clang-8", cc: clang-8, cxx: clang++-8, os: ubuntu-20.04 },
-                        { pkgs: "clang-7", cc: clang-7, cxx: clang++-7, os: ubuntu-20.04 },
-                    ]
-        runs-on: ${{ matrix.os }}
-        # Set environment variables
-        env:
-            # We globally set CC and CXX.
-            CC: ${{ matrix.cc }}
-            CXX: ${{ matrix.cxx }}
-        steps:
-            - name: Clone repository
-              uses: actions/checkout@v3
-            - name: Install dependencies
-              run: |
-                  sudo apt-get update
-                  sudo apt-get install -y ${{ matrix.pkgs }}
-            - name: Build
-              run: |
-                  cmake -B build -DCPPTRACER_BUILD_EXAMPLES=ON -DCPPTRACER_WARNINGS_AS_ERRORS=ON
-                  cmake --build build --parallel 2
+  build:
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+
+    # Define a matrix strategy to test multiple compiler and OS configurations
+    strategy:
+      # Continue running other matrix jobs even if one fails
+      fail-fast: false
+      matrix:
+        include:
+          [
+            # GCC 8: Introduced full C++17 support.
+            { pkgs: "gcc-8 g++-8", cc: gcc-8, cxx: g++-8, os: ubuntu-20.04 },
+            # GCC 10: Improved performance and C++20 support.
+            { pkgs: "gcc-10 g++-10", cc: gcc-10, cxx: g++-10, os: ubuntu-22.04 },
+            # GCC 12: Latest stable version with full C++20 support.
+            { pkgs: "gcc-12 g++-12", cc: gcc-12, cxx: g++-12, os: ubuntu-24.04 },
+
+            # Clang 9: Full C++17 support.
+            { pkgs: "clang-9 clang++-9", cc: clang-9, cxx: clang++-9, os: ubuntu-20.04 },
+            # Clang 12: C++20 support improvements.
+            { pkgs: "clang-12 clang++-12", cc: clang-12, cxx: clang++-12, os: ubuntu-22.04 },
+            # Clang 14: Latest stable version with full C++20 support.
+            { pkgs: "clang-14 clang++-14", cc: clang-14, cxx: clang++-14, os: ubuntu-24.04 } 
+          ]
+
+    # Set environment variables for compiler executables
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+
+    steps:
+    # Step: Clone the project.
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    # Step: Install the required compiler and dependencies.
+    - name: Install Compiler Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ${{ matrix.pkgs }}
+
+    # Step: Configure the project using CMake.
+    - name: Configure Project
+      run: |
+        cmake -B build -DCMAKE_C_COMPILER=${{ env.CC }} -DCMAKE_CXX_COMPILER=${{ env.CXX }} -DBUILD_EXAMPLES=ON -DBUILD_TESTS=ON -DWARNINGS_AS_ERRORS=ON -DSTRICT_WARNINGS=ON
+
+    # Step: Build Project.
+    - name: Build Project
+      run: |
+        cmake --build build --config Debug --parallel 2
+
+    # Step: Run Tests.
+    - name: Run Tests
+      run: |
+        ctest --test-dir build --build-config Debug --verbose

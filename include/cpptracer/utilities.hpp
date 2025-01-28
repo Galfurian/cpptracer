@@ -30,9 +30,9 @@ inline void create_dir(std::string const &path)
 }
 
 /// @brief Transforms the given value to a binary string.
-/// @tparam length of the binary output.
 /// @tparam T type of the input value.
-/// @param value to print.
+/// @param value the input value.
+/// @param length the length of the binary string.
 /// @return the string representing the binary value.
 template <typename T>
 const std::string dec_to_binary(T value, const T length)
@@ -44,6 +44,9 @@ const std::string dec_to_binary(T value, const T length)
     return buffer;
 }
 
+/// @brief Transforms the boolean vector to a binary string.
+/// @param vector the input vector.
+/// @return the string representing the binary value.
 const std::string vector_to_binary(const std::vector<bool> &vector)
 {
     std::string buffer(vector.size(), '0');
@@ -53,6 +56,10 @@ const std::string vector_to_binary(const std::vector<bool> &vector)
     return buffer;
 }
 
+/// @brief Transforms an array of booleans to a binary string.
+/// @tparam N the number of elements in the array.
+/// @param array the input array.
+/// @return the string representing the binary value.
 template <std::size_t N>
 const std::string array_to_binary(const std::array<bool, N> &array)
 {

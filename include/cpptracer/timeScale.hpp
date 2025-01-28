@@ -10,18 +10,21 @@
 namespace cpptracer
 {
 
+/// @brief Class used to store time units.
 class TimeUnit {
 public:
     /// Possible granularity of time.
     enum Enums {
-        SEC, ///< Seconds
-        MS,  ///< Milliseconds
-        US,  ///< Microseconds
-        NS,  ///< Nanoseconds
-        PS,  ///< Picoseconds
-        FS   ///< Femtoseconds
-    } time_unit;
+        SEC,     ///< Seconds
+        MS,      ///< Milliseconds
+        US,      ///< Microseconds
+        NS,      ///< Nanoseconds
+        PS,      ///< Picoseconds
+        FS       ///< Femtoseconds
+    } time_unit; ///< The time unit.
 
+    /// @brief Constructs a time unit.
+    /// @param _time_unit the time unit.
     constexpr TimeUnit(Enums _time_unit)
         : time_unit(_time_unit)
     {
@@ -44,6 +47,8 @@ public:
         return 1;
     }
 
+    /// @brief Return the string representation of the time unit.
+    /// @return the string representation of the time unit.
     constexpr inline const char *toString() const
     {
         if (time_unit == SEC)
