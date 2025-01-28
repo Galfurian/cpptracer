@@ -2,12 +2,14 @@
 layout: default
 ---
 
-# CPPTracer - C++ Variable Tracer for VCD File Generation
+# CPPTracer
 
 [![Ubuntu](https://github.com/Galfurian/cpptracer/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/Galfurian/cpptracer/actions/workflows/ubuntu.yml)
 [![Windows](https://github.com/Galfurian/cpptracer/actions/workflows/windows.yml/badge.svg)](https://github.com/Galfurian/cpptracer/actions/workflows/windows.yml)
 [![MacOS](https://github.com/Galfurian/cpptracer/actions/workflows/macos.yml/badge.svg)](https://github.com/Galfurian/cpptracer/actions/workflows/macos.yml)
 [![Documentation](https://github.com/Galfurian/cpptracer/actions/workflows/documentation.yml/badge.svg)](https://github.com/Galfurian/cpptracer/actions/workflows/documentation.yml)
+
+## Overview
 
 `cpptracer` is a C++ library for tracing variable values and generating Value
 Change Dump (VCD) files. It allows you to track the changes of variables over
