@@ -5,15 +5,11 @@
 #pragma once
 
 #include <chrono>
-#include <cmath>
-#include <fstream>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
-#include <map>
 #include <sstream>
 #include <string>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <vector>
 
 namespace cpptracer
@@ -26,10 +22,12 @@ namespace utility
 /// @param path of the new directory.
 inline void create_dir(std::string const &path)
 {
-    mode_t mode = 0755;
-    int dir_err = mkdir(path.c_str(), mode);
-    if (dir_err == -1 && errno != EEXIST) {
-        std::cerr << "Error creating directory " << path << "!\n";
+    try {
+        if (!std::filesystem::exists(path)) {
+            std::filesystem::create_directory(path);
+        }
+    } catch (const std::filesystem::filesystem_error &e) {
+        std::cerr << "Error creating directory " << path << ": " << e.what() << '\n';
         exit(1);
     }
 }
