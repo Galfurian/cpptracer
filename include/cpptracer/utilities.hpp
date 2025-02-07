@@ -147,10 +147,20 @@ inline auto get_date_time() -> std::string
 
         // Convert to local time
         std::tm timeinfo{};
+
+#ifdef _WIN32
+        // Use localtime_s on Windows
+        if (localtime_s(&timeinfo, &now_time) != 0) {
+            std::cerr << "Error getting local time!\n";
+            return "";
+        }
+#else
+        // Use localtime_r on POSIX systems
         if (localtime_r(&now_time, &timeinfo) == nullptr) {
             std::cerr << "Error getting local time!\n";
             return "";
         }
+#endif
 
         // Format date and time
         std::ostringstream oss;

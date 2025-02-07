@@ -20,18 +20,6 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # -----------------------------------------------------------------------------
-# Add options.
-# -----------------------------------------------------------------------------
-
-option(STRICT_WARNINGS "Enable strict compiler warnings" ON)
-option(WARNINGS_AS_ERRORS "Treat all warnings as errors" OFF)
-
-option(ENABLE_COMPRESSION "Enables the option to compress VCD traces using zlib" OFF)
-
-option(BUILD_EXAMPLES "Build examples" ON)
-option(BUILD_TESTS "Build tests" ON)
-
-# -----------------------------------------------------------------------------
 # ENABLE FETCH CONTENT
 # -----------------------------------------------------------------------------
 
@@ -44,6 +32,18 @@ mark_as_advanced(FORCE
     FETCHCONTENT_FULLY_DISCONNECTED
     FETCHCONTENT_UPDATES_DISCONNECTED
 )
+
+# -----------------------------------------------------------------------------
+# Add options.
+# -----------------------------------------------------------------------------
+
+option(STRICT_WARNINGS "Enable strict compiler warnings" ON)
+option(WARNINGS_AS_ERRORS "Treat all warnings as errors" OFF)
+
+option(ENABLE_COMPRESSION "Enables the option to compress VCD traces using zlib" OFF)
+
+option(BUILD_EXAMPLES "Build examples" ON)
+option(BUILD_TESTS "Build tests" ON)
 
 # -----------------------------------------------------------------------------
 # DEPENDENCY (SYSTEM LIBRARIES)
