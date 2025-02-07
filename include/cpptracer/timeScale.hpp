@@ -11,7 +11,8 @@ namespace cpptracer
 {
 
 /// @brief Class used to store time units.
-class TimeUnit {
+class TimeUnit
+{
 public:
     /// Possible granularity of time.
     enum Enums {
@@ -68,7 +69,8 @@ public:
 };
 
 /// @brief Class used to store timing dimensions.
-class TimeScale {
+class TimeScale
+{
 private:
     /// The time number.
     unsigned time_number;
@@ -81,9 +83,9 @@ public:
     /// @brief Constructs a time scale in terms of seconds.
     /// @param _time_number the time number.
     constexpr explicit TimeScale(unsigned _time_number)
-        : time_number(_time_number),
-          time_unit(TimeUnit::SEC),
-          value(time_number * time_unit.toValue())
+        : time_number(_time_number)
+        , time_unit(TimeUnit::SEC)
+        , value(time_number * time_unit.toValue())
     {
         // Nothing to do.
     }
@@ -92,33 +94,24 @@ public:
     /// @param _time_number the time number.
     /// @param _time_unit the time unit.
     constexpr TimeScale(unsigned _time_number, TimeUnit _time_unit)
-        : time_number(_time_number),
-          time_unit(_time_unit),
-          value(time_number * time_unit.toValue())
+        : time_number(_time_number)
+        , time_unit(_time_unit)
+        , value(time_number * time_unit.toValue())
     {
         // Nothing to do.
     }
 
     /// @brief Return the scale dimension.
     /// @return The value of the scale.
-    constexpr inline double getValue() const
-    {
-        return value;
-    }
+    constexpr inline double getValue() const { return value; }
 
     /// @brief Returns the time number.
     /// @return the time number.
-    constexpr inline unsigned getTimeNumber() const
-    {
-        return time_number;
-    }
+    constexpr inline unsigned getTimeNumber() const { return time_number; }
 
     /// @brief Return the time unit.
     /// @return the time unit.
-    constexpr inline const TimeUnit &getTimeUnit() const
-    {
-        return time_unit;
-    }
+    constexpr inline const TimeUnit &getTimeUnit() const { return time_unit; }
 };
 
 /// @brief Checks if the first time value is lesser than the second.
@@ -126,60 +119,42 @@ public:
 /// @param rhs the second value.
 /// @return true if the first value is lesser than the second.
 /// @return false otherwise.
-inline bool operator<(const TimeScale &lhs, const TimeScale &rhs)
-{
-    return lhs.getValue() < rhs.getValue();
-}
+inline bool operator<(const TimeScale &lhs, const TimeScale &rhs) { return lhs.getValue() < rhs.getValue(); }
 
 /// @brief Checks if the first time value is lesser than the floating point time value.
 /// @param lhs the first value.
 /// @param rhs the floating point time value.
 /// @return true if the first value is lesser than the second.
 /// @return false otherwise.
-inline bool operator<(const TimeScale &lhs, const double &rhs)
-{
-    return lhs.getValue() < rhs;
-}
+inline bool operator<(const TimeScale &lhs, const double &rhs) { return lhs.getValue() < rhs; }
 
 /// @brief Checks if the first floating point time value is lesser than the time value.
 /// @param lhs the floating point time value.
 /// @param rhs the second value.
 /// @return true if the first value is lesser than the second.
 /// @return false otherwise.
-inline bool operator<(const double &lhs, const TimeScale &rhs)
-{
-    return lhs < rhs.getValue();
-}
+inline bool operator<(const double &lhs, const TimeScale &rhs) { return lhs < rhs.getValue(); }
 
 /// @brief Checks if the first time value is greather than the second.
 /// @param lhs the first value.
 /// @param rhs the second value.
 /// @return true if the first value is greather than the second.
 /// @return false otherwise.
-inline bool operator>(const TimeScale &lhs, const TimeScale &rhs)
-{
-    return lhs.getValue() > rhs.getValue();
-}
+inline bool operator>(const TimeScale &lhs, const TimeScale &rhs) { return lhs.getValue() > rhs.getValue(); }
 
 /// @brief Checks if the first time value is greather than the floating point time value.
 /// @param lhs the time value.
 /// @param rhs the floating point time value.
 /// @return true if the first value is greather than the second.
 /// @return false otherwise.
-inline bool operator>(const TimeScale &lhs, const double &rhs)
-{
-    return lhs.getValue() > rhs;
-}
+inline bool operator>(const TimeScale &lhs, const double &rhs) { return lhs.getValue() > rhs; }
 
 /// @brief Checks if the first floating point time value is greather than the time value.
 /// @param lhs the floating point time value.
 /// @param rhs the time value.
 /// @return true if the first value is greather than the second.
 /// @return false otherwise.
-inline bool operator>(const double &lhs, const TimeScale &rhs)
-{
-    return lhs > rhs.getValue();
-}
+inline bool operator>(const double &lhs, const TimeScale &rhs) { return lhs > rhs.getValue(); }
 
 /// @brief Sums the time value to the floating point time value.
 /// @param lhs the floating point time value.

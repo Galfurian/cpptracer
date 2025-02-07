@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <type_traits>
+#include <array>
 #include <cstdint>
 #include <iomanip>
 #include <string>
+#include <type_traits>
 #include <vector>
-#include <array>
 
 #include "feq.hpp"
 
@@ -17,14 +17,15 @@ namespace cpptracer
 {
 
 /// @brief Class used to store a trace.
-class Trace {
+class Trace
+{
 public:
     /// @brief Constructor of the trace.
     /// @param _name the name of the trace.
     /// @param _symbol the symbol assigned to the trace.
     Trace(std::string _name, std::string _symbol)
-        : name(std::move(_name)),
-          symbol(std::move(_symbol))
+        : name(std::move(_name))
+        , symbol(std::move(_symbol))
     {
         // Nothing to do.
     }
@@ -34,17 +35,11 @@ public:
 
     /// @brief Provides the name of the trace.
     /// @return the name of the trace.
-    inline const std::string &getName() const
-    {
-        return name;
-    }
+    inline const std::string &getName() const { return name; }
 
     /// @brief Provides the symbol of the trace.
     /// @return the symbol of the trace.
-    inline const std::string &getSymbol() const
-    {
-        return symbol;
-    }
+    inline const std::string &getSymbol() const { return symbol; }
 
     /// @brief Provides the $var of the trace.
     /// @return the $var of the trace.
@@ -72,7 +67,8 @@ protected:
 /// @brief Class used to store a trace of a specific type.
 /// @tparam T the type of the traced variable.
 template <typename T>
-class TraceWrapper : public Trace {
+class TraceWrapper : public Trace
+{
 public:
     /// @brief The type of the traced variable.
     using value_type   = T;
@@ -90,11 +86,11 @@ public:
     /// @param _ptr pointer to the variable.
     /// @param _precision the desired output precision.
     TraceWrapper(std::string _name, std::string _symbol, pointer_type _ptr, unsigned _precision = 32)
-        : Trace(std::move(_name), std::move(_symbol)),
-          ptr(_ptr),
-          previous(),
-          precision(_precision),
-          tolerance()
+        : Trace(std::move(_name), std::move(_symbol))
+        , ptr(_ptr)
+        , previous()
+        , precision(_precision)
+        , tolerance()
     {
         if constexpr (std::is_same<T, float>::value) {
             tolerance = 1e-09;
@@ -113,24 +109,15 @@ public:
 
     bool hasChanged() const override;
 
-    void updatePrevious() override
-    {
-        previous = (*ptr);
-    }
+    void updatePrevious() override { previous = (*ptr); }
 
     /// @brief Changes the output precision for floating point values.
     /// @param _precision the desired output precision.
-    void setPrecision(unsigned _precision)
-    {
-        precision = _precision;
-    }
+    void setPrecision(unsigned _precision) { precision = _precision; }
 
     /// @brief Sets the tollerance for checking equality between floating point values.
     /// @param _tolerance the tollerance for checking equality.
-    void setTolerance(double _tolerance)
-    {
-        tolerance = _tolerance;
-    }
+    void setTolerance(double _tolerance) { tolerance = _tolerance; }
 
 private:
     /// The floating point precision.
@@ -142,7 +129,8 @@ private:
 /// @brief Specialization for bool arrays.
 /// @tparam N the size of the array.
 template <std::size_t N>
-class TraceWrapper<std::array<bool, N>> : public Trace {
+class TraceWrapper<std::array<bool, N>> : public Trace
+{
 public:
     /// @brief The type of the traced variable.
     using value_type   = std::array<bool, N>;
@@ -159,9 +147,9 @@ public:
     /// @param _symbol   The symbol to assign.
     /// @param _ptr      Pointer to the variable.
     TraceWrapper(std::string _name, std::string _symbol, pointer_type _ptr)
-        : Trace(std::move(_name), std::move(_symbol)),
-          ptr(_ptr),
-          previous()
+        : Trace(std::move(_name), std::move(_symbol))
+        , ptr(_ptr)
+        , previous()
     {
     }
 
@@ -173,10 +161,7 @@ public:
 
     bool hasChanged() const override;
 
-    void updatePrevious() override
-    {
-        previous = (*ptr);
-    }
+    void updatePrevious() override { previous = (*ptr); }
 };
 
 // ----------------------------------------------------------------------------
@@ -422,7 +407,7 @@ inline std::string TraceWrapper<uint64_t>::getValue() const
 template <>
 inline std::string TraceWrapper<float>::getValue() const
 {
-    char buffer[512] = { 0 };
+    char buffer[512] = {0};
     snprintf(buffer, 512, "r%.*e %s\n", precision, *ptr, symbol.c_str());
     return std::string(buffer);
 }
@@ -430,7 +415,7 @@ inline std::string TraceWrapper<float>::getValue() const
 template <>
 inline std::string TraceWrapper<double>::getValue() const
 {
-    char buffer[512] = { 0 };
+    char buffer[512] = {0};
     snprintf(buffer, 512, "r%.*e %s\n", precision, *ptr, symbol.c_str());
     return std::string(buffer);
 }
@@ -438,7 +423,7 @@ inline std::string TraceWrapper<double>::getValue() const
 template <>
 inline std::string TraceWrapper<long double>::getValue() const
 {
-    char buffer[512] = { 0 };
+    char buffer[512] = {0};
     snprintf(buffer, 512, "r%.*Le %s\n", precision, *ptr, symbol.c_str());
     return std::string(buffer);
 }

@@ -4,16 +4,16 @@
 
 #pragma once
 
-#include "compression.hpp"
-#include "timeScale.hpp"
-#include "utilities.hpp"
 #include "colors.hpp"
+#include "compression.hpp"
 #include "scope.hpp"
+#include "timeScale.hpp"
 #include "trace.hpp"
+#include "utilities.hpp"
 
-#include <stdexcept>
-#include <iomanip> // std::setprecision
 #include <fstream> // std::ofstream
+#include <iomanip> // std::setprecision
+#include <stdexcept>
 #include <string>
 
 #define CPPTRACER_MAJOR_VERSION 3 ///< Major version of the library.
@@ -24,7 +24,8 @@ namespace cpptracer
 {
 
 /// @brief C++ variable tracer.
-class Tracer {
+class Tracer
+{
 private:
     /// Name of the trace file.
     std::string filename;
@@ -58,17 +59,15 @@ public:
     /// @param _filename The name of the file.
     /// @param _timescale The timescale to use.
     /// @param root the name of the root scope.
-    Tracer(std::string _filename,
-           TimeScale const &_timescale,
-           std::string root)
-        : filename(std::move(_filename)),
-          outbuffer(),
-          root_scope(new Scope(root)),
-          current_scope(root_scope),
-          timescale(_timescale),
-          sampling(_timescale),
-          first_dump(true),
-          next_sample()
+    Tracer(std::string _filename, TimeScale const &_timescale, std::string root)
+        : filename(std::move(_filename))
+        , outbuffer()
+        , root_scope(new Scope(root))
+        , current_scope(root_scope)
+        , timescale(_timescale)
+        , sampling(_timescale)
+        , first_dump(true)
+        , next_sample()
     {
         root_scope->parent = root_scope;
     }
@@ -88,10 +87,7 @@ public:
 
     /// @brief Sets the sampling period.
     /// @param _sampling the sampling period.
-    inline void setSampling(TimeScale const &_sampling)
-    {
-        sampling = _sampling;
-    }
+    inline void setSampling(TimeScale const &_sampling) { sampling = _sampling; }
 
     /// @brief Activate compression, only if enabled.
     inline void enableCompression()
@@ -113,11 +109,8 @@ public:
         outbuffer << "$end\n";
         outbuffer << "$version\n";
         if (version_text.empty()) {
-            outbuffer << "    Tracer "
-                      << CPPTRACER_MAJOR_VERSION << "."
-                      << CPPTRACER_MINOR_VERSION << "."
-                      << CPPTRACER_MICRO_VERSION
-                      << " - By Enrico Fraccaroli (Galfurian) <enry.frak@gmail.com>\n";
+            outbuffer << "    Tracer " << CPPTRACER_MAJOR_VERSION << "." << CPPTRACER_MINOR_VERSION << "."
+                      << CPPTRACER_MICRO_VERSION << " - By Enrico Fraccaroli (Galfurian) <enry.frak@gmail.com>\n";
         } else {
             outbuffer << version_text;
         }
@@ -140,9 +133,9 @@ public:
         if (current_scope->parent == nullptr)
             throw std::runtime_error("Current scope has no parent.");
         // Get the parent scope.
-        auto parent = current_scope->parent;
+        auto parent       = current_scope->parent;
         // Create the new scope.
-        auto new_scope = new Scope(std::move(scope_name));
+        auto new_scope    = new Scope(std::move(scope_name));
         // Set the parent of the new scope.
         new_scope->parent = parent;
         // Add the new scope to the parent.
@@ -158,7 +151,7 @@ public:
         if (current_scope == nullptr)
             throw std::runtime_error("There is no current scope.");
         // Create the new scope.
-        auto new_scope = new Scope(std::move(scope_name));
+        auto new_scope    = new Scope(std::move(scope_name));
         // Set the parent of the new scope.
         new_scope->parent = current_scope;
         // Add the new scope to the parent.
@@ -220,10 +213,7 @@ public:
 
     /// @brief Checks if some value has changed.
     /// @return true if at least one value has changed, false otherwise.
-    inline bool changed() const
-    {
-        return this->changedRecursive(root_scope);
-    }
+    inline bool changed() const { return this->changedRecursive(root_scope); }
 
     /// @brief Closes the trace file.
     /// @return true on success, false otherwise.
@@ -256,11 +246,8 @@ public:
             saved -= utility::get_percent(compressed.capacity(), trace.capacity());
             // Log the compression statistics.
             std::cout << KYEL << "Compression completed " << KRST << "\n"
-                      << std::setprecision(2)
-                      << "Original size   = "
-                      << trace.capacity() << " bytes\n"
-                      << "Compressed size = "
-                      << compressed.capacity() << " bytes\n"
+                      << std::setprecision(2) << "Original size   = " << trace.capacity() << " bytes\n"
+                      << "Compressed size = " << compressed.capacity() << " bytes\n"
                       << "Saved space = " << saved << "%\n";
 #endif
         } else {
@@ -275,17 +262,11 @@ public:
 
     /// @brief Sets the version text to display in $version section
     /// @param _version_text the version text.
-    inline void setVersionText(std::string _version_text)
-    {
-        version_text = std::move(_version_text);
-    }
+    inline void setVersionText(std::string _version_text) { version_text = std::move(_version_text); }
 
     /// @brief Returns the time for the next sample.
     /// @return the time for the next sample.
-    inline double nextSampleTime() const
-    {
-        return next_sample;
-    }
+    inline double nextSampleTime() const { return next_sample; }
 
 private:
     /// @brief Checks if the compression is enabled.

@@ -4,15 +4,15 @@
 
 #pragma once
 
-#include <string>
-#include <map>
-#include <iomanip>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <cmath>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <vector>
 
 namespace cpptracer::utility
@@ -105,9 +105,7 @@ template <typename TDone, typename TTotal>
 inline std::string get_percent_string(TDone done, TTotal total)
 {
     std::stringstream ss;
-    ss << std::setprecision(0) << std::fixed
-       << std::setw(3) << std::right
-       << get_percent(done, total) << "%";
+    ss << std::setprecision(0) << std::fixed << std::setw(3) << std::right << get_percent(done, total) << "%";
     return ss.str();
 }
 

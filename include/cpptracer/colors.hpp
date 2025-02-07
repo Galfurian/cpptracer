@@ -8,10 +8,10 @@ namespace cpptracer
 {
 
 /* FOREGROUND */
-#define KRST "\x1B[0m"  ///< Reset: turn off all attributes.
-#define KBLD "\x1B[1m"  ///< Bold or bright.
-#define KITA "\x1B[2m"  ///< Italic.
-#define KUND "\x1B[4m"  ///< Underlined.
+#define KRST "\x1B[0m" ///< Reset: turn off all attributes.
+#define KBLD "\x1B[1m" ///< Bold or bright.
+#define KITA "\x1B[2m" ///< Italic.
+#define KUND "\x1B[4m" ///< Underlined.
 
 #define KRED "\x1B[31m" ///< Sets color to RED.
 #define KGRN "\x1B[32m" ///< Sets color to GREEN.

@@ -10,7 +10,8 @@ namespace cpptracer
 {
 
 /// @brief Hierarchical group of traces.
-class Scope {
+class Scope
+{
 public:
     /// Name of the scope.
     std::string name;
@@ -24,10 +25,10 @@ public:
     /// @brief Construct a new scope with the given name.
     /// @param _name name of the scope.
     Scope(std::string _name)
-        : name(std::move(_name)),
-          traces(),
-          subscopes(),
-          parent()
+        : name(std::move(_name))
+        , traces()
+        , subscopes()
+        , parent()
     {
         // Nothing to do.
     }

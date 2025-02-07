@@ -53,7 +53,7 @@ int main(int, char **)
 
     // Waves (WAVE)
     // The sinusoid offset.
-    double offset = 0.0;
+    double offset    = 0.0;
     // The sinusoid amplitude.
     double amplitude = 1.0;
     // The sinusoid frequency.
@@ -117,7 +117,6 @@ int main(int, char **)
         vector += true;
 
         sine_wave = offset + amplitude * std::sin(2 * M_PI * frequency * time);
-
 
         // Update the trace.
         tracer.updateTrace(time);
