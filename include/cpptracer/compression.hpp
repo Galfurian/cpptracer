@@ -12,7 +12,10 @@
 #include <string>
 #include <zlib.h>
 
-namespace cpptracer::compression
+namespace cpptracer
+{
+
+namespace compression
 {
 
 /// Size of the buffer used for the compression.
@@ -113,6 +116,8 @@ std::string decompress(std::string const &str)
     return outstring;
 }
 
-} // namespace cpptracer::compression
+} // namespace compression
+
+} // namespace cpptracer
 
 #endif

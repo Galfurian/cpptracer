@@ -28,8 +28,8 @@ option(WARNINGS_AS_ERRORS "Treat all warnings as errors" OFF)
 
 option(ENABLE_COMPRESSION "Enables the option to compress VCD traces using zlib" OFF)
 
-option(BUILD_EXAMPLES "Build examples" OFF)
-option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_EXAMPLES "Build examples" ON)
+option(BUILD_TESTS "Build tests" ON)
 
 # -----------------------------------------------------------------------------
 # ENABLE FETCH CONTENT

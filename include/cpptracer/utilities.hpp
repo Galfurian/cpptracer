@@ -15,7 +15,10 @@
 #include <sys/types.h>
 #include <vector>
 
-namespace cpptracer::utility
+namespace cpptracer
+{
+
+namespace utility
 {
 
 /// @brief Creates a new directory at the given location.
@@ -144,4 +147,6 @@ inline std::string get_date_time()
     return str;
 }
 
-} // namespace cpptracer::utility
+} // namespace utility
+
+} // namespace cpptracer

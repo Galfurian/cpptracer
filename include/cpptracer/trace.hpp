@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "feq.hpp"
+#include "utilities.hpp"
 
 namespace cpptracer
 {
