@@ -21,7 +21,7 @@
 enum : unsigned char {
     CPPTRACER_MAJOR_VERSION = 3, ///< Major version of the library.
     CPPTRACER_MINOR_VERSION = 1, ///< Minor version of the library.
-    CPPTRACER_MICRO_VERSION = 0  ///< Micro version of the library.
+    CPPTRACER_MICRO_VERSION = 1  ///< Micro version of the library.
 };
 
 namespace cpptracer
