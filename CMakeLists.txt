@@ -22,11 +22,14 @@ endif()
 # -----------------------------------------------------------------------------
 # Add options.
 # -----------------------------------------------------------------------------
+
 option(STRICT_WARNINGS "Enable strict compiler warnings" ON)
 option(WARNINGS_AS_ERRORS "Treat all warnings as errors" OFF)
-option(BUILD_EXAMPLES "Build examples" OFF)
-option(BUILD_TESTS "Build tests" OFF)
+
 option(ENABLE_COMPRESSION "Enables the option to compress VCD traces using zlib" OFF)
+
+option(BUILD_EXAMPLES "Build examples" ON)
+option(BUILD_TESTS "Build tests" ON)
 
 # -----------------------------------------------------------------------------
 # ENABLE FETCH CONTENT
@@ -48,25 +51,27 @@ mark_as_advanced(FORCE
 
 find_package(Doxygen)
 
+find_program(CLANG_TIDY_EXE NAMES clang-tidy)
+
 # -----------------------------------------------------------------------------
 # LIBRARY
 # -----------------------------------------------------------------------------
 # Add the C++ library.
-add_library(cpptracer INTERFACE)
-add_library(cpptracer::cpptracer ALIAS cpptracer)
+add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 # Inlcude header directories.
-target_include_directories(cpptracer INTERFACE ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_DIR}/include)
 # Set compiler flags.
-target_compile_features(cpptracer INTERFACE cxx_std_17)
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 # If compression is enabled.
 if(ENABLE_COMPRESSION)
     # Find zlib for traces compression.
     find_package(ZLIB REQUIRED)
     if(ZLIB_FOUND)
         # Link zlib.
-        target_link_libraries(cpptracer INTERFACE ZLIB::ZLIB)
+        target_link_libraries(${PROJECT_NAME} INTERFACE ZLIB::ZLIB)
         # Add a define inside the code, so that we can activate the compression code.
-        target_compile_definitions(cpptracer INTERFACE ENABLE_COMPRESSION)
+        target_compile_definitions(${PROJECT_NAME} INTERFACE ENABLE_COMPRESSION)
     endif()
 endif()
 
@@ -77,40 +82,40 @@ endif()
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # Disable warnings for MSVC-specific "safe" functions like strcpy_s, etc.,
     # which are not portable and may clutter warning logs.
-    target_compile_definitions(cpptracer INTERFACE _CRT_SECURE_NO_WARNINGS)
+    target_compile_definitions(${PROJECT_NAME} INTERFACE _CRT_SECURE_NO_WARNINGS)
 
     # Disable warning C4702: unreachable code.
     add_compile_options(/wd4702)
 
     if(WARNINGS_AS_ERRORS)
         # Treat all warnings as errors to enforce stricter code quality.
-        target_compile_options(cpptracer INTERFACE /WX)
+        target_compile_options(${PROJECT_NAME} INTERFACE /WX)
     endif()
 
     if(STRICT_WARNINGS)
         # Enable external header management to suppress warnings in system and
         # external headers, making it easier to focus on project-specific issues.
-        target_compile_options(cpptracer INTERFACE /experimental:external)
-        target_compile_options(cpptracer INTERFACE /external:I ${CMAKE_BINARY_DIR})
-        target_compile_options(cpptracer INTERFACE /external:anglebrackets)
-        target_compile_options(cpptracer INTERFACE /external:W0)
+        target_compile_options(${PROJECT_NAME} INTERFACE /experimental:external)
+        target_compile_options(${PROJECT_NAME} INTERFACE /external:I ${CMAKE_BINARY_DIR})
+        target_compile_options(${PROJECT_NAME} INTERFACE /external:anglebrackets)
+        target_compile_options(${PROJECT_NAME} INTERFACE /external:W0)
 
         # Use a high warning level to catch as many potential issues as possible.
-        target_compile_options(cpptracer INTERFACE /W4)
+        target_compile_options(${PROJECT_NAME} INTERFACE /W4)
 
         # Enforce standards-compliant behavior to avoid relying on MSVC-specific extensions.
-        target_compile_options(cpptracer INTERFACE /permissive-)
+        target_compile_options(${PROJECT_NAME} INTERFACE /permissive-)
     endif()
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if(WARNINGS_AS_ERRORS)
         # Treat all warnings as errors to enforce stricter code quality.
-        target_compile_options(cpptracer INTERFACE -Werror)
+        target_compile_options(${PROJECT_NAME} INTERFACE -Werror)
     endif()
 
     if(STRICT_WARNINGS)
         # Enable a broad set of warnings to catch common and subtle issues:
-        target_compile_options(cpptracer INTERFACE
+        target_compile_options(${PROJECT_NAME} INTERFACE
             -Wall                # Enable most general-purpose warnings.
             -Wextra              # Enable extra warnings not included in -Wall.
             -Wconversion         # Warn about implicit type conversions that may lose data.
@@ -132,19 +137,19 @@ endif()
 if(BUILD_EXAMPLES)
 
     # Add the executable.
-    add_executable(cpptracer_compression ${PROJECT_SOURCE_DIR}/examples/compression.cpp)
-    target_link_libraries(cpptracer_compression cpptracer)
-    target_compile_definitions(cpptracer_compression PRIVATE _USE_MATH_DEFINES)
+    add_executable(${PROJECT_NAME}_compression ${PROJECT_SOURCE_DIR}/examples/compression.cpp)
+    target_link_libraries(${PROJECT_NAME}_compression ${PROJECT_NAME})
+    target_compile_definitions(${PROJECT_NAME}_compression PRIVATE _USE_MATH_DEFINES)
     
     # Add the executable.
-    add_executable(cpptracer_datatypes ${PROJECT_SOURCE_DIR}/examples/datatypes.cpp)
-    target_link_libraries(cpptracer_datatypes cpptracer)
-    target_compile_definitions(cpptracer_datatypes PRIVATE _USE_MATH_DEFINES)
+    add_executable(${PROJECT_NAME}_datatypes ${PROJECT_SOURCE_DIR}/examples/datatypes.cpp)
+    target_link_libraries(${PROJECT_NAME}_datatypes ${PROJECT_NAME})
+    target_compile_definitions(${PROJECT_NAME}_datatypes PRIVATE _USE_MATH_DEFINES)
 
     # Add the executable.
-    add_executable(cpptracer_scope ${PROJECT_SOURCE_DIR}/examples/scope.cpp)
-    target_link_libraries(cpptracer_scope cpptracer)
-    target_compile_definitions(cpptracer_scope PRIVATE _USE_MATH_DEFINES)
+    add_executable(${PROJECT_NAME}_scope ${PROJECT_SOURCE_DIR}/examples/scope.cpp)
+    target_link_libraries(${PROJECT_NAME}_scope ${PROJECT_NAME})
+    target_compile_definitions(${PROJECT_NAME}_scope PRIVATE _USE_MATH_DEFINES)
 
 endif()
 
@@ -158,12 +163,51 @@ if(BUILD_TESTS)
     enable_testing()
 
     # Add the executable.
-    add_executable(cpptracer_test_datatypes ${PROJECT_SOURCE_DIR}/tests/test_datatypes.cpp)
-    target_link_libraries(cpptracer_test_datatypes cpptracer)
-    target_compile_definitions(cpptracer_test_datatypes PRIVATE _USE_MATH_DEFINES)
-    add_test(NAME cpptracer_run_test_datatypes COMMAND cpptracer_test_datatypes)
+    add_executable(${PROJECT_NAME}_test_datatypes ${PROJECT_SOURCE_DIR}/tests/test_datatypes.cpp)
+    target_link_libraries(${PROJECT_NAME}_test_datatypes ${PROJECT_NAME})
+    target_compile_definitions(${PROJECT_NAME}_test_datatypes PRIVATE _USE_MATH_DEFINES)
+    add_test(NAME ${PROJECT_NAME}_run_test_datatypes COMMAND ${PROJECT_NAME}_test_datatypes)
 
 endif()
+
+# -----------------------------------------------------------------------------
+# CODE ANALYSIS
+# -----------------------------------------------------------------------------
+
+if(CLANG_TIDY_EXE)
+    file(GLOB_RECURSE PROJECT_HEADERS_AND_SOURCES
+        "${PROJECT_SOURCE_DIR}/include/**/*.hpp"
+        "${PROJECT_SOURCE_DIR}/include/**/*.hh"
+        "${PROJECT_SOURCE_DIR}/include/**/*.h"
+        "${PROJECT_SOURCE_DIR}/include/*.hpp"
+        "${PROJECT_SOURCE_DIR}/include/*.hh"
+        "${PROJECT_SOURCE_DIR}/include/*.h"
+        "${PROJECT_SOURCE_DIR}/src/**/*.cpp"
+        "${PROJECT_SOURCE_DIR}/src/**/*.cc"
+        "${PROJECT_SOURCE_DIR}/src/**/*.c"
+        "${PROJECT_SOURCE_DIR}/src/*.cpp"
+        "${PROJECT_SOURCE_DIR}/src/*.cc"
+        "${PROJECT_SOURCE_DIR}/src/*.c"
+    )
+    add_custom_target(
+        ${PROJECT_NAME}_clang_tidy
+        COMMAND ${CLANG_TIDY_EXE}
+        --p=${CMAKE_BINARY_DIR}
+        ${PROJECT_HEADERS_AND_SOURCES}
+        COMMENT "Running clang-tidy"
+        VERBATIM
+    )
+    add_custom_target(
+        ${PROJECT_NAME}_clang_tidy_fix
+        COMMAND ${CLANG_TIDY_EXE}
+        --fix --fix-errors
+        --p=${CMAKE_BINARY_DIR}
+        ${PROJECT_HEADERS_AND_SOURCES}
+        COMMENT "Running clang-tidy-fix"
+        VERBATIM
+    )
+endif()
+
 # -----------------------------------------------------------------------------
 # DOCUMENTATION
 # -----------------------------------------------------------------------------
@@ -225,20 +269,29 @@ if(DOXYGEN_FOUND)
         "${PROJECT_SOURCE_DIR}/tests/*"
         "${PROJECT_SOURCE_DIR}/examples/*"
     )
+    
+    file(GLOB_RECURSE PROJECT_HEADERS_AND_SOURCES
+        "${PROJECT_SOURCE_DIR}/include/**/*.hpp"
+        "${PROJECT_SOURCE_DIR}/include/**/*.hh"
+        "${PROJECT_SOURCE_DIR}/include/**/*.h"
+        "${PROJECT_SOURCE_DIR}/include/*.hpp"
+        "${PROJECT_SOURCE_DIR}/include/*.hh"
+        "${PROJECT_SOURCE_DIR}/include/*.h"
+        "${PROJECT_SOURCE_DIR}/src/**/*.cpp"
+        "${PROJECT_SOURCE_DIR}/src/**/*.cc"
+        "${PROJECT_SOURCE_DIR}/src/**/*.c"
+        "${PROJECT_SOURCE_DIR}/src/*.cpp"
+        "${PROJECT_SOURCE_DIR}/src/*.cc"
+        "${PROJECT_SOURCE_DIR}/src/*.c"
+    )
 
     # Add Doxygen documentation target
     doxygen_add_docs(
         cpptracer_documentation
         ${PROJECT_SOURCE_DIR}/README.md
         ${PROJECT_SOURCE_DIR}/LICENSE.md
-        ${PROJECT_SOURCE_DIR}/include/cpptracer/colors.hpp
-        ${PROJECT_SOURCE_DIR}/include/cpptracer/compression.hpp
-        ${PROJECT_SOURCE_DIR}/include/cpptracer/feq.hpp
-        ${PROJECT_SOURCE_DIR}/include/cpptracer/timeScale.hpp
-        ${PROJECT_SOURCE_DIR}/include/cpptracer/trace.hpp
-        ${PROJECT_SOURCE_DIR}/include/cpptracer/tracer.hpp
-        ${PROJECT_SOURCE_DIR}/include/cpptracer/utilities.hpp
-        COMMENT "Generating Doxygen documentation for the library"
+        ${PROJECT_HEADERS_AND_SOURCES}
+        COMMENT "Generating Doxygen documentation"
     )
 
 endif()

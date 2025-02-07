@@ -20,9 +20,8 @@ inline std::vector<bool> operator+(const std::vector<bool> &lhs, const std::vect
     size_t N1 = lhs.size(), N2 = rhs.size();
     bool carry = false;
     for (size_t it = 0; it < result.size(); ++it)
-        result[result.size() - it - 1] = add_bits(
-            (it < N1) ? lhs[N1 - it - 1] : false,
-            (it < N2) ? rhs[N2 - it - 1] : false, carry);
+        result[result.size() - it - 1] =
+            add_bits((it < N1) ? lhs[N1 - it - 1] : false, (it < N2) ? rhs[N2 - it - 1] : false, carry);
     return result;
 }
 
@@ -32,9 +31,8 @@ inline auto operator+(const std::array<bool, N1> &lhs, const std::array<bool, N2
     std::array<bool, std::max(N1, N2)> result;
     bool carry = false;
     for (size_t it = 0; it < result.size(); ++it)
-        result[result.size() - it - 1] = add_bits(
-            (it < N1) ? lhs[N1 - it - 1] : false,
-            (it < N2) ? rhs[N2 - it - 1] : false, carry);
+        result[result.size() - it - 1] =
+            add_bits((it < N1) ? lhs[N1 - it - 1] : false, (it < N2) ? rhs[N2 - it - 1] : false, carry);
     return result;
 }
 
@@ -64,7 +62,7 @@ int main(int, char **)
 
     // Waves (WAVE)
     // The sinusoid offset.
-    double offset = 0.0;
+    double offset    = 0.0;
     // The sinusoid amplitude.
     double amplitude = 1.0;
     // The sinusoid frequency.
@@ -76,17 +74,16 @@ int main(int, char **)
     bool _bool = false;
 
     // Vector.
-    std::vector<bool> stl_vector{ false, false, false, false };
+    std::vector<bool> stl_vector{false, false, false, false};
     // Array.
-    std::array<bool, 7> stl_array{ false, false, false, false, false, false, false };
+    std::array<bool, 7> stl_array{false, false, false, false, false, false, false};
 
     // Auxiliary variables.
-    std::vector<bool> stl_vector_one{ true };
-    std::array<bool, 1> stl_array_one{ true };
+    std::vector<bool> stl_vector_one{true};
+    std::array<bool, 1> stl_array_one{true};
 
     // Create the trace and add the variable to the trace.
     cpptracer::Tracer tracer("datatypes.vcd", timeStep, "root");
-
 
     // Add traces.
     auto long_double_trace = tracer.addTrace(_long_double, "long_double");

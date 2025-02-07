@@ -6,13 +6,16 @@
 
 #ifdef ENABLE_COMPRESSION
 
-#include <stdexcept>
-#include <sstream>
 #include <cstring>
+#include <sstream>
+#include <stdexcept>
 #include <string>
 #include <zlib.h>
 
-namespace cpptracer::compression
+namespace cpptracer
+{
+
+namespace compression
 {
 
 /// Size of the buffer used for the compression.
@@ -32,16 +35,12 @@ std::string compress(std::string const &str, int level = Z_BEST_COMPRESSION)
     std::memset(&zs, 0, sizeof(zs));
     // Add 16 to MAX_WBITS to specify gzip format - it gets taken off again
     // in defaultInit2.
-    if ((ret = deflateInit2(&zs, level,
-                            Z_DEFLATED,
-                            16 + MAX_WBITS,
-                            MAX_MEM_LEVEL,
-                            Z_DEFAULT_STRATEGY)) != Z_OK) {
+    if ((ret = deflateInit2(&zs, level, Z_DEFLATED, 16 + MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY)) != Z_OK) {
         std::ostringstream oss;
         oss << "Exception during zlib compression: (" << ret << ") " << zs.msg;
         throw(std::runtime_error(oss.str()));
     }
-    zs.next_in = (Bytef *)str.data();
+    zs.next_in  = (Bytef *)str.data();
     // set the z_stream's input
     zs.avail_in = static_cast<uInt>(str.size());
     // Create and set the gzip header.
@@ -101,8 +100,7 @@ std::string decompress(std::string const &str)
         ret = inflate(&zs, 0);
 
         if (outstring.size() < zs.total_out) {
-            outstring.append(outbuffer,
-                             zs.total_out - outstring.size());
+            outstring.append(outbuffer, zs.total_out - outstring.size());
         }
 
     } while (ret == Z_OK);
@@ -111,14 +109,15 @@ std::string decompress(std::string const &str)
 
     if (ret != Z_STREAM_END) { // an error occurred that was not EOF
         std::ostringstream oss;
-        oss << "Exception during zlib decompression: (" << ret << ") "
-            << zs.msg;
+        oss << "Exception during zlib decompression: (" << ret << ") " << zs.msg;
         throw(std::runtime_error(oss.str()));
     }
 
     return outstring;
 }
 
-} // namespace cpptracer::compression
+} // namespace compression
+
+} // namespace cpptracer
 
 #endif

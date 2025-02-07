@@ -15,17 +15,17 @@ int main(int, char **)
     double _double           = 1;
     float _float             = 1;
     // Unsigned (UINT)
-    std::uint64_t _uint64_t = 0;
-    std::uint32_t _uint32_t = 0;
-    std::uint16_t _uint16_t = 0;
-    std::uint8_t _uint8_t   = 0;
+    std::uint64_t _uint64_t  = 0;
+    std::uint32_t _uint32_t  = 0;
+    std::uint16_t _uint16_t  = 0;
+    std::uint8_t _uint8_t    = 0;
     // Signed (INT)
-    std::int64_t _int64_t = 0;
-    std::int32_t _int32_t = 0;
-    std::int16_t _int16_t = 0;
-    std::int8_t _int8_t   = 0;
+    std::int64_t _int64_t    = 0;
+    std::int32_t _int32_t    = 0;
+    std::int16_t _int16_t    = 0;
+    std::int8_t _int8_t      = 0;
     // Create the trace and add the variable to the trace.
-    cpptracer::Tracer tracer("compressed_trace.vcd", timeStep, "root");
+    cpptracer::Tracer tracer("trace_compression.vcd", timeStep, "root");
     // Enable the compression.
     tracer.enableCompression();
     // Add the traces.

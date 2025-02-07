@@ -4,44 +4,49 @@
 
 #pragma once
 
-#include "compression.hpp"
-#include "timeScale.hpp"
-#include "utilities.hpp"
 #include "colors.hpp"
+#include "compression.hpp"
 #include "scope.hpp"
+#include "timeScale.hpp"
 #include "trace.hpp"
+#include "utilities.hpp"
 
-#include <stdexcept>
-#include <iomanip> // std::setprecision
+#include <algorithm>
 #include <fstream> // std::ofstream
+#include <iomanip> // std::setprecision
+#include <stdexcept>
 #include <string>
+#include <utility>
 
-#define CPPTRACER_MAJOR_VERSION 3 ///< Major version of the library.
-#define CPPTRACER_MINOR_VERSION 0 ///< Minor version of the library.
-#define CPPTRACER_MICRO_VERSION 0 ///< Micro version of the library.
+enum : unsigned char {
+    CPPTRACER_MAJOR_VERSION = 3, ///< Major version of the library.
+    CPPTRACER_MINOR_VERSION = 1, ///< Minor version of the library.
+    CPPTRACER_MICRO_VERSION = 0  ///< Micro version of the library.
+};
 
 namespace cpptracer
 {
 
 /// @brief C++ variable tracer.
-class Tracer {
+class Tracer
+{
 private:
     /// Name of the trace file.
     std::string filename;
     /// The output buffer.
     std::ostringstream outbuffer;
     /// The root of the scopes.
-    Scope *root_scope;
+    std::shared_ptr<Scope> root_scope;
     /// Pointer to the current scope.
-    Scope *current_scope;
+    std::shared_ptr<Scope> current_scope;
     /// The timescale.
     TimeScale timescale;
     /// The timescale.
     TimeScale sampling;
     /// Identifies the first dump of the values.
-    bool first_dump;
+    bool first_dump{true};
     /// Next sampling time.
-    double next_sample;
+    double next_sample{};
 #ifdef ENABLE_COMPRESSION
     /// Enables traces compression.
     bool compress_traces = false;
@@ -58,43 +63,48 @@ public:
     /// @param _filename The name of the file.
     /// @param _timescale The timescale to use.
     /// @param root the name of the root scope.
-    Tracer(std::string _filename,
-           TimeScale const &_timescale,
-           std::string root)
-        : filename(std::move(_filename)),
-          outbuffer(),
-          root_scope(new Scope(root)),
-          current_scope(root_scope),
-          timescale(_timescale),
-          sampling(_timescale),
-          first_dump(true),
-          next_sample()
+    Tracer(std::string _filename, TimeScale const &_timescale, std::string root)
+        : filename(std::move(_filename))
+        , root_scope(std::make_shared<Scope>(std::move(root)))
+        , current_scope(root_scope)
+        , timescale(_timescale)
+        , sampling(_timescale)
+
     {
         root_scope->parent = root_scope;
     }
 
-    /// @brief Use the default move constructor.
-    /// @param other the other tracer.
-    Tracer(Tracer &&other) = default;
+    /// @brief Copy constructor.
+    /// @param other The other entity to copy.
+    Tracer(const Tracer &other) = delete;
+
+    /// @brief Move constructor.
+    /// @param other The other entity to move.
+    Tracer(Tracer &&other) noexcept = default;
+
+    /// @brief Copy assignment operator.
+    /// @param other The other entity to copy.
+    /// @return A reference to this object.
+    auto operator=(const Tracer &other) -> Tracer & = delete;
+
+    /// @brief Move assignment operator.
+    /// @param other The other entity to move.
+    /// @return A reference to this object.
+    auto operator=(Tracer &&other) noexcept -> Tracer & = default;
 
     /// @brief Destructor.
     ~Tracer()
     {
-        // Delete the traces.
-        delete root_scope;
         // Close the output file.
         this->closeTrace();
     }
 
     /// @brief Sets the sampling period.
     /// @param _sampling the sampling period.
-    inline void setSampling(TimeScale const &_sampling)
-    {
-        sampling = _sampling;
-    }
+    void setSampling(TimeScale const &_sampling) { sampling = _sampling; }
 
     /// @brief Activate compression, only if enabled.
-    inline void enableCompression()
+    static void enableCompression()
     {
 #ifdef ENABLE_COMPRESSION
         compress_traces = true;
@@ -113,11 +123,11 @@ public:
         outbuffer << "$end\n";
         outbuffer << "$version\n";
         if (version_text.empty()) {
-            outbuffer << "    Tracer "
-                      << CPPTRACER_MAJOR_VERSION << "."
-                      << CPPTRACER_MINOR_VERSION << "."
-                      << CPPTRACER_MICRO_VERSION
-                      << " - By Enrico Fraccaroli (Galfurian) <enry.frak@gmail.com>\n";
+            outbuffer << "    Tracer ";
+            outbuffer << static_cast<int>(CPPTRACER_MAJOR_VERSION) << ".";
+            outbuffer << static_cast<int>(CPPTRACER_MINOR_VERSION) << ".";
+            outbuffer << static_cast<int>(CPPTRACER_MICRO_VERSION);
+            outbuffer << " - By Enrico Fraccaroli (Galfurian) <enry.frak@gmail.com>\n";
         } else {
             outbuffer << version_text;
         }
@@ -135,18 +145,22 @@ public:
     /// @param scope_name the name of the new scope.
     void addScope(std::string scope_name)
     {
-        if (current_scope == nullptr)
+        if (!current_scope) {
             throw std::runtime_error("There is no current scope.");
-        if (current_scope->parent == nullptr)
+        }
+        // Lock the weak_ptr to get a shared_ptr to the parent.
+        auto parent = current_scope->parent.lock();
+        if (!parent) {
             throw std::runtime_error("Current scope has no parent.");
-        // Get the parent scope.
-        auto parent = current_scope->parent;
+        }
+
         // Create the new scope.
-        auto new_scope = new Scope(std::move(scope_name));
+        auto new_scope    = std::make_shared<Scope>(std::move(scope_name));
         // Set the parent of the new scope.
         new_scope->parent = parent;
         // Add the new scope to the parent.
         parent->subscopes.emplace_back(new_scope);
+
         // Set the current scope.
         current_scope = new_scope;
     }
@@ -155,27 +169,36 @@ public:
     /// @param scope_name the name of the new scope.
     void addSubScope(std::string scope_name)
     {
-        if (current_scope == nullptr)
+        if (!current_scope) {
             throw std::runtime_error("There is no current scope.");
+        }
+
         // Create the new scope.
-        auto new_scope = new Scope(std::move(scope_name));
+        auto new_scope    = std::make_shared<Scope>(std::move(scope_name));
         // Set the parent of the new scope.
         new_scope->parent = current_scope;
         // Add the new scope to the parent.
         current_scope->subscopes.emplace_back(new_scope);
+
         // Set the current scope.
         current_scope = new_scope;
     }
 
     /// @brief Closes the current scope.
-    inline void closeScope()
+    void closeScope()
     {
-        if (current_scope == nullptr)
+        if (!current_scope) {
             throw std::runtime_error("There is no current scope.");
-        if (current_scope->parent == nullptr)
+        }
+
+        // Lock the weak_ptr to get a shared_ptr to the parent.
+        auto parent = current_scope->parent.lock();
+        if (!parent) {
             throw std::runtime_error("Current scope has no parent.");
+        }
+
         // Set the parent scope as current scope.
-        current_scope = current_scope->parent;
+        current_scope = parent;
     }
 
     /// @brief Add a variable to the list of traces.
@@ -184,12 +207,13 @@ public:
     /// @param name the name of the trace.
     /// @return a pointer to the trace handler.
     template <typename T>
-    TraceWrapper<T> *addTrace(const T &variable, std::string name)
+    auto addTrace(const T &variable, std::string name) -> std::shared_ptr<TraceWrapper<T>>
     {
-        if (current_scope == nullptr)
+        if (current_scope == nullptr) {
             throw std::runtime_error("There is no current scope.");
-        TraceWrapper<T> *trace = new TraceWrapper<T>(std::move(name), std::to_string(traces_cout), &variable);
-        current_scope->traces.push_back(trace);
+        }
+        auto trace = std::make_shared<TraceWrapper<T>>(std::move(name), std::to_string(traces_cout), &variable);
+        current_scope->traces.emplace_back(trace);
         ++traces_cout;
         return trace;
     }
@@ -199,14 +223,15 @@ public:
     void updateTrace(const double &t)
     {
         // Write time.
-        if (first_dump)
+        if ((!this->changed()) || (next_sample > t)) {
+            return;
+        }
+        // Dump variables.
+        if (first_dump) {
             outbuffer << "$dumpvars\n";
-        else if (!this->changed())
-            return;
-        else if (next_sample > t)
-            return;
-        else
-            outbuffer << '#' << this->getScaledTime<uint64_t>(t) << "\n";
+        } else {
+            outbuffer << '#' << this->getScaledTime<unsigned long>(t) << "\n";
+        }
         // Write the values.
         this->updateTraceRecursive(root_scope);
         // Write the closure.
@@ -220,20 +245,18 @@ public:
 
     /// @brief Checks if some value has changed.
     /// @return true if at least one value has changed, false otherwise.
-    inline bool changed() const
-    {
-        return this->changedRecursive(root_scope);
-    }
+    auto changed() const -> bool { return this->changedRecursive(root_scope); }
 
     /// @brief Closes the trace file.
     /// @return true on success, false otherwise.
-    inline bool closeTrace()
+    auto closeTrace() -> bool
     {
-        if (outbuffer.str().empty())
+        if (outbuffer.str().empty()) {
             return true;
+        }
         // The output file.
         std::ofstream outfile;
-        if (this->isCompressionEnabled()) {
+        if (cpptracer::Tracer::isCompressionEnabled()) {
             outfile.open(filename + ".gz", std::ios_base::trunc);
         } else {
             outfile.open(filename, std::ios_base::trunc);
@@ -242,7 +265,7 @@ public:
             std::cerr << "Failed to open the trace file'" << filename << "'\n";
             return false;
         }
-        if (this->isCompressionEnabled()) {
+        if (cpptracer::Tracer::isCompressionEnabled()) {
 #ifdef ENABLE_COMPRESSION
             // Log the compression start.
             std::cout << KYEL << "Compressing traces..." << KRST << "\n";
@@ -256,11 +279,8 @@ public:
             saved -= utility::get_percent(compressed.capacity(), trace.capacity());
             // Log the compression statistics.
             std::cout << KYEL << "Compression completed " << KRST << "\n"
-                      << std::setprecision(2)
-                      << "Original size   = "
-                      << trace.capacity() << " bytes\n"
-                      << "Compressed size = "
-                      << compressed.capacity() << " bytes\n"
+                      << std::setprecision(2) << "Original size   = " << trace.capacity() << " bytes\n"
+                      << "Compressed size = " << compressed.capacity() << " bytes\n"
                       << "Saved space = " << saved << "%\n";
 #endif
         } else {
@@ -275,22 +295,16 @@ public:
 
     /// @brief Sets the version text to display in $version section
     /// @param _version_text the version text.
-    inline void setVersionText(std::string _version_text)
-    {
-        version_text = std::move(_version_text);
-    }
+    void setVersionText(std::string _version_text) { version_text = std::move(_version_text); }
 
     /// @brief Returns the time for the next sample.
     /// @return the time for the next sample.
-    inline double nextSampleTime() const
-    {
-        return next_sample;
-    }
+    auto nextSampleTime() const -> double { return next_sample; }
 
 private:
     /// @brief Checks if the compression is enabled.
     /// @return true if the compression is enabled, false otherwise.
-    inline bool isCompressionEnabled() const
+    static auto isCompressionEnabled() -> bool
     {
 #ifdef ENABLE_COMPRESSION
         return compress_traces;
@@ -303,14 +317,14 @@ private:
     /// @param t the input time.
     /// @return the scaled time.
     template <typename T>
-    inline T getScaledTime(long double const &t) const
+    auto getScaledTime(long double const &t) const -> T
     {
         return static_cast<T>(std::round(t / timescale.getTimeUnit().toValue()));
     }
 
     /// @brief Issue each trace to save the current value as `previous value`.
     /// @param scope the scope from which we start the update.
-    inline void updateTraceRecursive(Scope *scope)
+    void updateTraceRecursive(const std::shared_ptr<Scope> &scope)
     {
         for (auto const &trace : scope->traces) {
             if (trace->hasChanged() || first_dump) {
@@ -327,15 +341,15 @@ private:
 
     /// @brief Checks if at least one variable has changed inside/below a scope.
     /// @param scope the scope from which we start the check.
-    inline bool changedRecursive(Scope *scope) const
+    auto changedRecursive(const std::shared_ptr<Scope> &scope) const -> bool
     {
-        for (auto const &trace : scope->traces) {
-            if (trace->hasChanged())
-                return true;
+        auto trace_has_changed     = [](const auto &trace) { return trace->hasChanged(); };
+        auto subscopes_has_changed = [this](const auto &subscope) { return this->changedRecursive(subscope); };
+        if (std::any_of(scope->traces.begin(), scope->traces.end(), trace_has_changed)) {
+            return true;
         }
-        for (auto &subscope : scope->subscopes) {
-            if (this->changedRecursive(subscope))
-                return true;
+        if (std::any_of(scope->subscopes.begin(), scope->subscopes.end(), subscopes_has_changed)) {
+            return true;
         }
         return false;
     }
