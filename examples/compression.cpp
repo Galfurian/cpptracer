@@ -25,7 +25,7 @@ int main(int, char **)
     std::int16_t _int16_t    = 0;
     std::int8_t _int8_t      = 0;
     // Create the trace and add the variable to the trace.
-    cpptracer::Tracer tracer("compressed_trace.vcd", timeStep, "root");
+    cpptracer::Tracer tracer("trace_compression.vcd", timeStep, "root");
     // Enable the compression.
     tracer.enableCompression();
     // Add the traces.

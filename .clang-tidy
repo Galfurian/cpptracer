@@ -1,34 +1,36 @@
 ---
 Checks:
-- clang-diagnostic-*
-- clang-analyzer-*
-- altera-*
-- boost-*
-- bugprone-*
-- cert-*
-- cppcoreguidelines-*
-- google-*
-- llvm-*
-- modernize-*
-- performance-*
-- portability-*
-- readability-*
-- misc-braces-around-statements
-- -llvm-header-guard
-- -modernize-return-braced-init-list
-- -modernize-use-nodiscard
-- -modernize-type-traits
-- -bugprone-return-const-ref-from-parameter
-- -bugprone-easily-swappable-parameters
-- -altera-unroll-loops
-- -altera-struct-pack-align
-- -altera-id-dependent-backward-branch
-- -readability-non-const-parameter
-- -readability-magic-numbers
-- -readability-identifier-length
-- -google-runtime-int
-- -cppcoreguidelines-avoid-non-const-global-variables
-- -cppcoreguidelines-avoid-magic-numbers
+ # Essential diagnostic and static analysis
+ - clang-diagnostic-*
+ - clang-analyzer-*
+ # Common best practices and bug detection
+ - bugprone-*
+ - cert-*
+ - cppcoreguidelines-*
+ - modernize-*
+ - performance-*
+ - portability-*
+ - readability-*
+ # Specific checks for better maintainability and correctness
+ - misc-braces-around-statements
+ # Exclusions (removing unnecessary or restrictive checks)
+ - -altera-unroll-loops
+ - -altera-struct-pack-align
+ - -altera-id-dependent-backward-branch
+ - -llvm-header-guard
+ - -modernize-return-braced-init-list
+ - -modernize-use-nodiscard
+ - -modernize-type-traits
+ - -modernize-concat-nested-namespaces
+ - -bugprone-return-const-ref-from-parameter
+ - -bugprone-easily-swappable-parameters
+ - -readability-non-const-parameter
+ - -readability-magic-numbers
+ - -readability-identifier-length
+ - -google-runtime-int
+ - -cppcoreguidelines-avoid-non-const-global-variables
+ - -cppcoreguidelines-avoid-magic-numbers
+ - -cppcoreguidelines-avoid-do-while
 
 WarningsAsErrors: ''
 HeaderFileExtensions:
@@ -44,7 +46,7 @@ ImplementationFileExtensions:
 FormatStyle: none
 SystemHeaders: false
 HeaderFilterRegex: ''
-ExcludeHeaderFilterRegex: ''
+ExcludeHeaderFilterRegex: ('^/usr/.*' | '^/lib/.*')
 User: enrico
 CheckOptions:
   cert-dcl16-c.NewSuffixes: 'L;LL;LU;LLU'

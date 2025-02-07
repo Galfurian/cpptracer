@@ -17,7 +17,7 @@ int main(int, char **)
     std::int8_t _int8_t   = 0;
 
     // Create the trace and add the variable to the trace.
-    cpptracer::Tracer tracer("scope.vcd", timeStep, "CPP");
+    cpptracer::Tracer tracer("trace_scope.vcd", timeStep, "CPP");
 
     // The root scope is "CPP".
 

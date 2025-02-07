@@ -16,7 +16,7 @@ namespace cpptracer
 /// @return true if they are equal.
 /// @return false if they are different values.
 template <typename T>
-inline bool is_equal(T a, T b, double tolerance = 1e-09)
+inline auto is_equal(T a, T b, double tolerance = 1e-09) -> bool
 {
     T d = std::max(std::abs(a), std::abs(b));
     return static_cast<int>(d * 1e09) == 0 || (std::abs(a - b) / d) <= tolerance;

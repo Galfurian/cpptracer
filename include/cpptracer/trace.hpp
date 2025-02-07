@@ -31,38 +31,56 @@ public:
         // Nothing to do.
     }
 
+    /// @brief Copy constructor.
+    /// @param other The other entity to copy.
+    Trace(const Trace &other) = default;
+
+    /// @brief Move constructor.
+    /// @param other The other entity to move.
+    Trace(Trace &&other) noexcept = default;
+
+    /// @brief Copy assignment operator.
+    /// @param other The other entity to copy.
+    /// @return A reference to this object.
+    auto operator=(const Trace &other) -> Trace & = default;
+
+    /// @brief Move assignment operator.
+    /// @param other The other entity to move.
+    /// @return A reference to this object.
+    auto operator=(Trace &&other) noexcept -> Trace & = default;
+
     /// @brief Destructor.
     virtual ~Trace() = default;
 
     /// @brief Provides the name of the trace.
     /// @return the name of the trace.
-    inline const std::string &getName() const { return name; }
+    auto getName() const -> const std::string & { return name; }
 
     /// @brief Provides the symbol of the trace.
     /// @return the symbol of the trace.
-    inline const std::string &getSymbol() const { return symbol; }
+    auto getSymbol() const -> const std::string & { return symbol; }
 
     /// @brief Provides the $var of the trace.
     /// @return the $var of the trace.
-    virtual std::string getVar() const = 0;
+    virtual auto getVar() const -> std::string = 0;
 
     /// @brief Provides the current value of the trace.
     /// @return the current value of the trace.
-    virtual std::string getValue() const = 0;
+    virtual auto getValue() const -> std::string = 0;
 
     /// @brief Checks if the value has changed w.r.t. the previous one.
     /// @return <b>True</b> if the value has changed,<br>
     ///         <b>False</b> otherwise.
-    virtual bool hasChanged() const = 0;
+    virtual auto hasChanged() const -> bool = 0;
 
     /// @brief Updates the previous value with the current value.
     virtual void updatePrevious() = 0;
 
-protected:
+private:
     /// The name of the trace.
-    const std::string name;
+    std::string name;
     /// The symbol assigned to the trace.
-    const std::string symbol;
+    std::string symbol;
 };
 
 /// @brief Class used to store a trace of a specific type.
@@ -76,22 +94,17 @@ public:
     /// @brief The pointer type of the traced variable.
     using pointer_type = const T *;
 
-    /// A pointer to the variable that has to be traced.
-    pointer_type ptr;
-    /// Previous value of the trace.
-    value_type previous;
-
     /// @brief Constructor.
     /// @param _name the name of the trace.
     /// @param _symbol the symbol to assign.
     /// @param _ptr pointer to the variable.
     /// @param _precision the desired output precision.
-    TraceWrapper(std::string _name, std::string _symbol, pointer_type _ptr, unsigned _precision = 32)
+    TraceWrapper(std::string _name, std::string _symbol, pointer_type _ptr, int _precision = 32)
         : Trace(std::move(_name), std::move(_symbol))
         , ptr(_ptr)
         , previous()
         , precision(_precision)
-        , tolerance()
+
     {
         if constexpr (std::is_same<T, float>::value) {
             tolerance = 1e-09;
@@ -102,29 +115,51 @@ public:
         }
     }
 
+    /// @brief Copy constructor.
+    /// @param other The other entity to copy.
+    TraceWrapper(const TraceWrapper &other) = default;
+
+    /// @brief Move constructor.
+    /// @param other The other entity to move.
+    TraceWrapper(TraceWrapper &&other) noexcept = default;
+
+    /// @brief Copy assignment operator.
+    /// @param other The other entity to copy.
+    /// @return A reference to this object.
+    auto operator=(const TraceWrapper &other) -> TraceWrapper & = default;
+
+    /// @brief Move assignment operator.
+    /// @param other The other entity to move.
+    /// @return A reference to this object.
+    auto operator=(TraceWrapper &&other) noexcept -> TraceWrapper & = default;
+
     ~TraceWrapper() override = default;
 
-    std::string getVar() const override;
+    auto getVar() const -> std::string override;
 
-    std::string getValue() const override;
+    auto getValue() const -> std::string override;
 
-    bool hasChanged() const override;
+    auto hasChanged() const -> bool override;
 
     void updatePrevious() override { previous = (*ptr); }
 
     /// @brief Changes the output precision for floating point values.
     /// @param _precision the desired output precision.
-    void setPrecision(unsigned _precision) { precision = _precision; }
+    void setPrecision(int _precision) { precision = _precision; }
 
     /// @brief Sets the tollerance for checking equality between floating point values.
     /// @param _tolerance the tollerance for checking equality.
     void setTolerance(double _tolerance) { tolerance = _tolerance; }
 
 private:
+    /// A pointer to the variable that has to be traced.
+    pointer_type ptr;
+    /// Previous value of the trace.
+    value_type previous;
     /// The floating point precision.
-    unsigned precision;
+    int precision;
     /// The tolerance used to check if two floating point values are equal.
-    double tolerance;
+    double tolerance{};
 };
 
 /// @brief Specialization for bool arrays.
@@ -154,13 +189,31 @@ public:
     {
     }
 
+    /// @brief Copy constructor.
+    /// @param other The other entity to copy.
+    TraceWrapper(const TraceWrapper &other) = default;
+
+    /// @brief Move constructor.
+    /// @param other The other entity to move.
+    TraceWrapper(TraceWrapper &&other) noexcept = default;
+
+    /// @brief Copy assignment operator.
+    /// @param other The other entity to copy.
+    /// @return A reference to this object.
+    auto operator=(const TraceWrapper &other) -> TraceWrapper & = default;
+
+    /// @brief Move assignment operator.
+    /// @param other The other entity to move.
+    /// @return A reference to this object.
+    auto operator=(TraceWrapper &&other) noexcept -> TraceWrapper & = default;
+
     ~TraceWrapper() override = default;
 
-    std::string getVar() const override;
+    auto getVar() const -> std::string override;
 
-    std::string getValue() const override;
+    auto getValue() const -> std::string override;
 
-    bool hasChanged() const override;
+    auto hasChanged() const -> bool override;
 
     void updatePrevious() override { previous = (*ptr); }
 };
@@ -168,182 +221,186 @@ public:
 // ----------------------------------------------------------------------------
 // Provides specific definition.
 template <>
-inline std::string TraceWrapper<bool>::getVar() const
+auto TraceWrapper<bool>::getVar() const -> std::string
 {
-    return "$var integer 1 " + symbol + " " + name + " $end\n";
+    return "$var integer 1 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
-inline std::string TraceWrapper<int8_t>::getVar() const
+auto TraceWrapper<int8_t>::getVar() const -> std::string
 {
-    return "$var integer  8 " + symbol + " " + name + " $end\n";
+    return "$var integer  8 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
-inline std::string TraceWrapper<int16_t>::getVar() const
+auto TraceWrapper<int16_t>::getVar() const -> std::string
 {
-    return "$var integer 16 " + symbol + " " + name + " $end\n";
+    return "$var integer 16 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
-inline std::string TraceWrapper<int32_t>::getVar() const
+auto TraceWrapper<int32_t>::getVar() const -> std::string
 {
-    return "$var integer 32 " + symbol + " " + name + " $end\n";
+    return "$var integer 32 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
-inline std::string TraceWrapper<int64_t>::getVar() const
+auto TraceWrapper<int64_t>::getVar() const -> std::string
 {
-    return "$var integer 64 " + symbol + " " + name + " $end\n";
+    return "$var integer 64 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
-inline std::string TraceWrapper<uint8_t>::getVar() const
+auto TraceWrapper<uint8_t>::getVar() const -> std::string
 {
-    return "$var integer  8 " + symbol + " " + name + " $end\n";
+    return "$var integer  8 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
-inline std::string TraceWrapper<uint16_t>::getVar() const
+auto TraceWrapper<uint16_t>::getVar() const -> std::string
 {
-    return "$var integer 16 " + symbol + " " + name + " $end\n";
+    return "$var integer 16 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
-inline std::string TraceWrapper<uint32_t>::getVar() const
+auto TraceWrapper<uint32_t>::getVar() const -> std::string
 {
-    return "$var integer 32 " + symbol + " " + name + " $end\n";
+    return "$var integer 32 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
-inline std::string TraceWrapper<uint64_t>::getVar() const
+auto TraceWrapper<uint64_t>::getVar() const -> std::string
 {
-    return "$var integer 64 " + symbol + " " + name + " $end\n";
+    return "$var integer 64 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
-inline std::string TraceWrapper<float>::getVar() const
+auto TraceWrapper<float>::getVar() const -> std::string
 {
-    return "$var real 32 " + symbol + " " + name + " $end\n";
+    return "$var real 32 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
-inline std::string TraceWrapper<double>::getVar() const
+auto TraceWrapper<double>::getVar() const -> std::string
 {
-    return "$var real 64 " + symbol + " " + name + " $end\n";
+    return "$var real 64 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
-inline std::string TraceWrapper<long double>::getVar() const
+auto TraceWrapper<long double>::getVar() const -> std::string
 {
-    return "$var real 64 " + symbol + " " + name + " $end\n";
+    return "$var real 64 " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <>
-inline std::string TraceWrapper<std::vector<bool>>::getVar() const
+auto TraceWrapper<std::vector<bool>>::getVar() const -> std::string
 {
-    return "$var wire " + std::to_string(ptr->size()) + " " + symbol + " " + name + " $end\n";
+    return "$var wire " + std::to_string(ptr->size()) + " " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 template <std::size_t N>
-inline std::string TraceWrapper<std::array<bool, N>>::getVar() const
+auto TraceWrapper<std::array<bool, N>>::getVar() const -> std::string
 {
-    return "$var wire " + std::to_string(N) + " " + symbol + " " + name + " $end\n";
+    return "$var wire " + std::to_string(N) + " " + this->getSymbol() + " " + this->getName() + " $end\n";
 }
 
 // ----------------------------------------------------------------------------
 // Provides specific changing check.
 template <>
-inline bool TraceWrapper<bool>::hasChanged() const
+auto TraceWrapper<bool>::hasChanged() const -> bool
 {
     return (previous != (*ptr));
 }
 
 template <>
-inline bool TraceWrapper<int8_t>::hasChanged() const
+auto TraceWrapper<int8_t>::hasChanged() const -> bool
 {
     return (previous != (*ptr));
 }
 
 template <>
-inline bool TraceWrapper<int16_t>::hasChanged() const
+auto TraceWrapper<int16_t>::hasChanged() const -> bool
 {
     return (previous != (*ptr));
 }
 
 template <>
-inline bool TraceWrapper<int32_t>::hasChanged() const
+auto TraceWrapper<int32_t>::hasChanged() const -> bool
 {
     return (previous != (*ptr));
 }
 
 template <>
-inline bool TraceWrapper<int64_t>::hasChanged() const
+auto TraceWrapper<int64_t>::hasChanged() const -> bool
 {
     return (previous != (*ptr));
 }
 
 template <>
-inline bool TraceWrapper<uint8_t>::hasChanged() const
+auto TraceWrapper<uint8_t>::hasChanged() const -> bool
 {
     return (previous != (*ptr));
 }
 
 template <>
-inline bool TraceWrapper<uint16_t>::hasChanged() const
+auto TraceWrapper<uint16_t>::hasChanged() const -> bool
 {
     return (previous != (*ptr));
 }
 
 template <>
-inline bool TraceWrapper<uint32_t>::hasChanged() const
+auto TraceWrapper<uint32_t>::hasChanged() const -> bool
 {
     return (previous != (*ptr));
 }
 
 template <>
-inline bool TraceWrapper<uint64_t>::hasChanged() const
+auto TraceWrapper<uint64_t>::hasChanged() const -> bool
 {
     return (previous != (*ptr));
 }
 
 template <>
-inline bool TraceWrapper<float>::hasChanged() const
+auto TraceWrapper<float>::hasChanged() const -> bool
 {
     return !is_equal(previous, (*ptr), tolerance);
 }
 
 template <>
-inline bool TraceWrapper<double>::hasChanged() const
+auto TraceWrapper<double>::hasChanged() const -> bool
 {
     return !is_equal(previous, (*ptr), tolerance);
 }
 
 template <>
-inline bool TraceWrapper<long double>::hasChanged() const
+auto TraceWrapper<long double>::hasChanged() const -> bool
 {
     return !is_equal(previous, (*ptr), tolerance);
 }
 
 template <>
-inline bool TraceWrapper<std::vector<bool>>::hasChanged() const
+auto TraceWrapper<std::vector<bool>>::hasChanged() const -> bool
 {
-    auto it_prev = previous.cbegin(), it_curr = ptr->cbegin();
+    auto it_prev = previous.cbegin();
+    auto it_curr = ptr->cbegin();
     while ((it_prev != previous.cend()) && (it_curr != ptr->cend())) {
-        if ((*it_curr) != (*it_prev))
+        if ((*it_curr) != (*it_prev)) {
             return true;
+        }
         ++it_prev, ++it_curr;
     }
     return false;
 }
 
 template <std::size_t N>
-inline bool TraceWrapper<std::array<bool, N>>::hasChanged() const
+auto TraceWrapper<std::array<bool, N>>::hasChanged() const -> bool
 {
-    auto it_prev = previous.cbegin(), it_curr = ptr->cbegin();
+    auto it_prev = previous.cbegin();
+    auto it_curr = ptr->cbegin();
     while ((it_prev != previous.cend()) && (it_curr != ptr->cend())) {
-        if ((*it_curr) != (*it_prev))
+        if ((*it_curr) != (*it_prev)) {
             return true;
+        }
         ++it_prev, ++it_curr;
     }
     return false;
@@ -352,93 +409,93 @@ inline bool TraceWrapper<std::array<bool, N>>::hasChanged() const
 // ----------------------------------------------------------------------------
 // Provides specific values.
 template <>
-inline std::string TraceWrapper<bool>::getValue() const
+auto TraceWrapper<bool>::getValue() const -> std::string
 {
-    return std::string((*ptr) ? "b1" : "b0") + symbol + "\n";
+    return std::string((*ptr) ? "b1" : "b0") + this->getSymbol() + "\n";
 }
 
 template <>
-inline std::string TraceWrapper<int8_t>::getValue() const
+auto TraceWrapper<int8_t>::getValue() const -> std::string
 {
-    return "b" + utility::dec_to_binary(*ptr, int8_t(8)) + " " + symbol + "\n";
+    return "b" + utility::dec_to_binary(*ptr, int8_t(8)) + " " + this->getSymbol() + "\n";
 }
 
 template <>
-inline std::string TraceWrapper<int16_t>::getValue() const
+auto TraceWrapper<int16_t>::getValue() const -> std::string
 {
-    return "b" + utility::dec_to_binary(*ptr, int16_t(16)) + " " + symbol + "\n";
+    return "b" + utility::dec_to_binary(*ptr, int16_t(16)) + " " + this->getSymbol() + "\n";
 }
 
 template <>
-inline std::string TraceWrapper<int32_t>::getValue() const
+auto TraceWrapper<int32_t>::getValue() const -> std::string
 {
-    return "b" + utility::dec_to_binary(*ptr, int32_t(32)) + " " + symbol + "\n";
+    return "b" + utility::dec_to_binary(*ptr, int32_t(32)) + " " + this->getSymbol() + "\n";
 }
 
 template <>
-inline std::string TraceWrapper<int64_t>::getValue() const
+auto TraceWrapper<int64_t>::getValue() const -> std::string
 {
-    return "b" + utility::dec_to_binary(*ptr, int64_t(64)) + " " + symbol + "\n";
+    return "b" + utility::dec_to_binary(*ptr, int64_t(64)) + " " + this->getSymbol() + "\n";
 }
 
 template <>
-inline std::string TraceWrapper<uint8_t>::getValue() const
+auto TraceWrapper<uint8_t>::getValue() const -> std::string
 {
-    return "b" + utility::dec_to_binary(*ptr, uint8_t(8)) + " " + symbol + "\n";
+    return "b" + utility::dec_to_binary(*ptr, uint8_t(8)) + " " + this->getSymbol() + "\n";
 }
 
 template <>
-inline std::string TraceWrapper<uint16_t>::getValue() const
+auto TraceWrapper<uint16_t>::getValue() const -> std::string
 {
-    return "b" + utility::dec_to_binary(*ptr, uint16_t(16)) + " " + symbol + "\n";
+    return "b" + utility::dec_to_binary(*ptr, uint16_t(16)) + " " + this->getSymbol() + "\n";
 }
 
 template <>
-inline std::string TraceWrapper<uint32_t>::getValue() const
+auto TraceWrapper<uint32_t>::getValue() const -> std::string
 {
-    return "b" + utility::dec_to_binary(*ptr, uint32_t(32)) + " " + symbol + "\n";
+    return "b" + utility::dec_to_binary(*ptr, uint32_t(32)) + " " + this->getSymbol() + "\n";
 }
 
 template <>
-inline std::string TraceWrapper<uint64_t>::getValue() const
+auto TraceWrapper<uint64_t>::getValue() const -> std::string
 {
-    return "b" + utility::dec_to_binary(*ptr, uint64_t(64)) + " " + symbol + "\n";
+    return "b" + utility::dec_to_binary(*ptr, uint64_t(64)) + " " + this->getSymbol() + "\n";
 }
 
 template <>
-inline std::string TraceWrapper<float>::getValue() const
+auto TraceWrapper<float>::getValue() const -> std::string
 {
-    char buffer[512] = {0};
-    snprintf(buffer, 512, "r%.*e %s\n", precision, *ptr, symbol.c_str());
-    return std::string(buffer);
+    std::ostringstream oss;
+    oss << std::scientific << std::setprecision(precision) << "r" << *ptr << " " << this->getSymbol() << "\n";
+    return oss.str();
 }
 
 template <>
-inline std::string TraceWrapper<double>::getValue() const
+auto TraceWrapper<double>::getValue() const -> std::string
 {
-    char buffer[512] = {0};
-    snprintf(buffer, 512, "r%.*e %s\n", precision, *ptr, symbol.c_str());
-    return std::string(buffer);
+    std::ostringstream oss;
+    oss << std::scientific << std::setprecision(precision) << "r" << *ptr << " " << this->getSymbol() << "\n";
+    return oss.str();
 }
 
 template <>
-inline std::string TraceWrapper<long double>::getValue() const
+auto TraceWrapper<long double>::getValue() const -> std::string
 {
-    char buffer[512] = {0};
-    snprintf(buffer, 512, "r%.*Le %s\n", precision, *ptr, symbol.c_str());
-    return std::string(buffer);
+    std::ostringstream oss;
+    oss << std::scientific << std::setprecision(precision) << "r" << *ptr << " " << this->getSymbol() << "\n";
+    return oss.str();
 }
 
 template <>
-inline std::string TraceWrapper<std::vector<bool>>::getValue() const
+auto TraceWrapper<std::vector<bool>>::getValue() const -> std::string
 {
-    return "b" + utility::vector_to_binary(*ptr) + " " + symbol + "\n";
+    return "b" + utility::vector_to_binary(*ptr) + " " + this->getSymbol() + "\n";
 }
 
 template <std::size_t N>
-inline std::string TraceWrapper<std::array<bool, N>>::getValue() const
+auto TraceWrapper<std::array<bool, N>>::getValue() const -> std::string
 {
-    return "b" + utility::array_to_binary(*ptr) + " " + symbol + "\n";
+    return "b" + utility::array_to_binary(*ptr) + " " + this->getSymbol() + "\n";
 }
 
 } // namespace cpptracer
