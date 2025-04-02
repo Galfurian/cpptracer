@@ -1,0 +1,40 @@
+site_name: C++ Variable Tracer
+repo_name: CPPTracer
+repo_url: https://github.com/Galfurian/cpptracer.git
+theme:
+  name: material
+  primary: slate
+  palette:
+  # Palette toggle for light mode
+  - scheme: default
+    toggle:
+      icon: material/brightness-7
+      name: Switch to dark mode
+  # Palette toggle for dark mode
+  - scheme: slate
+    toggle:
+      icon: material/brightness-4
+      name: Switch to light mode
+  language: en
+  icon:
+    repo: fontawesome/brands/git-alt
+  features:
+  - navigation.instant
+  - navigation.instant.prefetch
+  features:
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate 
+plugins:
+  - search
+nav:
+  - Home: index.md
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
